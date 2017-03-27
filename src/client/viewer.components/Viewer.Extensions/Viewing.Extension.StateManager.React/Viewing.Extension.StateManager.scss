@@ -1,0 +1,178 @@
+.state-manager .title {
+  float: left;
+}
+
+.state-manager .title > label {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  white-space: nowrap;
+  font-weight: normal;
+  user-select: none;
+  margin-left: 27px;
+  margin-top: 10px;
+  select: none;
+  width: 80px;
+}
+
+.state-manager .content > .controls {
+  margin: 10px 10px 0px 10px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  height: 62px;
+  width: 100%;
+}
+
+.state-manager .content > .controls > .dropdown {
+  width: calc(100% - 164px);
+  margin-bottom: 6px;
+  float: left;
+}
+
+.state-manager .content > .controls > .dropdown > button {
+  height: 26px;
+  width: 100%;
+  padding: 0;
+}
+
+.state-manager .content > .controls > button {
+  background: whitesmoke;
+  border-radius: 4px;
+  margin-left: 4px;
+  outline: none;
+  height: 26px;
+  width: 68px;
+  float: left;
+}
+
+.state-manager .content > .controls > button > span {
+  position: relative;
+  font-size: 20px;
+  color: #9b9b9b;
+  top: -1px;
+}
+
+.state-manager .content > .controls > button:hover > span {
+  color: #FF9800;
+}
+
+.state-manager .content > .controls > label {
+  margin: 4px 10px 0 10px;
+  font-weight: normal;
+  float: left;
+}
+
+.state-manager .content > .controls > .state-name-input {
+  border: 1px solid #aeaeae;
+  width: calc(100% - 236px);
+  padding: 3px 0 0 10px;
+  white-space: nowrap;
+  border-radius: 4px;
+  text-align: left;
+  overflow: hidden;
+  height: 26px;
+  float: left;
+}
+
+.state-manager .items {
+  height: calc(100% - 92px);
+  overflow: scroll;
+  margin: 4px;
+}
+
+.state-manager .items > .item {
+  transition-timing-function: ease;
+  transition-duration: 1.5s;
+  transition-property: all;
+  transition-delay: 0.0s;
+
+  border: 1px solid #aeaeae;
+  width: calc(100% - 10px);
+  background: #ededed;
+  white-space: nowrap;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  height: 26px;
+  padding: 2px;
+  margin: 5px;
+}
+
+.state-manager .items > .item:hover {
+  background: rgba(0, 105, 245, 0.35);
+  border: 1px solid #1bb1f4;
+}
+
+.state-manager .items > .item > div {
+  width: calc(100% - 50px);
+  pointer-events: none;
+  position: relative;
+  margin: 0 0 0 12px;
+  float: left;
+}
+
+.state-manager .items > .item > div > .label {
+  font-weight: normal;
+  font-size: small;
+  color: black;
+  width: 100%;
+}
+
+.state-manager .items > .item > button {
+  transition-timing-function: ease;
+  transition-duration: 1.5s;
+  transition-property: all;
+  transition-delay: 0.0s;
+
+  background: #f58b00;
+  border-radius: 4px;
+  position: relative;
+  outline: none;
+  float: right;
+  height: 20px;
+  right: 1px;
+}
+
+.state-manager .items > .item > button:hover {
+  background: #ff9000;
+}
+
+.state-manager .items > .item > button > span {
+  transition-timing-function: ease;
+  transition-duration: 1.5s;
+  transition-property: all;
+  transition-delay: 0.0s;
+
+  position: relative;
+  color: #505050;
+  top: -4px;
+}
+
+.state-manager .items > .item > button:hover > span {
+  color: #000000;
+}
+
+/////////////////////////////////////////////////////////
+// Sequence Name dialog
+//
+/////////////////////////////////////////////////////////
+.state-manager-dlg {
+  left: calc(50% - 150px) !important;
+  top: calc(40% - 100px) !important;
+  height: 116px !important;
+  width: 300px !important;
+}
+
+.state-manager-dlg > .content .sequence-name-input {
+  border: 1px solid #aeaeae;
+  width: calc(100% - 236px);
+  padding: 3px 0 0 10px;
+  font-weight: normal;
+  white-space: nowrap;
+  border-radius: 4px;
+  text-align: left;
+  overflow: hidden;
+  height: 26px;
+  width: 100%;
+}

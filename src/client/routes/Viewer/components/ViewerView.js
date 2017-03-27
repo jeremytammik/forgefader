@@ -1,3 +1,4 @@
+import 'Viewing.Extension.Fader'
 import Viewer from 'Viewer'
 import './ViewerView.scss'
 import React from 'react'
@@ -155,6 +156,8 @@ class ViewerView extends React.Component {
         viewer.start()
 
         viewer.loadModel(path)
+
+        viewer.loadExtension('Viewing.Extension.Fader')
 
       } catch (ex) {
 
