@@ -86,7 +86,7 @@ class FaderExtension extends ExtensionBase {
   }
 
   /////////////////////////////////////////////////////////////////
-  //
+  // onGeometryLoaded - retrieve all wall meshes
   //
   /////////////////////////////////////////////////////////////////
   onGeometryLoaded (event) {
@@ -126,7 +126,7 @@ class FaderExtension extends ExtensionBase {
         this.pointer.canvasY,
         true)
 
-      console.log(data)
+      this.attenuationCalculator(data)
 
       // console.log(this.viewer.model)
       // var instanceTree = this.viewer.model.getData().instanceTree
@@ -163,6 +163,11 @@ class FaderExtension extends ExtensionBase {
   //   getWallsRec(instanceTree.getRootId())
   // }
 
+  attenuationCalculator(data)
+  {
+    console.log(data)
+
+  }
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
