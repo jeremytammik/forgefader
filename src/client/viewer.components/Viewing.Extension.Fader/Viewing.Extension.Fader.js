@@ -107,8 +107,6 @@ class FaderExtension extends ExtensionBase {
         })
       }
     })
-    
-    //this.retrieve_walls()
   }
 
   /////////////////////////////////////////////////////////////////
@@ -129,40 +127,41 @@ class FaderExtension extends ExtensionBase {
         true)
 
       console.log(data)
-      console.log(this.viewer.model)
-      var instanceTree = this.viewer.model.getData().instanceTree
-      console.log(instanceTree)
-      var rootId = instanceTree.getRootId()
-      console.log(rootId)
-      debugger;
-      this.retrieve_walls(instanceTree)
+
+      // console.log(this.viewer.model)
+      // var instanceTree = this.viewer.model.getData().instanceTree
+      // console.log(instanceTree)
+      // var rootId = instanceTree.getRootId()
+      // console.log(rootId)
+      // debugger;
+      // this.retrieve_walls(instanceTree)
 
     }
   }
 
-  retrieve_walls(instanceTree)
-  {
-    let wallIds = []
+  // retrieve_walls(instanceTree)
+  // {
+  //   let wallIds = []
     
-    const getWallsRec = (id) => {
+  //   const getWallsRec = (id) => {
 
-      var childCount = 0;
+  //     var childCount = 0;
 
-      instanceTree.enumNodeChildren(id, (childId) => {
+  //     instanceTree.enumNodeChildren(id, (childId) => {
 
-          getWallsRec(childId)
+  //         getWallsRec(childId)
 
-          ++childCount
-        })
+  //         ++childCount
+  //       })
 
-      if (childCount == 0 ) {
+  //     if (childCount == 0 ) {
 
-        wallIds.push(id)
-      }
-    }
+  //       wallIds.push(id)
+  //     }
+  //   }
 
-    getWallsRec(instanceTree.getRootId())
-  }
+  //   getWallsRec(instanceTree.getRootId())
+  // }
 
 }
 
