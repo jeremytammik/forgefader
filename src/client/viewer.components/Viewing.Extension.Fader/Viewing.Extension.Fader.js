@@ -93,8 +93,19 @@ class FaderExtension extends ExtensionBase {
     console.log('onGeometryLoaded')
     const instanceTree = this.viewer.model.getData().instanceTree
     var rootId = instanceTree.getRootId()
-    instanceTree.enumNodeChildren(rootId, (childId) => {
-      console.log(instanceTree.getNodeName(childId))
+    instanceTree.enumNodeChildren(rootId, async(childId) => {
+      const nodeName = instanceTree.getNodeName(childId)
+      if (nodeName === 'Walls') {
+
+        const fragIds = await Toolkit.getFragIds(this.viewer.model, childId)
+
+        console.log(fragIds)
+
+        this.wallProxies = fragIds.map((fragId) => {
+
+          return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+        })
+      }
     })
     
     //this.retrieve_walls()
