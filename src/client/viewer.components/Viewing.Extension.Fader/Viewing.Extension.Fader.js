@@ -45,8 +45,9 @@ class FaderExtension extends ExtensionBase {
       this.onSelection)
 
     this.viewer.addEventListener(
-      Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
-      this.onGeometryLoaded)
+      //Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
+      Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
+      () => this.onGeometryLoaded())
 
     // this.viewer.setProgressiveRendering(true)
     // this.viewer.setQualityLevel(false, true)
@@ -55,6 +56,8 @@ class FaderExtension extends ExtensionBase {
     // this.viewer.setLightPreset(1)
 
     console.log('Viewing.Extension.Fader')
+
+    //this.wallIds=[] // initialise in onGeometryLoaded
 
     return true
   }
@@ -75,7 +78,8 @@ class FaderExtension extends ExtensionBase {
   unload () {
 
     this.viewer.removeEventListener(
-      Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+      //Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
+      Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
       this.onGeometryLoaded)
 
     return true
@@ -86,7 +90,14 @@ class FaderExtension extends ExtensionBase {
   //
   /////////////////////////////////////////////////////////////////
   onGeometryLoaded (event) {
-
+    console.log('onGeometryLoaded')
+    const instanceTree = this.viewer.model.getData().instanceTree
+    var rootId = instanceTree.getRootId()
+    instanceTree.enumNodeChildren(rootId, (childId) => {
+      console.log(instanceTree.getNodeName(childId))
+    })
+    
+    //this.retrieve_walls()
   }
 
   /////////////////////////////////////////////////////////////////
@@ -107,8 +118,41 @@ class FaderExtension extends ExtensionBase {
         true)
 
       console.log(data)
+      console.log(this.viewer.model)
+      var instanceTree = this.viewer.model.getData().instanceTree
+      console.log(instanceTree)
+      var rootId = instanceTree.getRootId()
+      console.log(rootId)
+      debugger;
+      this.retrieve_walls(instanceTree)
+
     }
   }
+
+  retrieve_walls(instanceTree)
+  {
+    let wallIds = []
+    
+    const getWallsRec = (id) => {
+
+      var childCount = 0;
+
+      instanceTree.enumNodeChildren(id, (childId) => {
+
+          getWallsRec(childId)
+
+          ++childCount
+        })
+
+      if (childCount == 0 ) {
+
+        wallIds.push(id)
+      }
+    }
+
+    getWallsRec(instanceTree.getRootId())
+  }
+
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
