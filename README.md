@@ -1,36 +1,19 @@
-![banner](./resources/img/banner.png)
+# ForgeFader
 
-# About Forge React Boiler
+A Forge viewer extension to calculate and display signal attenuation caused by distance and obstacles in a building model with a floor plan containing walls.
 
-A boilerplate project to quickly get started using [Autodesk Forge Platform](https://forge.autodesk.com/)
-Web Services in a modern React + Node.js Web Application.
-The base project is initially derived from the [React Redux Starter Kit](https://github.com/davezuko/react-redux-starter-kit).
+It implements a functionality similar to [RvtFader](https://github.com/jeremytammik/RvtFader):
 
- * Main components of the Frontend:
+Two signal attenuation values in decibels are defined in the application settings:
 
-  [React](https://facebook.github.io/react/) + [Redux](https://github.com/reactjs/redux)
+- Attenuation per metre in air
+- Attenuation by a wall
 
- * On the Backend:
+Given a source point, calculate the attenuation in a widening circle around it and display that as a heat map.
 
-  [Node.js](https://nodejs.org) + [Express](http://expressjs.com)
+This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
 
- * Build System:
-
-  [NPM](https://www.npmjs.com/) scripts + [Webpack 2](https://webpack.js.org) + [Babel](https://babeljs.io)
-
-## React Support
-
-React >= 0.13.x
-
-## Browser Support
-
-Forge React Boiler is responsive, mobile friendly and has been tested on the following browsers:
-
-  * Chrome
-  * Firefox
-  * Safari
-  * Opera
-  * Edge
+Please refer to that for more details on the underlying architecture and components used.
 
 
 ## Running the sample
@@ -40,26 +23,22 @@ Configuration is controlled by **NODE_ENV**
 make sure to set it properly to **development** or **production**,
 based on the configuration type you want to run.
 
-
 In **development**, the client is dynamically built by the
 [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware), so just run:
 
- * `npm install`    *(downloads project dependencies locally)*
+ - `npm install`    *(downloads project dependencies locally)*
 
- * `npm start`      *(builds client on the fly and run server)*
+ - `npm start`      *(builds client on the fly and run server)*
 
- * open [http://localhost:3000](http://localhost:3000) in your favorite browser
-
-
-
+ - open [http://localhost:3000](http://localhost:3000) in your favorite browser
 
 In **production**, the client requires a build step, so run:
 
- * `npm install` *(not required if you already run at previous step)*
+ - `npm install` *(not required if you already run at previous step)*
 
- * `npm run build-prod && npm start` *(builds client and run server)*
+ - `npm run build-prod && npm start` *(builds client and run server)*
 
- * open [http://localhost:3000](http://localhost:3000) in your favorite browser
+ - open [http://localhost:3000](http://localhost:3000) in your favorite browser
 
 
 ## Loading custom models in the Forge Viewer
@@ -73,13 +52,13 @@ If you want to load a model from **Autodesk Cloud**, you first need to generate 
 Using the same Forge ClientId & ClientSecret used to upload the model,
 populate environment variables used by the config files (in **/config**):
 
-  * development:
+  - development:
 
     `FORGE_DEV_CLIENT_ID`
 
     `FORGE_DEV_CLIENT_SECRET`
 
-  * production:
+  - production:
 
     `FORGE_CLIENT_ID`
 
@@ -112,10 +91,4 @@ to find the Forge SDK's for the programming language of your choice
 
 [https://twitter.com/F3lipek](https://twitter.com/F3lipek)
 
-## Web Applications using Forge React Boiler
 
- * [Autodesk Forge RCDB](https://forge-rcdb.autodesk.io)
-
- ![forge-rcdb](https://github.com/Autodesk-Forge/forge-rcdb.nodejs/blob/master/resources/img/forge-rcdb.jpg)
-
-(Feel free to add your own by submitting a pull request...)
