@@ -48,6 +48,7 @@ class FaderExtension extends ExtensionBase {
 
     this._eps = 0.000001;    
     this._pointSize = 0.3;    
+    this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
   }
 
   /////////////////////////////////////////////////////////////////
@@ -161,6 +162,8 @@ class FaderExtension extends ExtensionBase {
     console.log(data)
 
     this.drawVertex (data.point, 0.2);
+
+    var psource = new THREE.Point3(data.point.x,data.point.y,data.point.z+this._rayTraceOffset)
 
     // from the selected THREE.Face, extract the normal
 
@@ -312,7 +315,7 @@ class FaderExtension extends ExtensionBase {
 
     // ray trace to determine wall locations on mesh
 
-    this.rayTraceToFindWalls(mesh,data.point)
+    this.rayTraceToFindWalls(mesh,psource)
   }
 
   /////////////////////////////////////////////////////////////////
@@ -322,6 +325,29 @@ class FaderExtension extends ExtensionBase {
   {
     console.log(mesh)
     console.log(psource)
+    
+    var bb = mesh.geometry.boundingBox;
+    var vsize = bb.max - bb.min;
+    var step = 1.0 / this._rayTraceGrid;
+
+    // for u in [0,1]
+    //   fo r v in [0,1]
+    //      p target = ??? (u,v)
+    //        if p is on the face (skip this, it requires raytrace too, so no saving)
+    //          raytrace from source to target 
+
+    for (var u = 0.0; u < 1.0 + this._eps; u += step) {
+      for (var v = 0.0; v < 1.0 + this._eps; v += step) {
+        var ptarget = new THREE.Vector3(
+          bb.min.x + u * vsize.x,
+          bb.min.y + v * vsize.y,
+          psource.z);
+
+        // determine number of walls between psource and ptarget
+
+
+      }
+    }
   }
 
   /////////////////////////////////////////////////////////////////
