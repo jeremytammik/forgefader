@@ -9,6 +9,21 @@ import EventTool from 'Viewer.EventTool'
 import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
+const attenuationVertexShader = `
+  varying vec2 vUv;
+  void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+  }
+`
+
+const attenuationFragmentShader = `
+  uniform vec4 color;
+  varying vec2 vUv;
+  void main() {
+      gl_FragColor = color;
+  }
+`
 
 class FaderExtension extends ExtensionBase {
 
@@ -27,6 +42,12 @@ class FaderExtension extends ExtensionBase {
     this._lineMaterial = this.createLineMaterial();
 
     this._vertexMaterial = this.createVertexMaterial();
+
+    this._shaderMaterial = this.createShaderMaterial({
+      name: 'shader-material',
+      attenuationFragmentShader,
+      attenuationVertexShader
+    })    
 
     this._eps = 0.000001;    
   }
@@ -125,6 +146,10 @@ class FaderExtension extends ExtensionBase {
 
       const dbIds = selection.dbIdArray
 
+      // two lines to test custom shader
+      const fragIds = selection.fragIdsArray
+      this.setMaterial(fragIds, this._shaderMaterial)
+
       const data = this.viewer.clientToWorld(
         this.pointer.canvasX,
         this.pointer.canvasY,
@@ -157,6 +182,9 @@ class FaderExtension extends ExtensionBase {
     console.log(instanceTree)
     const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
     console.log(fragIds)
+
+    this.setMaterial(fragIds, this.material)
+    
 
     var floor_mesh_fragment = fragIds.map((fragId) => {
       return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
@@ -222,9 +250,9 @@ class FaderExtension extends ExtensionBase {
           var n = THREE.Triangle.normal(vA, vB, vC);
 
           if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
-            this.drawVertex (vA, 0.05);
-            this.drawVertex (vB, 0.05);
-            this.drawVertex (vC, 0.05);
+            this.drawVertex (vA, 0.2);
+            this.drawVertex (vB, 0.2);
+            this.drawVertex (vC, 0.2);
 
             this.drawLine(vA, vB);
             this.drawLine(vB, vC);
@@ -255,9 +283,9 @@ class FaderExtension extends ExtensionBase {
         var n = THREE.Triangle.normal(vA, vB, vC);
 
         if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
-          this.drawVertex (vA, 0.05);
-          this.drawVertex (vB, 0.05);
-          this.drawVertex (vC, 0.05);
+          this.drawVertex (vA, 0.2);
+          this.drawVertex (vB, 0.2);
+          this.drawVertex (vC, 0.2);
 
           this.drawLine(vA, vB);
           this.drawLine(vB, vC);
@@ -285,6 +313,44 @@ class FaderExtension extends ExtensionBase {
     }
   }
 
+  /////////////////////////////////////////////////////////////////
+  // create attenuation shader material
+  /////////////////////////////////////////////////////////////////
+  createShaderMaterial (data) {
+
+    const uniforms = {
+      color: {
+        value: new THREE.Vector4(0.1, 0.02, 0.02, 0.2),
+        type: 'v4'
+      }
+    }
+
+    const material = new THREE.ShaderMaterial({
+      fragmentShader: data.fragmentShader,
+      vertexShader: data.vertexShader,
+      uniforms
+    })
+
+    this.viewer.impl.matman().addMaterial(
+      data.name, material, true)
+
+    return material
+  }  
+
+  /////////////////////////////////////////////////////////////////
+  // apply material to specific fragments
+  /////////////////////////////////////////////////////////////////
+  setMaterial(fragIds, material) {
+
+    const fragList = this.viewer.model.getFragmentList()
+
+    this.toArray(fragIds).forEach((fragId) => {
+
+      fragList.setMaterial(fragId, material)
+    })
+
+    this.viewer.impl.invalidate(true)
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   // create vertex material
@@ -360,6 +426,10 @@ class FaderExtension extends ExtensionBase {
     return this.isEqualWithPrecision (v.x, w.x)
       && this.isEqualWithPrecision (v.y, w.y)
       && this.isEqualWithPrecision (v.z, w.z);
+  }
+
+  toArray (obj) {
+    return obj ? (Array.isArray(obj) ? obj : [obj]) : []
   }  
 }
 
