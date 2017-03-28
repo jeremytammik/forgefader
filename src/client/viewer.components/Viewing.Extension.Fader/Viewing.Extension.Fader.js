@@ -8,6 +8,7 @@ import ExtensionBase from 'Viewer.ExtensionBase'
 import EventTool from 'Viewer.EventTool'
 import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
+import ShapeUtils from './ShapeUtils'
 
 const attenuationVertexShader = `
   varying vec2 vUv;
@@ -185,7 +186,7 @@ class FaderExtension extends ExtensionBase {
 
     // just testing shader material on entire floor
     // later, restrict this to the picked top surface only
-    this.setMaterial(fragIds, this._shaderMaterial)
+    //this.setMaterial(fragIds, this._shaderMaterial)
 
     var floor_mesh_fragment = fragIds.map((fragId) => {
       return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
@@ -306,9 +307,11 @@ class FaderExtension extends ExtensionBase {
         }
       }
     }
+    console.log(floor_top_vertices);
     var geo = new THREE.Geometry(); 
     var holes = [];
-    var triangles = THREE.ShapeUtils.triangulateShape( vertices, holes );
+    var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
+    console.log(triangles);
     for( var i = 0; i < triangles.length; i++ ){
       geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
     }

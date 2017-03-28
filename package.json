@@ -1,7 +1,7 @@
 {
-  "name": "forge-react-boiler",
-  "version": "1.0.0",
-  "description": "React+ Node.js Boilerplate project for Autodesk Forge Platform Web Services",
+  "name": "forgefader",
+  "version": "0.0.6",
+  "description": "ForgeFader signal attenuation calculator",
   "scripts": {
     "build-prod": "cross-env NODE_ENV=production npm run build",
     "build": "npm run clean && node webpack",
