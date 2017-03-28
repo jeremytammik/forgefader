@@ -76,9 +76,7 @@ Using your **Forge ClientId and ClientSecret** obtained while
 [Creating a new Forge App](https://developer.autodesk.com/myapps/create),
 press this button:
 
-<center>
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-</center>
 
 
 ## More about the Autodesk Forge Platform and Web Applications of the Future
