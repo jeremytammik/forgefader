@@ -130,45 +130,6 @@ class FaderExtension extends ExtensionBase {
     }
   }
 
-  // retrieve_walls(instanceTree)
-  // {
-  //   let wallIds = []
-    
-  //   const getWallsRec = (id) => {
-
-  //     var childCount = 0;
-
-  //     instanceTree.enumNodeChildren(id, (childId) => {
-
-  //         getWallsRec(childId)
-
-  //         ++childCount
-  //       })
-
-  //     if (childCount == 0 ) {
-
-  //       wallIds.push(id)
-  //     }
-  //   }
-
-  //   getWallsRec(instanceTree.getRootId())
-  // }
-
-  setMaterial(fragId) 
-  {
-    var material = new THREE.ShaderMaterial({
-      uniforms: eval('('+uniformDocument.getValue()+')'),
-      vertexShader: vertexDocument.getValue(),
-      fragmentShader: fragmentDocument.getValue(),
-      side: THREE.DoubleSide
-    });
-
-    _viewer.impl.matman().removeMaterial("shaderMaterial");
-    _viewer.impl.matman().addMaterial("shaderMaterial", material, true);
-    _viewer.model.getFragmentList().setMaterial(fragId, material);
-    _viewer.impl.invalidate(true);
-  }
-
   /////////////////////////////////////////////////////////////////
   // attenuationCalculator - given a picked source point on a face
   //
@@ -181,6 +142,13 @@ class FaderExtension extends ExtensionBase {
   {
     console.log(data)
 
+    // from the selected THREE.Face, extract the normal
+
+    var floor_normal = data.face.normal
+    console.log(floor_normal)
+
+    // find all the other floor fragments with the same normal
+
     var instanceTree = this.viewer.model.getData().instanceTree
     console.log(instanceTree)
     const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
@@ -191,8 +159,23 @@ class FaderExtension extends ExtensionBase {
     })
     console.log(floor_mesh)
 
-    // const fragProxy = this.viewer.impl.getFragmentProxy(this.viewer.model, fragIds[0])
-    // console.log(fragProxy)
+    // from floor mesh, access all faces and use only those wwith the same normal
+
+    if(0){
+      // code from setMaterial function in michael ge's Using Shaders to Generate Dynamic Textures in the Viewer API
+      // https://forge.autodesk.com/cloud_and_mobile/2016/07/using-shaders-to-generate-dynamic-textures.html
+      var material = new THREE.ShaderMaterial({
+        uniforms: eval('('+uniformDocument.getValue()+')'),
+        vertexShader: vertexDocument.getValue(),
+        fragmentShader: fragmentDocument.getValue(),
+        side: THREE.DoubleSide
+      });
+
+      viewer.impl.matman().removeMaterial("shaderMaterial");
+      viewer.impl.matman().addMaterial("shaderMaterial", material, true);
+      viewer.model.getFragmentList().setMaterial(floor_mesh, material);
+      viewer.impl.invalidate(true);
+    }
   }
 }
 
