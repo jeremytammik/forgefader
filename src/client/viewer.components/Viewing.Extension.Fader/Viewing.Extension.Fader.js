@@ -356,7 +356,8 @@ class FaderExtension extends ExtensionBase {
 
         this.drawLine(psource, ptarget)
 
-        var ray = new THREE.Raycaster()
+        var ray = new THREE.Raycaster( psource, 
+          ptarget.sub(psource), 0, vsize.length)
 
         var intersectResults = ray.intersectObjects(
           this.wallProxies, true)
