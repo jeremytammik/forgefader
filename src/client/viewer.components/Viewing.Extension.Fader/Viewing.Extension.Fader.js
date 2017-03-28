@@ -306,6 +306,7 @@ class FaderExtension extends ExtensionBase {
     console.log(geo);
     geo.computeFaceNormals();
     geo.computeVertexNormals();
+    geo.computeBoundingBox();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
     this.viewer.impl.scene.add(mesh);
 
