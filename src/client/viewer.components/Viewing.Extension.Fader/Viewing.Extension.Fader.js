@@ -352,8 +352,16 @@ class FaderExtension extends ExtensionBase {
           psource.z);
 
         // determine number of walls between psource and ptarget
+        // to generate a colour for each u,v coordinate pair
 
         this.drawLine(psource, ptarget)
+
+        var ray = new THREE.Raycaster()
+
+        var intersectResults = ray.intersectObjects(
+          this.wallProxies, true)
+
+        console.log(intersectResults)
       }
     }
   }
