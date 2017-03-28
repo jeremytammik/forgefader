@@ -31,7 +31,7 @@ Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a
 
 A debug helper displaying lines in the model representing the ray tracing rays:
 
-![Ray tracing rays](RvtFader/ray_trace_rays.png "Ray tracing rays")
+![Ray tracing rays](img/ray_trace_rays.png "Ray tracing rays")
 
 
 ## Running the Sample
