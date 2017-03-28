@@ -72,23 +72,32 @@ Restart the server, you can then directly load your model by specifying design *
 
 ## Deploy to Heroku
 
-Use your **Forge ClientId & ClientSecret** obtained while
-[Creating a new Forge App](https://developer.autodesk.com/myapps/create)
-
-And Press Deploy button below:
+Using your **Forge ClientId and ClientSecret** obtained while
+[Creating a new Forge App](https://developer.autodesk.com/myapps/create),
+press this button:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Wait for a while once the Heroku App has been deployed as the client needs to be built **after the first run**
 
-## More about Autodesk Forge Platform and Web Applications of the future?
+## More about the Autodesk Forge Platform and Web Applications of the Future
 
-Check it out at [https://developer.autodesk.com](https://developer.autodesk.com).
+Check it out at [developer.autodesk.com](https://developer.autodesk.com).
+
 Look at our [Quickstarts guide](https://developer.autodesk.com/en/docs/quickstarts/v1/overview/)
-to find the Forge SDK's for the programming language of your choice
-
-## About the Author
-
-[https://twitter.com/F3lipek](https://twitter.com/F3lipek)
+to find the Forge SDK's for the programming language of your choice.
 
 
+
+## Author
+
+Jeremy Tammik,
+[The Building Coder](http://thebuildingcoder.typepad.com),
+[ADN](http://www.autodesk.com/adn)
+[Open](http://www.autodesk.com/adnopen),
+[Autodesk Inc.](http://www.autodesk.com)
+
+
+## License
+
+This sample is licensed under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+Please see the [LICENSE](LICENSE) file for full details.
