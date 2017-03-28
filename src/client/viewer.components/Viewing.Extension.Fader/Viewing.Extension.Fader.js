@@ -23,6 +23,12 @@ class FaderExtension extends ExtensionBase {
     this.onGeometryLoaded = this.onGeometryLoaded.bind(this)
 
     this.onSelection = this.onSelection.bind(this)
+
+    this._lineMaterial = this.createLineMaterial();
+
+    this._vertexMaterial = this.createVertexMaterial();
+
+    this._eps = 0.000001;    
   }
 
   /////////////////////////////////////////////////////////////////
@@ -56,12 +62,6 @@ class FaderExtension extends ExtensionBase {
     // this.viewer.setLightPreset(1)
 
     console.log('Viewing.Extension.Fader')
-
-    //this.wallIds=[] // initialise in onGeometryLoaded
-
-    _lineMaterial = createLineMaterial();
-
-    _vertexMaterial = createVertexMaterial();
 
     return true
   }
@@ -151,7 +151,7 @@ class FaderExtension extends ExtensionBase {
     var floor_normal = data.face.normal
     console.log(floor_normal)
 
-    // find all the other floor fragments with the same normal
+    // retrieve floor render proxies matching normal
 
     var instanceTree = this.viewer.model.getData().instanceTree
     console.log(instanceTree)
@@ -219,13 +219,17 @@ class FaderExtension extends ExtensionBase {
           vB.applyMatrix4(matrix);
           vC.applyMatrix4(matrix);
 
-          this.drawVertex (vA, 0.05);
-          this.drawVertex (vB, 0.05);
-          this.drawVertex (vC, 0.05);
+          var n = THREE.Triangle.normal(vA, vB, vC);
 
-          this.drawLine(vA, vB);
-          this.drawLine(vB, vC);
-          this.drawLine(vC, vA);
+          if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
+            this.drawVertex (vA, 0.05);
+            this.drawVertex (vB, 0.05);
+            this.drawVertex (vC, 0.05);
+
+            this.drawLine(vA, vB);
+            this.drawLine(vB, vC);
+            this.drawLine(vC, vA);
+          }
         }
       }
     }
@@ -248,13 +252,17 @@ class FaderExtension extends ExtensionBase {
         vB.applyMatrix4(matrix);
         vC.applyMatrix4(matrix);
 
-        this.drawVertex (vA, 0.05);
-        this.drawVertex (vB, 0.05);
-        this.drawVertex (vC, 0.05);
+        var n = THREE.Triangle.normal(vA, vB, vC);
 
-        this.drawLine(vA, vB);
-        this.drawLine(vB, vC);
-        this.drawLine(vC, vA);
+        if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
+          this.drawVertex (vA, 0.05);
+          this.drawVertex (vB, 0.05);
+          this.drawVertex (vC, 0.05);
+
+          this.drawLine(vA, vB);
+          this.drawLine(vB, vC);
+          this.drawLine(vC, vA);
+        }
       }
     }    
 
@@ -279,14 +287,13 @@ class FaderExtension extends ExtensionBase {
 
 
   ///////////////////////////////////////////////////////////////////////////
-  // vertex material
-  //
+  // create vertex material
   ///////////////////////////////////////////////////////////////////////////
   createVertexMaterial() {
 
     var material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
 
-    viewer.impl.matman().addMaterial(
+    this.viewer.impl.matman().addMaterial(
       'adn-material-vertex',
       material,
       true);
@@ -295,8 +302,7 @@ class FaderExtension extends ExtensionBase {
   }
 
   ///////////////////////////////////////////////////////////////////////////
-  // line material
-  //
+  // create line material
   ///////////////////////////////////////////////////////////////////////////
   createLineMaterial() {
 
@@ -305,7 +311,7 @@ class FaderExtension extends ExtensionBase {
       linewidth: 2
     });
 
-    viewer.impl.matman().addMaterial(
+    this.viewer.impl.matman().addMaterial(
       'adn-material-line',
       material,
       true);
@@ -315,7 +321,6 @@ class FaderExtension extends ExtensionBase {
 
   ///////////////////////////////////////////////////////////////////////////
   // draw a line
-  //
   ///////////////////////////////////////////////////////////////////////////
   drawLine(start, end) {
 
@@ -334,7 +339,6 @@ class FaderExtension extends ExtensionBase {
 
   ///////////////////////////////////////////////////////////////////////////
   // draw a vertex
-  //
   ///////////////////////////////////////////////////////////////////////////
   drawVertex (v, radius) {
 
@@ -345,6 +349,17 @@ class FaderExtension extends ExtensionBase {
     vertex.position.set(v.x, v.y, v.z);
 
     this.viewer.impl.scene.add(vertex);
+  }
+
+  isEqualWithPrecision (a, b) {
+    return (a < b + this._eps)
+      && (a > b - this._eps);
+  }
+
+  isEqualVectorsWithPrecision (v, w) {
+    return this.isEqualWithPrecision (v.x, w.x)
+      && this.isEqualWithPrecision (v.y, w.y)
+      && this.isEqualWithPrecision (v.z, w.z);
   }  
 }
 
