@@ -1,14 +1,13 @@
 /////////////////////////////////////////////////////////////////
-// Configurator Extension
-// By Philippe Leefsma, February 2016
-//
+// ForgeFader signal attenuation calculator Forge viewer extension 
+// By Jeremy Tammik, Autodesk Inc, 2017-03-28
 /////////////////////////////////////////////////////////////////
 
 import ExtensionBase from 'Viewer.ExtensionBase'
 import EventTool from 'Viewer.EventTool'
 import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
-import ShapeUtils from './ShapeUtils'
+//import ShapeUtils from './ShapeUtils'
 
 const attenuationVertexShader = `
   varying vec2 vUv;
@@ -217,7 +216,10 @@ class FaderExtension extends ExtensionBase {
     var vB = new THREE.Vector3();
     var vC = new THREE.Vector3();
 
-    var floor_top_vertices = new Array();
+    //var floor_top_vertices = new Array();
+    var vAo, vBo, vCo; // untransformed before applying matrix
+    var geo = new THREE.Geometry();
+    var iv = 0;
 
     if (attributes.index !== undefined) {
 
@@ -227,7 +229,6 @@ class FaderExtension extends ExtensionBase {
       var offsets = geometry.offsets;
 
       if (!offsets || offsets.length === 0) {
-
         offsets = [{start: 0, count: indices.length, index: 0}];
       }
 
@@ -247,6 +248,8 @@ class FaderExtension extends ExtensionBase {
           vB.fromArray(positions, b * stride);
           vC.fromArray(positions, c * stride);
 
+          vAo = vA; vBo = vB; vCo = vC;
+
           vA.applyMatrix4(matrix);
           vB.applyMatrix4(matrix);
           vC.applyMatrix4(matrix);
@@ -262,9 +265,11 @@ class FaderExtension extends ExtensionBase {
             this.drawLine(vB, vC);
             this.drawLine(vC, vA);
 
-            floor_top_vertices.push(vA);
-            floor_top_vertices.push(vB);
-            floor_top_vertices.push(vC);
+            geo.vertices.push(new THREE.Vector3(vA.x,vA.y,vA.z));
+            geo.vertices.push(new THREE.Vector3(vB.x,vB.y,vB.z));
+            geo.vertices.push(new THREE.Vector3(vC.x,vC.y,vC.z));
+            geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
+            iv = iv+3;
           }
         }
       }
@@ -300,22 +305,21 @@ class FaderExtension extends ExtensionBase {
           this.drawLine(vA, vB);
           this.drawLine(vB, vC);
           this.drawLine(vC, vA);
-
-          floor_top_vertices.push(vA);
-          floor_top_vertices.push(vB);
-          floor_top_vertices.push(vC);
         }
       }
     }
-    console.log(floor_top_vertices);
-    var geo = new THREE.Geometry(); 
-    var holes = [];
-    var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
-    console.log(triangles);
-    for( var i = 0; i < triangles.length; i++ ){
-      geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
-    }
-    var mesh = new THREE.Mesh( geometry, this._shaderMaterial );
+    // console.log(floor_top_vertices);
+    // var geo = new THREE.Geometry(); 
+    // var holes = [];
+    // var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
+    // console.log(triangles);
+    // for( var i = 0; i < triangles.length; i++ ){
+    //   geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
+    // }
+    console.log(geo);
+    geo.computeFaceNormals();
+    geo.computeVertexNormals();
+    var mesh = new THREE.Mesh( geo, this._shaderMaterial );
     this.viewer.impl.scene.add(mesh);
   }
 
