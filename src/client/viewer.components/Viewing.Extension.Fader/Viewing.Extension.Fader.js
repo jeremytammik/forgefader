@@ -127,15 +127,6 @@ class FaderExtension extends ExtensionBase {
         true)
 
       this.attenuationCalculator(data)
-
-      // console.log(this.viewer.model)
-      // var instanceTree = this.viewer.model.getData().instanceTree
-      // console.log(instanceTree)
-      // var rootId = instanceTree.getRootId()
-      // console.log(rootId)
-      // debugger;
-      // this.retrieve_walls(instanceTree)
-
     }
   }
 
@@ -163,10 +154,45 @@ class FaderExtension extends ExtensionBase {
   //   getWallsRec(instanceTree.getRootId())
   // }
 
-  attenuationCalculator(data)
+  setMaterial(fragId) 
+  {
+    var material = new THREE.ShaderMaterial({
+      uniforms: eval('('+uniformDocument.getValue()+')'),
+      vertexShader: vertexDocument.getValue(),
+      fragmentShader: fragmentDocument.getValue(),
+      side: THREE.DoubleSide
+    });
+
+    _viewer.impl.matman().removeMaterial("shaderMaterial");
+    _viewer.impl.matman().addMaterial("shaderMaterial", material, true);
+    _viewer.model.getFragmentList().setMaterial(fragId, material);
+    _viewer.impl.invalidate(true);
+  }
+
+  /////////////////////////////////////////////////////////////////
+  // attenuationCalculator - given a picked source point on a face
+  //
+  // determine face shape
+  // draw a heat map on it
+  // initially, just use distance from source to target point
+  // later, add number of walls intersected by ray between them
+  /////////////////////////////////////////////////////////////////
+  async attenuationCalculator(data)
   {
     console.log(data)
 
+    var instanceTree = this.viewer.model.getData().instanceTree
+    console.log(instanceTree)
+    const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
+    console.log(fragIds)
+
+    var floor_mesh = fragIds.map((fragId) => {
+      return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+    })
+    console.log(floor_mesh)
+
+    // const fragProxy = this.viewer.impl.getFragmentProxy(this.viewer.model, fragIds[0])
+    // console.log(fragProxy)
   }
 }
 
