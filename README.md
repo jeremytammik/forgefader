@@ -16,7 +16,7 @@ This app is based on Philippe Leefsma's [Forge React boilerplate sample](https:/
 Please refer to that for more details on the underlying architecture and components used.
 
 
-## Running the sample
+## Running the Sample
 
 Configuration is controlled by **NODE_ENV**
 [environment variable](https://www.google.com/webhp?q=set+environment+variable&gws_rd=cr&ei=tum2WMaSF4SdsgHruLrIDg),
@@ -41,7 +41,7 @@ In **production**, the client requires a build step, so run:
  - open [http://localhost:3000](http://localhost:3000) in your favorite browser
 
 
-## Loading custom models in the Forge Viewer
+## Loading Custom Models in the Forge Viewer
 
 The project contains a default model located in **/resources/models/seat** that can be loaded with no further
 setup and will also work offline.
