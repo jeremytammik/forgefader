@@ -216,6 +216,8 @@ class FaderExtension extends ExtensionBase {
     var vB = new THREE.Vector3();
     var vC = new THREE.Vector3();
 
+    var floor_top_vertices = new Array();
+
     if (attributes.index !== undefined) {
 
       var indices = attributes.index.array || geometry.ib;
@@ -258,11 +260,17 @@ class FaderExtension extends ExtensionBase {
             this.drawLine(vA, vB);
             this.drawLine(vB, vC);
             this.drawLine(vC, vA);
+
+            floor_top_vertices.push(vA);
+            floor_top_vertices.push(vB);
+            floor_top_vertices.push(vC);
           }
         }
       }
     }
     else {
+
+      throw 'Is this section of code ever called?'
 
       var positions = geometry.vb ? geometry.vb : attributes.position.array;
       var stride = geometry.vb ? geometry.vbstride : 3;
@@ -291,27 +299,21 @@ class FaderExtension extends ExtensionBase {
           this.drawLine(vA, vB);
           this.drawLine(vB, vC);
           this.drawLine(vC, vA);
+
+          floor_top_vertices.push(vA);
+          floor_top_vertices.push(vB);
+          floor_top_vertices.push(vC);
         }
       }
-    }    
-
-    // from floor mesh, access all faces and use only those wwith the same normal
-
-    if(0){
-      // code from setMaterial function in michael ge's Using Shaders to Generate Dynamic Textures in the Viewer API
-      // https://forge.autodesk.com/cloud_and_mobile/2016/07/using-shaders-to-generate-dynamic-textures.html
-      var material = new THREE.ShaderMaterial({
-        uniforms: eval('('+uniformDocument.getValue()+')'),
-        vertexShader: vertexDocument.getValue(),
-        fragmentShader: fragmentDocument.getValue(),
-        side: THREE.DoubleSide
-      });
-
-      viewer.impl.matman().removeMaterial("shaderMaterial");
-      viewer.impl.matman().addMaterial("shaderMaterial", material, true);
-      viewer.model.getFragmentList().setMaterial(floor_mesh, material);
-      viewer.impl.invalidate(true);
     }
+    var geo = new THREE.Geometry(); 
+    var holes = [];
+    var triangles = THREE.ShapeUtils.triangulateShape( vertices, holes );
+    for( var i = 0; i < triangles.length; i++ ){
+      geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
+    }
+    var mesh = new THREE.Mesh( geometry, this._shaderMaterial );
+    this.viewer.impl.scene.add(mesh);
   }
 
   /////////////////////////////////////////////////////////////////
