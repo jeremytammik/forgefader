@@ -345,12 +345,11 @@ class FaderExtension extends ExtensionBase {
 
     const fragList = this.viewer.model.getFragmentList()
 
-    this.toArray(fragIds).forEach((fragId) => {
-
+    fragIds.forEach((fragId) => { // removed this.toArray()
       fragList.setMaterial(fragId, material)
     })
 
-    this.viewer.impl.invalidate(true)
+    //this.viewer.impl.invalidate(true)
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -429,9 +428,9 @@ class FaderExtension extends ExtensionBase {
       && this.isEqualWithPrecision (v.z, w.z);
   }
 
-  toArray (obj) {
-    return obj ? (Array.isArray(obj) ? obj : [obj]) : []
-  }  
+  // toArray (obj) {
+  //   return obj ? (Array.isArray(obj) ? obj : [obj]) : []
+  // }  
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
