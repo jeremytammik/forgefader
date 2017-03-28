@@ -47,6 +47,7 @@ class FaderExtension extends ExtensionBase {
     })    
 
     this._eps = 0.000001;    
+    this._pointSize = 0.3;    
   }
 
   /////////////////////////////////////////////////////////////////
@@ -158,6 +159,8 @@ class FaderExtension extends ExtensionBase {
   async attenuationCalculator(data)
   {
     console.log(data)
+
+    this.drawVertex (data.point, 0.2);
 
     // from the selected THREE.Face, extract the normal
 
@@ -305,6 +308,10 @@ class FaderExtension extends ExtensionBase {
     geo.computeVertexNormals();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
     this.viewer.impl.scene.add(mesh);
+
+    // ray trace to determine wall locations on mesh
+
+
   }
 
   /////////////////////////////////////////////////////////////////
@@ -399,10 +406,10 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   // draw a vertex
   ///////////////////////////////////////////////////////////////////////////
-  drawVertex (v, radius) {
+  drawVertex (v) {
 
     var vertex = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 20),
+      new THREE.SphereGeometry(this._pointSize, 20),
       this._vertexMaterial);
 
     vertex.position.set(v.x, v.y, v.z);
