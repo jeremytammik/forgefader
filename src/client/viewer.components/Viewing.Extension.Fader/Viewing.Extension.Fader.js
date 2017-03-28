@@ -147,8 +147,8 @@ class FaderExtension extends ExtensionBase {
       const dbIds = selection.dbIdArray
 
       // two lines to test custom shader
-      const fragIds = selection.fragIdsArray
-      this.setMaterial(fragIds, this._shaderMaterial)
+      // const fragIds = selection.fragIdsArray
+      // this.setMaterial(fragIds, this._shaderMaterial)
 
       const data = this.viewer.clientToWorld(
         this.pointer.canvasX,
@@ -183,8 +183,9 @@ class FaderExtension extends ExtensionBase {
     const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
     console.log(fragIds)
 
-    this.setMaterial(fragIds, this.material)
-    
+    // just testing shader material on entire floor
+    // later, restrict this to the picked top surface only
+    this.setMaterial(fragIds, this._shaderMaterial)
 
     var floor_mesh_fragment = fragIds.map((fragId) => {
       return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
