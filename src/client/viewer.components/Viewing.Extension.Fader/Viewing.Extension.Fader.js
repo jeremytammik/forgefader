@@ -2,12 +2,10 @@
 // ForgeFader signal attenuation calculator Forge viewer extension 
 // By Jeremy Tammik, Autodesk Inc, 2017-03-28
 /////////////////////////////////////////////////////////////////
-
 import ExtensionBase from 'Viewer.ExtensionBase'
 import EventTool from 'Viewer.EventTool'
 import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
-//import ShapeUtils from './ShapeUtils'
 
 const attenuationVertexShader = `
   varying vec2 vUv;
@@ -29,7 +27,6 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // Class constructor
-  //
   /////////////////////////////////////////////////////////////////
   constructor (viewer, options) {
 
@@ -54,7 +51,6 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // Load callback
-  //
   /////////////////////////////////////////////////////////////////
   load() {
 
@@ -89,7 +85,6 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // Extension Id
-  //
   /////////////////////////////////////////////////////////////////
   static get ExtensionId () {
 
@@ -98,7 +93,6 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // Unload callback
-  //
   /////////////////////////////////////////////////////////////////
   unload () {
 
@@ -112,7 +106,6 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // onGeometryLoaded - retrieve all wall meshes
-  //
   /////////////////////////////////////////////////////////////////
   onGeometryLoaded (event) {
     console.log('onGeometryLoaded')
@@ -135,8 +128,7 @@ class FaderExtension extends ExtensionBase {
   }
 
   /////////////////////////////////////////////////////////////////
-  //
-  //
+  // onSelection
   /////////////////////////////////////////////////////////////////
   onSelection (event) {
 
@@ -145,10 +137,6 @@ class FaderExtension extends ExtensionBase {
       const selection = event.selections[0]
 
       const dbIds = selection.dbIdArray
-
-      // two lines to test custom shader
-      // const fragIds = selection.fragIdsArray
-      // this.setMaterial(fragIds, this._shaderMaterial)
 
       const data = this.viewer.clientToWorld(
         this.pointer.canvasX,
@@ -182,10 +170,6 @@ class FaderExtension extends ExtensionBase {
     console.log(instanceTree)
     const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
     console.log(fragIds)
-
-    // just testing shader material on entire floor
-    // later, restrict this to the picked top surface only
-    //this.setMaterial(fragIds, this._shaderMaterial)
 
     var floor_mesh_fragment = fragIds.map((fragId) => {
       return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
@@ -436,10 +420,6 @@ class FaderExtension extends ExtensionBase {
       && this.isEqualWithPrecision (v.y, w.y)
       && this.isEqualWithPrecision (v.z, w.z);
   }
-
-  // toArray (obj) {
-  //   return obj ? (Array.isArray(obj) ? obj : [obj]) : []
-  // }  
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
