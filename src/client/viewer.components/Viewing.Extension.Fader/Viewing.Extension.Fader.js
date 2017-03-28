@@ -311,7 +311,16 @@ class FaderExtension extends ExtensionBase {
 
     // ray trace to determine wall locations on mesh
 
+    this.rayTraceToFindWalls(mesh,data.point)
+  }
 
+  /////////////////////////////////////////////////////////////////
+  // ray trace to find walls from picked point to mesh extents
+  /////////////////////////////////////////////////////////////////
+  rayTraceToFindWalls(mesh,psource)
+  {
+    console.log(mesh)
+    console.log(psource)
   }
 
   /////////////////////////////////////////////////////////////////
