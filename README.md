@@ -16,6 +16,24 @@ This app is based on Philippe Leefsma's [Forge React boilerplate sample](https:/
 Please refer to that for more details on the underlying architecture and components used.
 
 
+## Implementation
+
+The ForgeFader implementation lives
+in [Viewing.Extension.Fader.js](https://github.com/jeremytammik/forgefader/blob/master/src/client/viewer.components/Viewing.Extension.Fader/Viewing.Extension.Fader.js).
+
+On loading, in `onGeometryLoaded`, it determines the Revit BIM wall fragments for subsequent ray tracing.
+
+On picking a point on a floor in the model, in `onSelection`, it launches the `attenuationCalculator` function to do the work.
+
+That fiddles a round a bit to determine the picked floor top faces and add a new mesh to the model on which to draw the attenuation map.
+
+Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
+
+A debug helper displaying lines in the model representing the ray tracing rays:
+
+![Ray tracing rays](RvtFader/ray_trace_rays.png "Ray tracing rays")
+
+
 ## Running the Sample
 
 Configuration is controlled by **NODE_ENV**
