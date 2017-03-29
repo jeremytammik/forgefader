@@ -31,7 +31,7 @@ Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a
 
 Display points and lines for debugging:
 
-![Line and vertex debug markers](img/line_vertex_debug_marker.png "Line and vertex debug markers")
+![Line and vertex debug markers](img/line_vertex_debug_marker_300.png "Line and vertex debug markers")
 
 Create a mesh to represent the floor top face and offset it up slightly above the floor surface:
 
