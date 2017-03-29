@@ -393,14 +393,16 @@ class FaderExtension extends ExtensionBase {
       var ptarget = new THREE.Vector3( 
         bb.max.x, bb.max.y, psource.z );
 
-      var vray = new THREE.Vector3( ptarget.x - psource.x, 
-        ptarget.y - psource.y, ptarget.z - psource.z );
-
       this.drawLine(psource, ptarget)
       this.drawVertex(ptarget);
 
       console.log(this.wallMeshes)
       console.log(this.wallMeshes[0])
+
+      var vray = new THREE.Vector3( ptarget.x - psource.x, 
+        ptarget.y - psource.y, ptarget.z - psource.z );
+
+      vray.normalize()
 
       var ray = new THREE.Raycaster( 
         psource, vray, 0, vsize.length)
@@ -427,14 +429,19 @@ class FaderExtension extends ExtensionBase {
             bb.min.y + v * vsize.y,
             psource.z);
 
+          this.drawLine(psource, ptarget)
+          this.drawVertex(ptarget);
+
+          console.log(this.wallMeshes)
+          console.log(this.wallMeshes[0])
+
           var vray = new THREE.Vector3( ptarget.x - psource.x, 
             ptarget.y - psource.y, ptarget.z - psource.z );
 
+          vray.normalize()
+
           // determine number of walls between psource and ptarget
           // to generate a colour for each u,v coordinate pair
-
-          this.drawLine(psource, ptarget)
-          this.drawVertex(ptarget);
 
           var ray = new THREE.Raycaster( 
             psource, vray, 0, vsize.length)
