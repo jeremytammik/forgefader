@@ -19,7 +19,8 @@ const attenuationFragmentShader = `
   uniform vec4 color;
   varying vec2 vUv;
   void main() {
-      gl_FragColor = color;
+      float d = vUv.u - 0.5;
+      gl_FragColor = d * d * color;
   }
 `
 
@@ -41,7 +42,7 @@ class FaderExtension extends ExtensionBase {
     this._vertexMaterial = this.createVertexMaterial();
 
     this._shaderMaterial = this.createShaderMaterial({
-      name: 'shader-material',
+      name: 'fader-material-shader',
       attenuationFragmentShader,
       attenuationVertexShader
     })    
