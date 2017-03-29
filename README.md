@@ -39,7 +39,7 @@ When debugging any kind of geometrical programming task, it is of utmost importa
 In this app, I add three different kinds of geometry dynamically to the model displayed by the Forge viewer:
 
 - Points and lines representing the top face of the floor and the picked source point.
-- A mesh representing the top face of the floor to be equipped with a custom shader and offset slighly above and away from the floor element surface.
+- A mesh representing the top face of the floor to be equipped with a custom shader and offset slightly above and away from the floor element surface.
 - Points and lines representing the raytracing rays.
 
 Three example screen snapshots illustrate what I mean.
