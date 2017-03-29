@@ -198,6 +198,7 @@ class FaderExtension extends ExtensionBase {
   // getMeshFromRenderProxy - generate a new mesh from render proxy
   //
   // floor_normal: skip all triangles whose normal differs from that
+  // top_face_z: use for the face Z coordinates unless null
   // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
   getMeshFromRenderProxy( render_proxy, floor_normal, debug_draw )
@@ -259,9 +260,9 @@ class FaderExtension extends ExtensionBase {
               this.drawLine(vB, vC);
               this.drawLine(vC, vA);
             }
-            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, top_face_z));
-            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, top_face_z));
-            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, top_face_z));
+            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, null===top_face_z?vA.z:top_face_z));
+            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, null===top_face_z?vB.z:top_face_z));
+            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, null===top_face_z?vC.z:top_face_z));
             geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
             iv = iv+3;
           }
@@ -349,7 +350,7 @@ class FaderExtension extends ExtensionBase {
     floor_mesh_render = floor_mesh_render[0]
 
     var mesh = this.getMeshFromRenderProxy( 
-      floor_mesh_render, floor_normal, true )
+      floor_mesh_render, floor_normal, top_face_z, true )
 
     this.viewer.impl.scene.add(mesh);
 
