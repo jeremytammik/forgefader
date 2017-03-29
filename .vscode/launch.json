@@ -2,24 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch forgedader",
+            "name": "Launch forgedader client",
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost:3000/viewer?urn=dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDE3LTAzLTI3LTEwLTM4LTMzLWQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlL2xpdHRsZV9ob3VzZV9mbG9vci5ydnQ",
+            "port": 9222,
             "webRoot": "${workspaceRoot}/src/client"
         },        
         {
-            "name": "Attach forgedader",
+            "name": "Attach forgedader client",
             "type": "chrome",
             "request": "attach",
-            "port": 9222,
             "url": "http://localhost:3000/viewer?urn=dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDE3LTAzLTI3LTEwLTM4LTMzLWQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlL2xpdHRsZV9ob3VzZV9mbG9vci5ydnQ",
+            "port": 9222,
             "webRoot": "${workspaceRoot}/src/client"
         },
         {
+            "name": "Launch forgefader server",
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
             "program": "${workspaceRoot}/bin/start.js",
             "port": 3000
         }
