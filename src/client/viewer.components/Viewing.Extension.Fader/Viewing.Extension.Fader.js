@@ -109,6 +109,33 @@ class FaderExtension extends ExtensionBase {
     return true
   }
 
+  clean_up_render_proxy( proxy )
+  {
+    var geo = proxy.geometry;
+
+    if (geo.attributes.index !== undefined) {
+
+      var indices = geo.attributes.index.array || geo.ib;
+      var positions = geo.vb ? geo.vb : geo.attributes.position.array;
+      var stride = geo.vb ? geo.vbstride : 3;
+      var offsets = geo.offsets;
+
+      // make the raytracer and box calculation working
+
+      //proxy.attributes.position.length =positions.length ;
+      geo.attributes.position.array =positions ;
+      geo.attributes.position.bytesPerItem =4 ;
+
+      //geo.attributes.index.length =indices.length ;
+      geo.attributes.index.array =indices ;
+      geo.attributes.index.itemSize =1 ;
+
+      //geo.computeBoundingSphere();
+      //geo.boundingSphere.radius = 100;
+    }
+    return proxy;
+  }
+
   /////////////////////////////////////////////////////////////////
   // onGeometryLoaded - retrieve all wall meshes
   /////////////////////////////////////////////////////////////////
@@ -125,8 +152,9 @@ class FaderExtension extends ExtensionBase {
         console.log(fragIds)
 
         this.wallProxies = fragIds.map((fragId) => {
-          return this.viewer.impl.getRenderProxy(
-            this.viewer.model, fragId );
+          return this.clean_up_render_proxy(
+              this.viewer.impl.getRenderProxy(
+                this.viewer.model, fragId ));
         })
 
           //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
@@ -217,7 +245,7 @@ class FaderExtension extends ExtensionBase {
 
     var geometry = floor_mesh_render.geometry;
 
-    //not working, says phillipe
+    // not working, says phillipe
     //geometry.applyMatrix(matrix);
 
     var attributes = geometry.attributes;
