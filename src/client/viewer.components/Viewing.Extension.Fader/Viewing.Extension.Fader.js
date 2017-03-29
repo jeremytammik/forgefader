@@ -195,157 +195,6 @@ class FaderExtension extends ExtensionBase {
   }
 
   /////////////////////////////////////////////////////////////////
-  // attenuationCalculator - given a picked source point on a face
-  //
-  // determine face shape
-  // draw a heat map on it
-  // initially, just use distance from source to target point
-  // later, add number of walls intersected by ray between them
-  /////////////////////////////////////////////////////////////////
-  async attenuationCalculator(data)
-  {
-    console.log(data)
-
-    this.drawVertex (data.point);
-
-    var psource = new THREE.Vector3(
-      data.point.x, data.point.y,
-      data.point.z + this._rayTraceOffset)
-
-    var top_face_z = data.point.z + this._topFaceOffset;
-
-    // from the selected THREE.Face, extract the normal
-
-    var floor_normal = data.face.normal
-    console.log(floor_normal)
-
-    // retrieve floor render proxies matching normal
-
-    var instanceTree = this.viewer.model.getData().instanceTree
-    console.log(instanceTree)
-    const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
-    console.log(fragIds)
-
-    var floor_mesh_fragment = fragIds.map((fragId) => {
-      return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
-    })
-    console.log(floor_mesh_fragment)
-
-    // in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
-    // function drawMeshData, the fragment proxy is ignored and 
-    // the render proxy is used instead:
-
-    var floor_mesh_render = fragIds.map((fragId) => {
-      return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
-    })
-    console.log(floor_mesh_render)
-
-    floor_mesh_render = floor_mesh_render[0]
-
-    var matrix = floor_mesh_render.matrixWorld;
-
-    var geometry = floor_mesh_render.geometry;
-
-    // not working, says phillipe
-    //geometry.applyMatrix(matrix);
-
-    var attributes = geometry.attributes;
-
-    var vA = new THREE.Vector3();
-    var vB = new THREE.Vector3();
-    var vC = new THREE.Vector3();
-
-    var geo = new THREE.Geometry();
-    var iv = 0;
-
-    if (attributes.index !== undefined) {
-
-      var indices = attributes.index.array || geometry.ib;
-      var positions = geometry.vb ? geometry.vb : attributes.position.array;
-      var stride = geometry.vb ? geometry.vbstride : 3;
-      var offsets = geometry.offsets;
-
-      if (!offsets || offsets.length === 0) {
-        offsets = [{start: 0, count: indices.length, index: 0}];
-      }
-
-      for (var oi = 0, ol = offsets.length; oi < ol; ++oi) {
-
-        var start = offsets[oi].start;
-        var count = offsets[oi].count;
-        var index = offsets[oi].index;
-
-        for (var i = start, il = start + count; i < il; i += 3) {
-
-          var a = index + indices[i];
-          var b = index + indices[i + 1];
-          var c = index + indices[i + 2];
-
-          vA.fromArray(positions, a * stride);
-          vB.fromArray(positions, b * stride);
-          vC.fromArray(positions, c * stride);
-
-          vA.applyMatrix4(matrix);
-          vB.applyMatrix4(matrix);
-          vC.applyMatrix4(matrix);
-
-          var n = THREE.Triangle.normal(vA, vB, vC);
-
-          if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
-            this.drawVertex (vA);
-            this.drawVertex (vB);
-            this.drawVertex (vC);
-
-            this.drawLine(vA, vB);
-            this.drawLine(vB, vC);
-            this.drawLine(vC, vA);
-
-            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, top_face_z));
-            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, top_face_z));
-            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, top_face_z));
-            geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
-            iv = iv+3;
-          }
-        }
-      }
-    }
-    else {
-
-      throw 'Is this section of code ever called?'
-
-      var positions = geometry.vb ? geometry.vb : attributes.position.array;
-      var stride = geometry.vb ? geometry.vbstride : 3;
-
-      for (var i = 0, il = positions.length; i < il; i += 3) {
-
-        var a = i;
-        var b = i + 1;
-        var c = i + 2;
-
-        // copy code from above if this `else` clause is ever required
-      }
-    }
-    // console.log(floor_top_vertices);
-    // var geo = new THREE.Geometry(); 
-    // var holes = [];
-    // var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
-    // console.log(triangles);
-    // for( var i = 0; i < triangles.length; i++ ){
-    //   geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
-    // }
-    console.log(geo);
-    geo.computeFaceNormals();
-    geo.computeVertexNormals();
-    geo.computeBoundingBox();
-    var mesh = new THREE.Mesh( geo, this._shaderMaterial );
-    this.viewer.impl.scene.add(mesh);
-
-    // ray trace to determine wall locations on mesh
-
-    this.rayTraceToFindWalls(mesh, psource)
-  }
-
-  /////////////////////////////////////////////////////////////////
   // getMeshFromRenderProxy - generate a new mesh from render proxy
   //
   // floor_normal: skip all triangles whose normal differs from that
@@ -449,6 +298,64 @@ class FaderExtension extends ExtensionBase {
     geo.computeBoundingBox();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
     return mesh;
+  }
+
+  /////////////////////////////////////////////////////////////////
+  // attenuationCalculator - given a picked source point on a face
+  //
+  // determine face shape
+  // draw a heat map on it
+  // initially, just use distance from source to target point
+  // later, add number of walls intersected by ray between them
+  /////////////////////////////////////////////////////////////////
+  async attenuationCalculator(data)
+  {
+    console.log(data)
+
+    this.drawVertex(data.point)
+
+    var psource = new THREE.Vector3(
+      data.point.x, data.point.y,
+      data.point.z + this._rayTraceOffset)
+
+    var top_face_z = data.point.z + this._topFaceOffset;
+
+    // from the selected THREE.Face, extract the normal
+
+    var floor_normal = data.face.normal
+    console.log(floor_normal)
+
+    // retrieve floor render proxies matching normal
+
+    var instanceTree = this.viewer.model.getData().instanceTree
+    console.log(instanceTree)
+    const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
+    console.log(fragIds)
+
+    var floor_mesh_fragment = fragIds.map((fragId) => {
+      return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+    })
+    console.log(floor_mesh_fragment)
+
+    // in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
+    // function drawMeshData, the fragment proxy is ignored and 
+    // the render proxy is used instead:
+
+    var floor_mesh_render = fragIds.map((fragId) => {
+      return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
+    })
+    console.log(floor_mesh_render)
+
+    floor_mesh_render = floor_mesh_render[0]
+
+    var mesh = this.getMeshFromRenderProxy( 
+      floor_mesh_render, floor_normal, true )
+
+    this.viewer.impl.scene.add(mesh);
+
+    // ray trace to determine wall locations on mesh
+
+    this.rayTraceToFindWalls(mesh, psource)
   }
 
   /////////////////////////////////////////////////////////////////
