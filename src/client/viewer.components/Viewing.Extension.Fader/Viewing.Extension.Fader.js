@@ -368,7 +368,7 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // ray trace to determine wall count between source and target point
   /////////////////////////////////////////////////////////////////
-  getWallCountBetween( psource, ptarget )
+  getWallCountBetween( psource, ptarget, max_dist )
   {
     this.drawLine(psource, ptarget)
     this.drawVertex(ptarget);
@@ -379,7 +379,7 @@ class FaderExtension extends ExtensionBase {
     vray.normalize()
 
     var ray = new THREE.Raycaster( 
-      psource, vray, 0, vsize.length)
+      psource, vray, 0, max_dist )
 
     var intersectResults = ray.intersectObjects(
       this.wallMeshes, true)
@@ -422,7 +422,7 @@ class FaderExtension extends ExtensionBase {
         bb.max.x, bb.max.y, psource.z );
 
       nWalls = this.getWallCountBetween( 
-        psource, ptarget )
+        psource, ptarget, vsize.length )
     }
     else
     {
@@ -445,7 +445,7 @@ class FaderExtension extends ExtensionBase {
           // to generate a colour for each u,v coordinate pair
 
           nWalls = this.getWallCountBetween( 
-            psource, ptarget )
+            psource, ptarget, vsize.length )
         }
       }
     }
