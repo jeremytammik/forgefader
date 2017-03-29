@@ -35,6 +35,8 @@ Display points and lines for debugging using `drawVertex` and `drawLine`:
 
 Create a mesh to represent the floor top face and offset it up slightly above the floor surface:
 
+![Floor top face mesh](img/floor_top_face_mesh_250.png "Floor top face mesh")
+
 offsetFloorTop
 
 Create a custom fragment shader to display the heat map:

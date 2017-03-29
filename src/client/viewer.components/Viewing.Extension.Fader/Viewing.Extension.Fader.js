@@ -167,6 +167,8 @@ class FaderExtension extends ExtensionBase {
       data.point.x, data.point.y,
       data.point.z + this._rayTraceOffset)
 
+    var top_face_z = data.point.z + this._topFaceOffset;
+
     // from the selected THREE.Face, extract the normal
 
     var floor_normal = data.face.normal
@@ -208,8 +210,6 @@ class FaderExtension extends ExtensionBase {
     var vB = new THREE.Vector3();
     var vC = new THREE.Vector3();
 
-    //var floor_top_vertices = new Array();
-    var vAo, vBo, vCo; // untransformed before applying matrix
     var geo = new THREE.Geometry();
     var iv = 0;
 
@@ -255,9 +255,9 @@ class FaderExtension extends ExtensionBase {
             this.drawLine(vB, vC);
             this.drawLine(vC, vA);
 
-            geo.vertices.push(new THREE.Vector3(vA.x,vA.y,vA.z));
-            geo.vertices.push(new THREE.Vector3(vB.x,vB.y,vB.z));
-            geo.vertices.push(new THREE.Vector3(vC.x,vC.y,vC.z));
+            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, top_face_z));
+            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, top_face_z));
+            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, top_face_z));
             geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
             iv = iv+3;
           }
@@ -293,7 +293,7 @@ class FaderExtension extends ExtensionBase {
     geo.computeVertexNormals();
     geo.computeBoundingBox();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
-    //this.viewer.impl.scene.add(mesh);
+    this.viewer.impl.scene.add(mesh);
 
     // ray trace to determine wall locations on mesh
 
