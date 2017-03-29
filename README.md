@@ -41,7 +41,7 @@ Todo: Create a custom fragment shader to display the heat map, e.g., a concentri
 
 A debug helper displaying lines in the model representing the ray tracing rays:
 
-![Ray tracing rays](img/ray_trace_rays.png "Ray tracing rays")
+![Ray tracing rays](img/ray_trace_rays_250.png "Ray tracing rays")
 
 
 ## Running the Sample

@@ -162,7 +162,7 @@ class FaderExtension extends ExtensionBase {
   {
     console.log(data)
 
-    this.drawVertex (data.point, 0.2);
+    this.drawVertex (data.point);
 
     var psource = new THREE.Vector3(
       data.point.x, data.point.y,
@@ -248,9 +248,9 @@ class FaderExtension extends ExtensionBase {
           var n = THREE.Triangle.normal(vA, vB, vC);
 
           if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
-            this.drawVertex (vA, 0.2);
-            this.drawVertex (vB, 0.2);
-            this.drawVertex (vC, 0.2);
+            this.drawVertex (vA);
+            this.drawVertex (vB);
+            this.drawVertex (vC);
 
             this.drawLine(vA, vB);
             this.drawLine(vB, vC);
@@ -298,7 +298,7 @@ class FaderExtension extends ExtensionBase {
 
     // ray trace to determine wall locations on mesh
 
-    //this.rayTraceToFindWalls(mesh, psource)
+    this.rayTraceToFindWalls(mesh, psource)
   }
 
   /////////////////////////////////////////////////////////////////
@@ -335,6 +335,7 @@ class FaderExtension extends ExtensionBase {
         // to generate a colour for each u,v coordinate pair
 
         this.drawLine(psource, ptarget)
+        this.drawVertex(ptarget);
 
         var ray = new THREE.Raycaster( psource, 
           ptarget.sub(psource), 0, vsize.length)
