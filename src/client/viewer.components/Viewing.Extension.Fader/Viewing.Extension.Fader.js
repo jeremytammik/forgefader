@@ -325,8 +325,10 @@ class FaderExtension extends ExtensionBase {
     if( debug_shoot_single_diagonal_ray ) 
     {
       psource = new THREE.Vector3( 
-        bb.min.x, bb.min.y, bb.min.z );
-      ptarget = psource.add(vsize); 
+        bb.min.x, bb.min.y, psource.z );
+
+      var ptarget = new THREE.Vector3( 
+        bb.max.x, bb.max.y, psource.z );
 
       this.drawLine(psource, ptarget)
       this.drawVertex(ptarget);
