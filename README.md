@@ -110,7 +110,7 @@ populate environment variables used by the config files (in **/config**):
 
 Restart the server, you can then directly load your model by specifying design **URN** as query parameter in the url of the viewer page:
 
-[http://localhost:3000/viewer?urn=YOUR_URN_HERE](http://localhost:3000/viewer?urn=YOUR_DESIGN_URN_HERE)
+    `[http://localhost:3000/viewer?urn=YOUR_URN_HERE](http://localhost:3000/viewer?urn=YOUR_DESIGN_URN_HERE)`
 
 
 ## Deploy to Heroku
