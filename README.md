@@ -27,7 +27,7 @@ On loading, in `onGeometryLoaded`, it determines the Revit BIM wall fragments fo
 
 On picking a point on a floor in the model, in `onSelection`, it launches the `attenuationCalculator` function to do the work.
 
-That fiddles a round a bit to determine the picked floor top faces and add a new mesh to the model on which to draw the attenuation map.
+That fiddles around a bit to determine the picked floor top faces and add a new mesh to the model on which to draw the attenuation map.
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
 
@@ -36,7 +36,7 @@ Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a
 
 When debugging any kind of geometrical programming task, it is of utmost importance to be able to comfortably visualise the situation.
 
-In this app, I adding threee different kinds of geomtry dynamically to model dispalyed by the Forge viewer:
+In this app, I add three different kinds of geometry dynamically to the model displayed by the Forge viewer:
 
 - Points and lines representing the top face of the floor and the picked source point.
 - A mesh representing the top face of the floor to be equipped with a custom shader and offset slighly above and away from the floor element surface.
