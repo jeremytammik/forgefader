@@ -37,9 +37,7 @@ Create a mesh to represent the floor top face and offset it up slightly above th
 
 ![Floor top face mesh](img/floor_top_face_mesh_250.png "Floor top face mesh")
 
-Create a custom fragment shader to display the heat map:
-
-Concentric colour gradient around uv centre:
+Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
 
 A debug helper displaying lines in the model representing the ray tracing rays:
 
