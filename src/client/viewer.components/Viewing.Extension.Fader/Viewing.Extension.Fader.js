@@ -366,9 +366,35 @@ class FaderExtension extends ExtensionBase {
   }
 
   /////////////////////////////////////////////////////////////////
+  // ray trace to determine wall count between source and target point
+  /////////////////////////////////////////////////////////////////
+  getWallCountBetween( psource, ptarget )
+  {
+    this.drawLine(psource, ptarget)
+    this.drawVertex(ptarget);
+
+    var vray = new THREE.Vector3( ptarget.x - psource.x, 
+      ptarget.y - psource.y, ptarget.z - psource.z );
+
+    vray.normalize()
+
+    var ray = new THREE.Raycaster( 
+      psource, vray, 0, vsize.length)
+
+    var intersectResults = ray.intersectObjects(
+      this.wallMeshes, true)
+
+    console.log(intersectResults)
+
+    var nWalls = intersectResults.length
+
+    return nWalls
+  }
+
+  /////////////////////////////////////////////////////////////////
   // ray trace to find walls from picked point to mesh extents
   /////////////////////////////////////////////////////////////////
-  rayTraceToFindWalls( mesh,psource )
+  rayTraceToFindWalls( mesh, psource )
   {
     var nWalls;
 
@@ -395,26 +421,8 @@ class FaderExtension extends ExtensionBase {
       var ptarget = new THREE.Vector3( 
         bb.max.x, bb.max.y, psource.z );
 
-      this.drawLine(psource, ptarget)
-      this.drawVertex(ptarget);
-
-      console.log(this.wallMeshes)
-      console.log(this.wallMeshes[0])
-
-      var vray = new THREE.Vector3( ptarget.x - psource.x, 
-        ptarget.y - psource.y, ptarget.z - psource.z );
-
-      vray.normalize()
-
-      var ray = new THREE.Raycaster( 
-        psource, vray, 0, vsize.length)
-
-      var intersectResults = ray.intersectObjects(
-        this.wallMeshes, true)
-
-      console.log(intersectResults)
-
-      nWalls = intersectResults.length
+      nWalls = this.getWallCountBetween( 
+        psource, ptarget )
     }
     else
     {
@@ -433,29 +441,11 @@ class FaderExtension extends ExtensionBase {
             bb.min.y + v * vsize.y,
             psource.z);
 
-          this.drawLine(psource, ptarget)
-          this.drawVertex(ptarget);
-
-          console.log(this.wallMeshes)
-          console.log(this.wallMeshes[0])
-
-          var vray = new THREE.Vector3( ptarget.x - psource.x, 
-            ptarget.y - psource.y, ptarget.z - psource.z );
-
-          vray.normalize()
-
           // determine number of walls between psource and ptarget
           // to generate a colour for each u,v coordinate pair
 
-          var ray = new THREE.Raycaster( 
-            psource, vray, 0, vsize.length)
-
-          var intersectResults = ray.intersectObjects(
-            this.wallMeshes, true)
-
-          console.log(intersectResults)
-
-          nWalls = intersectResults.length
+          nWalls = this.getWallCountBetween( 
+            psource, ptarget )
         }
       }
     }
