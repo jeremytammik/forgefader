@@ -48,6 +48,7 @@ class FaderExtension extends ExtensionBase {
 
     this._eps = 0.000001;    
     this._pointSize = 0.3;    
+    this._topFaceOffset = 0.01; // offset above floor in imperial feet
     this._rayTraceOffset = 5; // offset above floor in imperial feet
     this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
   }
@@ -142,9 +143,7 @@ class FaderExtension extends ExtensionBase {
       const dbIds = selection.dbIdArray
 
       const data = this.viewer.clientToWorld(
-        this.pointer.canvasX,
-        this.pointer.canvasY,
-        true)
+        this.pointer.canvasX, this.pointer.canvasY, true )
 
       this.attenuationCalculator(data)
     }
@@ -241,8 +240,6 @@ class FaderExtension extends ExtensionBase {
           vB.fromArray(positions, b * stride);
           vC.fromArray(positions, c * stride);
 
-          vAo = vA; vBo = vB; vCo = vC;
-
           vA.applyMatrix4(matrix);
           vB.applyMatrix4(matrix);
           vC.applyMatrix4(matrix);
@@ -274,31 +271,13 @@ class FaderExtension extends ExtensionBase {
       var positions = geometry.vb ? geometry.vb : attributes.position.array;
       var stride = geometry.vb ? geometry.vbstride : 3;
 
-      for (var i = 0, j = 0, il = positions.length; i < il; i += 3, j += 9) {
+      for (var i = 0, il = positions.length; i < il; i += 3) {
 
         var a = i;
         var b = i + 1;
         var c = i + 2;
 
-        vA.fromArray(positions, a * stride);
-        vB.fromArray(positions, b * stride);
-        vC.fromArray(positions, c * stride);
-
-        vA.applyMatrix4(matrix);
-        vB.applyMatrix4(matrix);
-        vC.applyMatrix4(matrix);
-
-        var n = THREE.Triangle.normal(vA, vB, vC);
-
-        if( this.isEqualVectorsWithPrecision(n,floor_normal)) {
-          this.drawVertex (vA, 0.2);
-          this.drawVertex (vB, 0.2);
-          this.drawVertex (vC, 0.2);
-
-          this.drawLine(vA, vB);
-          this.drawLine(vB, vC);
-          this.drawLine(vC, vA);
-        }
+        // copy code from above if this `else` clause is ever required
       }
     }
     // console.log(floor_top_vertices);
@@ -314,11 +293,11 @@ class FaderExtension extends ExtensionBase {
     geo.computeVertexNormals();
     geo.computeBoundingBox();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
-    this.viewer.impl.scene.add(mesh);
+    //this.viewer.impl.scene.add(mesh);
 
     // ray trace to determine wall locations on mesh
 
-    this.rayTraceToFindWalls(mesh, psource)
+    //this.rayTraceToFindWalls(mesh, psource)
   }
 
   /////////////////////////////////////////////////////////////////
@@ -410,12 +389,11 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   createVertexMaterial() {
 
-    var material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    var material = new THREE.MeshPhongMaterial({ 
+      color: 0xffffff });
 
     this.viewer.impl.matman().addMaterial(
-      'adn-material-vertex',
-      material,
-      true);
+      'fader-material-vertex', material, true );
 
     return material;
   }
@@ -426,14 +404,10 @@ class FaderExtension extends ExtensionBase {
   createLineMaterial() {
 
     var material = new THREE.LineBasicMaterial({
-      color: 0x0000ff,
-      linewidth: 2
-    });
+      color: 0xffffff, linewidth: 50 });
 
     this.viewer.impl.matman().addMaterial(
-      'adn-material-line',
-      material,
-      true);
+      'fader-material-line', material, true );
 
     return material;
   }
@@ -462,7 +436,7 @@ class FaderExtension extends ExtensionBase {
   drawVertex (v) {
 
     var vertex = new THREE.Mesh(
-      new THREE.SphereGeometry(this._pointSize, 20),
+      new THREE.SphereGeometry(this._pointSize, 4, 3),
       this._vertexMaterial);
 
     vertex.position.set(v.x, v.y, v.z);

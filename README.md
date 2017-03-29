@@ -29,6 +29,18 @@ That fiddles a round a bit to determine the picked floor top faces and add a new
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
 
+Display points and lines for debugging:
+
+![Line and vertex debug markers](img/line_vertex_debug_marker.png "Line and vertex debug markers")
+
+Create a mesh to represent the floor top face and offset it up slightly above the floor surface:
+
+offsetFloorTop
+
+Create a custom fragment shader to display the heat map:
+
+Concentric colour gradient around uv centre:
+
 A debug helper displaying lines in the model representing the ray tracing rays:
 
 ![Ray tracing rays](img/ray_trace_rays.png "Ray tracing rays")
