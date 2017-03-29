@@ -153,10 +153,10 @@ class FaderExtension extends ExtensionBase {
 
         console.log(fragIds)
 
-        this.wallProxies = fragIds.map((fragId) => {
-          return this.viewer.impl.getRenderProxy(
-            this.viewer.model, fragId );
-        })
+        // this.wallProxies = fragIds.map((fragId) => {
+        //   return this.viewer.impl.getRenderProxy(
+        //     this.viewer.model, fragId );
+        // })
  
           //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
 
@@ -172,6 +172,11 @@ class FaderExtension extends ExtensionBase {
           // still not detect any intersections.
           //proxy.geometry.boundingSphere.radius = 100;
 
+        this.wallMeshes = fragIds.map((fragId) => {
+          return this.getMeshFromRenderProxy( 
+            this.viewer.impl.getRenderProxy( 
+              this.viewer.model, fragId ), null, null, null );
+        })
       }
     })
   }
@@ -297,6 +302,7 @@ class FaderExtension extends ExtensionBase {
     geo.computeFaceNormals();
     geo.computeVertexNormals();
     geo.computeBoundingBox();
+    geo.computeBoundingSphere();
     var mesh = new THREE.Mesh( geo, this._shaderMaterial );
     return mesh;
   }
@@ -390,14 +396,14 @@ class FaderExtension extends ExtensionBase {
       this.drawLine(psource, ptarget)
       this.drawVertex(ptarget);
 
-      console.log(this.wallProxies)
-      console.log(this.wallProxies[0])
+      console.log(this.wallMeshes)
+      console.log(this.wallMeshes[0])
 
       var ray = new THREE.Raycaster( psource, 
         ptarget.sub(psource), 0, vsize.length)
 
       var intersectResults = ray.intersectObjects(
-        this.wallProxies, true)
+        this.wallMeshes, true)
 
       console.log(intersectResults)
     }
@@ -428,7 +434,7 @@ class FaderExtension extends ExtensionBase {
             ptarget.sub(psource), 0, vsize.length)
 
           var intersectResults = ray.intersectObjects(
-            this.wallProxies, true)
+            this.wallMeshes, true)
 
           console.log(intersectResults)
         }
