@@ -4,12 +4,12 @@ A Forge viewer extension to calculate and display signal attenuation caused by d
 
 It implements a functionality similar to [RvtFader](https://github.com/jeremytammik/RvtFader):
 
+Given a source point, calculate the attenuation in a widening circle around it and display that as a heat map.
+
 Two signal attenuation values in decibels are defined in the application settings:
 
 - Attenuation per metre in air
 - Attenuation by a wall
-
-Given a source point, calculate the attenuation in a widening circle around it and display that as a heat map.
 
 This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
 
