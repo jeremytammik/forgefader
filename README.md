@@ -73,7 +73,7 @@ In **development**, the client is dynamically built by the
 
  - `npm start`      *(builds client on the fly and run server)*
 
- - open [http://localhost:3000](http://localhost:3000) in your favorite browser
+ - open [http://localhost:3000](http://localhost:3000) in your favourite browser
 
 In **production**, the client requires a build step, so run:
 
@@ -81,7 +81,7 @@ In **production**, the client requires a build step, so run:
 
  - `npm run build-prod && npm start` *(builds client and run server)*
 
- - open [http://localhost:3000](http://localhost:3000) in your favorite browser
+ - open [http://localhost:3000](http://localhost:3000) in your favourite browser
 
 
 ## Loading Custom Models in the Forge Viewer
