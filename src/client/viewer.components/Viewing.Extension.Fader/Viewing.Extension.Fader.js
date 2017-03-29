@@ -366,7 +366,7 @@ class FaderExtension extends ExtensionBase {
   }
 
   /////////////////////////////////////////////////////////////////
-  // ray trace to determine wall count between source and target point
+  // ray trace to count walls between source and target points
   /////////////////////////////////////////////////////////////////
   getWallCountBetween( psource, ptarget, max_dist )
   {
@@ -397,9 +397,6 @@ class FaderExtension extends ExtensionBase {
   rayTraceToFindWalls( mesh, psource )
   {
     var nWalls;
-
-    console.log(mesh)
-    console.log(psource)
     
     var bb = mesh.geometry.boundingBox;
 
