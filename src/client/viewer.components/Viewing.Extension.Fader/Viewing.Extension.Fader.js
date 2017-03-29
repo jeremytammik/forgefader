@@ -152,9 +152,8 @@ class FaderExtension extends ExtensionBase {
         console.log(fragIds)
 
         this.wallProxies = fragIds.map((fragId) => {
-          return this.clean_up_render_proxy(
-              this.viewer.impl.getRenderProxy(
-                this.viewer.model, fragId ));
+          return this.viewer.impl.getRenderProxy(
+            this.viewer.model, fragId );
         })
 
           //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
