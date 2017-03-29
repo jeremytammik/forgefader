@@ -201,7 +201,7 @@ class FaderExtension extends ExtensionBase {
   // top_face_z: use for the face Z coordinates unless null
   // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
-  getMeshFromRenderProxy( render_proxy, floor_normal, debug_draw )
+  getMeshFromRenderProxy( render_proxy, floor_normal, top_face_z, debug_draw )
   {
     var matrix = render_proxy.matrixWorld;
     var geometry = render_proxy.geometry;
