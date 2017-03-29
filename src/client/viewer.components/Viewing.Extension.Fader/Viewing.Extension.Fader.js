@@ -130,7 +130,16 @@ class FaderExtension extends ExtensionBase {
 
           var proxy = this.viewer.impl.getRenderProxy(
             this.viewer.model, fragId )
-          proxy.geometry.computeBoundingSphere();
+          
+          // the wall render proxy does not have a valid 
+          // bounding sphere. if i ask it to compute one,
+          // the resulting radius is zero.
+          //proxy.geometry.computeBoundingSphere();
+          // i can force a larger radius, but the 
+          // Raycaster intersectObjects function will 
+          // still not detect any intersections.
+          //proxy.geometry.boundingSphere.radius = 100;
+          
           return proxy
         })
       }
