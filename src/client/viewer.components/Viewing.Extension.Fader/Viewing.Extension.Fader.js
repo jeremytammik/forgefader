@@ -368,8 +368,10 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // ray trace to find walls from picked point to mesh extents
   /////////////////////////////////////////////////////////////////
-  rayTraceToFindWalls(mesh,psource)
+  rayTraceToFindWalls( mesh,psource )
   {
+    var nWalls;
+
     console.log(mesh)
     console.log(psource)
     
@@ -411,6 +413,8 @@ class FaderExtension extends ExtensionBase {
         this.wallMeshes, true)
 
       console.log(intersectResults)
+
+      nWalls = intersectResults.length
     }
     else
     {
@@ -450,6 +454,8 @@ class FaderExtension extends ExtensionBase {
             this.wallMeshes, true)
 
           console.log(intersectResults)
+
+          nWalls = intersectResults.length
         }
       }
     }
