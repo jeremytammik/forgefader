@@ -29,7 +29,7 @@ That fiddles a round a bit to determine the picked floor top faces and add a new
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
 
-Display points and lines for debugging:
+Display points and lines for debugging using `drawVertex` and `drawLine`:
 
 ![Line and vertex debug markers](img/line_vertex_debug_marker_300.png "Line and vertex debug markers")
 
