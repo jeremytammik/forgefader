@@ -384,40 +384,41 @@ class FaderExtension extends ExtensionBase {
         this.wallProxies, true)
 
       console.log(intersectResults)
-
-      return;      
     }
-    
-    var step = 1.0 / this._rayTraceGrid;
+    else
+    {
+      var step = 1.0 / this._rayTraceGrid;
 
-    // for u in [0,1]
-    //   fo r v in [0,1]
-    //      p target = ??? (u,v)
-    //        if p is on the face (skip this, it requires raytrace too, so no saving)
-    //          raytrace from source to target 
+      // for u in [0,1]
+      //   fo r v in [0,1]
+      //      p target = ??? (u,v)
+      //        if p is on the face (skip this, it requires raytrace too, so no saving)
+      //          raytrace from source to target 
 
-    for (var u = 0.0; u < 1.0 + this._eps; u += step) {
-      for (var v = 0.0; v < 1.0 + this._eps; v += step) {
-        var ptarget = new THREE.Vector3(
-          bb.min.x + u * vsize.x,
-          bb.min.y + v * vsize.y,
-          psource.z);
+      for (var u = 0.0; u < 1.0 + this._eps; u += step) {
+        for (var v = 0.0; v < 1.0 + this._eps; v += step) {
+          var ptarget = new THREE.Vector3(
+            bb.min.x + u * vsize.x,
+            bb.min.y + v * vsize.y,
+            psource.z);
 
-        // determine number of walls between psource and ptarget
-        // to generate a colour for each u,v coordinate pair
+          // determine number of walls between psource and ptarget
+          // to generate a colour for each u,v coordinate pair
 
-        this.drawLine(psource, ptarget)
-        this.drawVertex(ptarget);
+          this.drawLine(psource, ptarget)
+          this.drawVertex(ptarget);
 
-        var ray = new THREE.Raycaster( psource, 
-          ptarget.sub(psource), 0, vsize.length)
+          var ray = new THREE.Raycaster( psource, 
+            ptarget.sub(psource), 0, vsize.length)
 
-        var intersectResults = ray.intersectObjects(
-          this.wallProxies, true)
+          var intersectResults = ray.intersectObjects(
+            this.wallProxies, true)
 
-        console.log(intersectResults)
+          console.log(intersectResults)
+        }
       }
     }
+    this.viewer.impl.invalidate(true)
   }
 
   /////////////////////////////////////////////////////////////////
