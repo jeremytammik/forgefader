@@ -157,7 +157,7 @@ class FaderExtension extends ExtensionBase {
           return this.viewer.impl.getRenderProxy(
             this.viewer.model, fragId );
         })
-
+ 
           //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
 
           // var proxy = this.viewer.impl.getRenderProxy(
@@ -343,6 +343,112 @@ class FaderExtension extends ExtensionBase {
     // ray trace to determine wall locations on mesh
 
     this.rayTraceToFindWalls(mesh, psource)
+  }
+
+  /////////////////////////////////////////////////////////////////
+  // getMeshFromRenderProxy - generate a new mesh from render proxy
+  //
+  // floor_normal: skip all triangles whose normal differs from that
+  // debug_draw: draw lines and points representing edges and vertices
+  /////////////////////////////////////////////////////////////////
+  getMeshFromRenderProxy( render_proxy, floor_normal, debug_draw )
+  {
+    var matrix = render_proxy.matrixWorld;
+    var geometry = render_proxy.geometry;
+    var attributes = geometry.attributes;
+
+    var vA = new THREE.Vector3();
+    var vB = new THREE.Vector3();
+    var vC = new THREE.Vector3();
+
+    var geo = new THREE.Geometry();
+    var iv = 0;
+
+    if (attributes.index !== undefined) {
+
+      var indices = attributes.index.array || geometry.ib;
+      var positions = geometry.vb ? geometry.vb : attributes.position.array;
+      var stride = geometry.vb ? geometry.vbstride : 3;
+      var offsets = geometry.offsets;
+
+      if (!offsets || offsets.length === 0) {
+        offsets = [{start: 0, count: indices.length, index: 0}];
+      }
+
+      for (var oi = 0, ol = offsets.length; oi < ol; ++oi) {
+
+        var start = offsets[oi].start;
+        var count = offsets[oi].count;
+        var index = offsets[oi].index;
+
+        for (var i = start, il = start + count; i < il; i += 3) {
+
+          var a = index + indices[i];
+          var b = index + indices[i + 1];
+          var c = index + indices[i + 2];
+
+          vA.fromArray(positions, a * stride);
+          vB.fromArray(positions, b * stride);
+          vC.fromArray(positions, c * stride);
+
+          vA.applyMatrix4(matrix);
+          vB.applyMatrix4(matrix);
+          vC.applyMatrix4(matrix);
+
+          var n = THREE.Triangle.normal(vA, vB, vC);
+
+          if( null === floor_normal 
+            || this.isEqualVectorsWithPrecision( n, floor_normal )) 
+          {
+            if( debug_draw )
+            {
+              this.drawVertex (vA);
+              this.drawVertex (vB);
+              this.drawVertex (vC);
+
+              this.drawLine(vA, vB);
+              this.drawLine(vB, vC);
+              this.drawLine(vC, vA);
+            }
+            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, top_face_z));
+            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, top_face_z));
+            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, top_face_z));
+            geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
+            iv = iv+3;
+          }
+        }
+      }
+    }
+    else {
+
+      throw 'Is this section of code ever called?'
+
+      var positions = geometry.vb ? geometry.vb : attributes.position.array;
+      var stride = geometry.vb ? geometry.vbstride : 3;
+
+      for (var i = 0, il = positions.length; i < il; i += 3) {
+
+        var a = i;
+        var b = i + 1;
+        var c = i + 2;
+
+        // copy code from above if this `else` clause is ever required
+      }
+    }
+    // console.log(floor_top_vertices);
+    // var geo = new THREE.Geometry(); 
+    // var holes = [];
+    // var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
+    // console.log(triangles);
+    // for( var i = 0; i < triangles.length; i++ ){
+    //   geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
+    // }
+    console.log(geo);
+    geo.computeFaceNormals();
+    geo.computeVertexNormals();
+    geo.computeBoundingBox();
+    var mesh = new THREE.Mesh( geo, this._shaderMaterial );
+    return mesh;
   }
 
   /////////////////////////////////////////////////////////////////
