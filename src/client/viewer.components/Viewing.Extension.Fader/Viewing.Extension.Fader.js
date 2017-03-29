@@ -125,11 +125,14 @@ class FaderExtension extends ExtensionBase {
         console.log(fragIds)
 
         this.wallProxies = fragIds.map((fragId) => {
+          return this.viewer.impl.getRenderProxy(
+            this.viewer.model, fragId );
+        })
 
           //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
 
-          var proxy = this.viewer.impl.getRenderProxy(
-            this.viewer.model, fragId )
+          // var proxy = this.viewer.impl.getRenderProxy(
+          //   this.viewer.model, fragId )
           
           // the wall render proxy does not have a valid 
           // bounding sphere. if i ask it to compute one,
@@ -139,9 +142,7 @@ class FaderExtension extends ExtensionBase {
           // Raycaster intersectObjects function will 
           // still not detect any intersections.
           //proxy.geometry.boundingSphere.radius = 100;
-          
-          return proxy
-        })
+
       }
     })
   }
@@ -216,7 +217,7 @@ class FaderExtension extends ExtensionBase {
 
     var geometry = floor_mesh_render.geometry;
 
-    //not working
+    //not working, says phillipe
     //geometry.applyMatrix(matrix);
 
     var attributes = geometry.attributes;
@@ -346,6 +347,9 @@ class FaderExtension extends ExtensionBase {
       this.drawLine(psource, ptarget)
       this.drawVertex(ptarget);
 
+      console.log(this.wallProxies)
+      console.log(this.wallProxies[0])
+
       var ray = new THREE.Raycaster( psource, 
         ptarget.sub(psource), 0, vsize.length)
 
@@ -380,9 +384,6 @@ class FaderExtension extends ExtensionBase {
 
         var ray = new THREE.Raycaster( psource, 
           ptarget.sub(psource), 0, vsize.length)
-
-        // console.log(this.wallProxies)
-        // console.log(this.wallProxies[0])
 
         var intersectResults = ray.intersectObjects(
           this.wallProxies, true)
