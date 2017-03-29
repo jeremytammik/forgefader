@@ -29,6 +29,19 @@ That fiddles a round a bit to determine the picked floor top faces and add a new
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
 
+
+## Adding Custom Geometry to the Forge Viewer
+
+When debugging any kind of geometrical programming task, it is of utmost importance to be able to comfortably visualise the situation.
+
+In this app, I adding threee different kinds of geomtry dynamically to model dispalyed by the Forge viewer:
+
+- Points and lines representing the top face of the floor and the picked source point.
+- A mesh representing the top face of the floor to be equipped with a custom shader and offset slighly above and away from the floor element surface.
+- Points and lines representing the raytracing rays.
+
+Three example screen snapshots illustrate what I mean.
+
 Display points and lines for debugging using `drawVertex` and `drawLine`:
 
 ![Line and vertex debug markers](img/line_vertex_debug_marker_300.png "Line and vertex debug markers")
