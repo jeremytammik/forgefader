@@ -126,7 +126,8 @@ class FaderExtension extends ExtensionBase {
 
         this.wallProxies = fragIds.map((fragId) => {
 
-          return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+          //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+          return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
         })
       }
     })
@@ -310,12 +311,37 @@ class FaderExtension extends ExtensionBase {
     console.log(psource)
     
     var bb = mesh.geometry.boundingBox;
-    
+
     var vsize = new THREE.Vector3( 
       bb.max.x - bb.min.x,
       bb.max.y - bb.min.y,  
       bb.max.z - bb.min.z);
 
+    // create a test ray going diagonally across the entire
+    // floor top to test the ray tracing functionality:
+
+    var debug_shoot_single_diagonal_ray = true;
+
+    if( debug_shoot_single_diagonal_ray ) 
+    {
+      psource = new THREE.Vector3( 
+        bb.min.x, bb.min.y, bb.min.z );
+      ptarget = psource.add(vsize); 
+
+      this.drawLine(psource, ptarget)
+      this.drawVertex(ptarget);
+
+      var ray = new THREE.Raycaster( psource, 
+        ptarget.sub(psource), 0, vsize.length)
+
+      var intersectResults = ray.intersectObjects(
+        this.wallProxies, true)
+
+      console.log(intersectResults)
+
+      return;      
+    }
+    
     var step = 1.0 / this._rayTraceGrid;
 
     // for u in [0,1]
@@ -340,10 +366,13 @@ class FaderExtension extends ExtensionBase {
         var ray = new THREE.Raycaster( psource, 
           ptarget.sub(psource), 0, vsize.length)
 
+        // console.log(this.wallProxies)
+        // console.log(this.wallProxies[0])
+
         var intersectResults = ray.intersectObjects(
           this.wallProxies, true)
 
-        // console.log(intersectResults)
+        console.log(intersectResults)
       }
     }
   }
