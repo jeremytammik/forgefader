@@ -19,8 +19,9 @@ const attenuationFragmentShader = `
   uniform vec4 color;
   varying vec2 vUv;
   void main() {
-      float d = vUv.u - 0.5;
-      gl_FragColor = d * d * color;
+      float du = vUv.u - 0.5;
+      float dv = vUv.v - 0.5;
+      gl_FragColor = sqrt( du * du + dv * dv ) * color;
   }
 `
 
@@ -147,9 +148,15 @@ class FaderExtension extends ExtensionBase {
       const nodeName = instanceTree.getNodeName(childId)
       if (nodeName === 'Walls') {
 
-        const fragIds = await Toolkit.getFragIds(this.viewer.model, childId)
+        const fragIds = await Toolkit.getFragIds(
+          this.viewer.model, childId)
 
         console.log(fragIds)
+
+        this.wallProxies = fragIds.map((fragId) => {
+          return this.viewer.impl.getRenderProxy(
+            this.viewer.model, fragId );
+        })
 
         this.wallProxies = fragIds.map((fragId) => {
           return this.viewer.impl.getRenderProxy(
