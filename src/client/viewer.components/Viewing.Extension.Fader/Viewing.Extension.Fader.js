@@ -424,14 +424,17 @@ class FaderExtension extends ExtensionBase {
             bb.min.y + v * vsize.y,
             psource.z);
 
+          var vray = new THREE.Vector3( ptarget.x - psource.x, 
+            ptarget.y - psource.y, ptarget.z - psource.z );
+
           // determine number of walls between psource and ptarget
           // to generate a colour for each u,v coordinate pair
 
           this.drawLine(psource, ptarget)
           this.drawVertex(ptarget);
 
-          var ray = new THREE.Raycaster( psource, 
-            ptarget.sub(psource), 0, vsize.length)
+          var ray = new THREE.Raycaster( 
+            psource, vray, 0, vsize.length)
 
           var intersectResults = ray.intersectObjects(
             this.wallMeshes, true)
