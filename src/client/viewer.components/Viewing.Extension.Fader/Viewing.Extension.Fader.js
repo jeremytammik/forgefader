@@ -120,25 +120,6 @@ class FaderExtension extends ExtensionBase
         const fragIds = await Toolkit.getFragIds(
           this.viewer.model, childId)
 
-        // this.wallProxies = fragIds.map((fragId) => {
-        //   return this.viewer.impl.getRenderProxy(
-        //     this.viewer.model, fragId );
-        // })
- 
-          //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
-
-          // var proxy = this.viewer.impl.getRenderProxy(
-          //   this.viewer.model, fragId )
-          
-          // the wall render proxy does not have a valid 
-          // bounding sphere. if i ask it to compute one,
-          // the resulting radius is zero.
-          //proxy.geometry.computeBoundingSphere();
-          // i can force a larger radius, but the 
-          // Raycaster intersectObjects function will 
-          // still not detect any intersections.
-          //proxy.geometry.boundingSphere.radius = 100;
-
         this.wallMeshes = fragIds.map((fragId) => {
           return this.getMeshFromRenderProxy( 
             this.viewer.impl.getRenderProxy( 
