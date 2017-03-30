@@ -468,7 +468,7 @@ class FaderExtension extends ExtensionBase {
             = d * this._attenuation_per_m_in_air
               + nWalls * this._attenuation_per_wall
           
-          map_uv_to_color[i,j] = signal_attenuation
+          map_uv_to_color[i][j] = signal_attenuation
         }
       }
     }
