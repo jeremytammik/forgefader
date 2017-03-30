@@ -53,6 +53,8 @@ class FaderExtension extends ExtensionBase {
     this._topFaceOffset = 0.01; // offset above floor in imperial feet
     this._rayTraceOffset = 5; // offset above floor in imperial feet
     this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
+    this._attenuation_per_m_in_air = 2.8;
+    this._attenuation_per_wall = 3.2;
   }
 
   /////////////////////////////////////////////////////////////////
@@ -362,7 +364,12 @@ class FaderExtension extends ExtensionBase {
 
     // ray trace to determine wall locations on mesh
 
-    this.rayTraceToFindWalls(mesh, psource)
+    var map_uv_to_color = this.rayTraceToFindWalls(
+      mesh, psource)
+
+    console.log( map_uv_to_color )
+    
+    this.viewer.impl.invalidate(true)
   }
 
   /////////////////////////////////////////////////////////////////
@@ -393,10 +400,20 @@ class FaderExtension extends ExtensionBase {
 
   /////////////////////////////////////////////////////////////////
   // ray trace to find walls from picked point to mesh extents
+  //
+  // return 2D array mapping (u,v) to signal attenuation in dB.
   /////////////////////////////////////////////////////////////////
   rayTraceToFindWalls( mesh, psource )
   {
-    var nWalls;
+    // set up the result map
+
+    var n = this._rayTraceGrid; 
+    var map_uv_to_color = new Array(n);
+    for (var i = 0; i < n; i++) {
+      x[i] = new Array(n);
+    }
+
+    var ptarget, d, nWalls, signal_attenuation;
     
     var bb = mesh.geometry.boundingBox;
 
@@ -415,7 +432,7 @@ class FaderExtension extends ExtensionBase {
       psource = new THREE.Vector3( 
         bb.min.x, bb.min.y, psource.z );
 
-      var ptarget = new THREE.Vector3( 
+      ptarget = new THREE.Vector3( 
         bb.max.x, bb.max.y, psource.z );
 
       nWalls = this.getWallCountBetween( 
@@ -423,7 +440,7 @@ class FaderExtension extends ExtensionBase {
     }
     else
     {
-      var step = 1.0 / this._rayTraceGrid;
+      var step = 1.0 / (n-1)
 
       // for u in [0,1]
       //   fo r v in [0,1]
@@ -433,20 +450,29 @@ class FaderExtension extends ExtensionBase {
 
       for (var u = 0.0; u < 1.0 + this._eps; u += step) {
         for (var v = 0.0; v < 1.0 + this._eps; v += step) {
-          var ptarget = new THREE.Vector3(
+
+          ptarget = new THREE.Vector3(
             bb.min.x + u * vsize.x,
             bb.min.y + v * vsize.y,
-            psource.z);
+            psource.z )
+
+          d = psource.distanceTo( ptarget )
 
           // determine number of walls between psource and ptarget
           // to generate a colour for each u,v coordinate pair
 
           nWalls = this.getWallCountBetween( 
             psource, ptarget, vsize.length )
+
+          var signal_attenuation 
+            = d * this._attenuation_per_m_in_air
+              + nWalls * this._attenuation_per_wall
+          
+          map_uv_to_color[i,j] = signal_attenuation
         }
       }
     }
-    this.viewer.impl.invalidate(true)
+    return map_uv_to_color
   }
 
   /////////////////////////////////////////////////////////////////
