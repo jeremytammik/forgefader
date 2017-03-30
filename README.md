@@ -95,7 +95,7 @@ Unfortunately, due to time differences, they replied only after I had completed 
 
 [Q@21:42 PM] Thank you for the info! I assume these approaches would offer multiple advantages: (i) more efficient (ii) easier to set up and use (iii) more fool- and future-proof. Do you agree?
 
-[A@21:43 PM] Probably better to use the high level hit testing APIs instead of messing with internal mesh representation directly... i.e. avoid doing fragile stuff like `this.viewer.impl.getRenderProxy(this.viewer.model, fragId)`
+[A@21:43 PM] Probably better to use the high level hit testing APIs instead of messing with internal mesh representation directly... i.e. avoid doing fragile stuff like `this.viewer.impl.getRenderProxy(this.viewer.model, fragId)`.
 
 In summary, please ignore the interesting solution I present above and use the built-in viewer functionality instead.
 
