@@ -20,13 +20,13 @@ const attenuationFragmentShader = `
   }
 `
 
-class FaderExtension extends ExtensionBase
-{
+class FaderExtension extends ExtensionBase {
+
   /////////////////////////////////////////////////////////////////
   // Class constructor
   /////////////////////////////////////////////////////////////////
-  constructor (viewer, options)
-  {
+  constructor (viewer, options) {
+
     super (viewer, options)
 
     this.onGeometryLoaded = this.onGeometryLoaded.bind(this)
@@ -55,8 +55,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // Load callback
   /////////////////////////////////////////////////////////////////
-  load()
-  {
+  load() {
+
     this.eventTool = new EventTool(this.viewer)
 
     this.eventTool.activate()
@@ -88,16 +88,16 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // Extension Id
   /////////////////////////////////////////////////////////////////
-  static get ExtensionId ()
-  {
+  static get ExtensionId () {
+
     return 'Viewing.Extension.Fader'
   }
 
   /////////////////////////////////////////////////////////////////
   // Unload callback
   /////////////////////////////////////////////////////////////////
-  unload ()
-  {
+  unload () {
+
     this.viewer.removeEventListener(
       //Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
       Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
@@ -109,8 +109,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // onGeometryLoaded - retrieve all wall meshes
   /////////////////////////////////////////////////////////////////
-  onGeometryLoaded (event)
-  {
+  onGeometryLoaded (event) {
+
     const instanceTree = this.viewer.model.getData().instanceTree
     var rootId = instanceTree.getRootId()
     instanceTree.enumNodeChildren(rootId, async(childId) => {
@@ -132,8 +132,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // onSelection
   /////////////////////////////////////////////////////////////////
-  onSelection (event)
-  {
+  onSelection (event) {
+
     if (event.selections && event.selections.length) {
 
       const selection = event.selections[0]
@@ -154,8 +154,8 @@ class FaderExtension extends ExtensionBase
   // top_face_z: use for the face Z coordinates unless null
   // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
-  getMeshFromRenderProxy( render_proxy, floor_normal, top_face_z, debug_draw )
-  {
+  getMeshFromRenderProxy( render_proxy, floor_normal, top_face_z, debug_draw ) {
+
     var matrix = render_proxy.matrixWorld
     var geometry = render_proxy.geometry
     var attributes = geometry.attributes
@@ -261,8 +261,8 @@ class FaderExtension extends ExtensionBase
   // initially, just use distance from source to target point
   // later, add number of walls intersected by ray between them
   /////////////////////////////////////////////////////////////////
-  async attenuationCalculator(data)
-  {
+  async attenuationCalculator(data) {
+
     //this.drawVertex(data.point)
 
     var psource = new THREE.Vector3(
@@ -315,8 +315,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // ray trace to count walls between source and target points
   /////////////////////////////////////////////////////////////////
-  getWallCountBetween( psource, ptarget, max_dist )
-  {
+  getWallCountBetween( psource, ptarget, max_dist ) {
+
     //this.drawLine(psource, ptarget)
     //this.drawVertex(ptarget)
 
@@ -343,8 +343,8 @@ class FaderExtension extends ExtensionBase
   //
   // return 2D array mapping (u,v) to signal attenuation in dB.
   /////////////////////////////////////////////////////////////////
-  rayTraceToFindWalls( mesh, psource )
-  {
+  rayTraceToFindWalls( mesh, psource ) {
+
     // set up the result map
 
     var n = this._rayTraceGrid
@@ -418,8 +418,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // create attenuation shader material
   /////////////////////////////////////////////////////////////////
-  createShaderMaterial (data)
-  {
+  createShaderMaterial (data) {
+
     const uniforms = {
       color: {
         value: new THREE.Vector4(0.1, 1.0, 0.5, 0.6),
@@ -458,8 +458,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   // apply material to specific fragments
   /////////////////////////////////////////////////////////////////
-  setMaterial(fragIds, material)
-  {
+  setMaterial(fragIds, material) {
+
     const fragList = this.viewer.model.getFragmentList()
 
     fragIds.forEach((fragId) => { // removed this.toArray()
@@ -472,8 +472,8 @@ class FaderExtension extends ExtensionBase
   ///////////////////////////////////////////////////////////////////////////
   // create vertex material
   ///////////////////////////////////////////////////////////////////////////
-  createVertexMaterial()
-  {
+  createVertexMaterial() {
+
     var material = new THREE.MeshPhongMaterial({
       color: 0xffffff })
 
@@ -486,8 +486,8 @@ class FaderExtension extends ExtensionBase
   ///////////////////////////////////////////////////////////////////////////
   // create line material
   ///////////////////////////////////////////////////////////////////////////
-  createLineMaterial()
-  {
+  createLineMaterial() {
+
     var material = new THREE.LineBasicMaterial({
       color: 0xffffff, linewidth: 50 })
 
@@ -497,8 +497,8 @@ class FaderExtension extends ExtensionBase
     return material
   }
 
-	calculateUVs (mesh)
-  {
+	calculateUVs (mesh) {
+
 		var bbox =new THREE.Box3 ().setFromObject (mesh.clone ()) 
 
 		var max =bbox.max, min =bbox.min 
@@ -562,8 +562,8 @@ class FaderExtension extends ExtensionBase
   ///////////////////////////////////////////////////////////////////////////
   // draw a line
   ///////////////////////////////////////////////////////////////////////////
-  drawLine(start, end)
-  {
+  drawLine(start, end) {
+
     var geometry = new THREE.Geometry()
 
     geometry.vertices.push(new THREE.Vector3(
@@ -580,8 +580,8 @@ class FaderExtension extends ExtensionBase
   ///////////////////////////////////////////////////////////////////////////
   // draw a vertex
   ///////////////////////////////////////////////////////////////////////////
-  drawVertex (v)
-  {
+  drawVertex (v) {
+
     var vertex = new THREE.Mesh(
       new THREE.SphereGeometry(this._pointSize, 4, 3),
       this._vertexMaterial)
