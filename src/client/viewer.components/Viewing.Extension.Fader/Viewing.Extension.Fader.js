@@ -8,22 +8,27 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
-  varying vec2 vUv;
+  //varying vec2 vUv;
   void main() {
-      vUv = uv;
+     //vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
 `
 
 const attenuationFragmentShader = `
   uniform vec4 color;
-  varying vec2 vUv;
+  //uniform sampler2D texture;
+  //varying vec2 vUv;
   void main() {
-      float du = vUv.u - 0.5;
-      float dv = vUv.v - 0.5;
-      gl_FragColor = sqrt( du * du + dv * dv ) * color;
+  	gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
+    //  float d = vUv.u - 0.5;
+    //  gl_FragColor = d * d * color;
   }
 `
+
+
+// vec4 tColor = texture2D( texture, vUv );
+// gl_FragColor = vec4( mix( color, tColor.rgb, tColor.a ), 1.0 );
 
 class FaderExtension extends ExtensionBase {
 
@@ -44,8 +49,8 @@ class FaderExtension extends ExtensionBase {
 
     this._shaderMaterial = this.createShaderMaterial({
       name: 'fader-material-shader',
-      attenuationFragmentShader,
-      attenuationVertexShader
+		fragmentShader: attenuationFragmentShader,
+		vertexShader: attenuationVertexShader
     })    
 
     this._eps = 0.000001;    
@@ -482,15 +487,31 @@ class FaderExtension extends ExtensionBase {
 
     const uniforms = {
       color: {
-        value: new THREE.Vector4(0.1, 0.02, 0.02, 0.2),
+        value: new THREE.Vector4(0.1, 1.0, 0.5, 0.6),
         type: 'v4'
-      }
+      },
+
+		// corner: {
+		// 	type: 'v2',
+		// 	value: new THREE.Vector2(_bounds.min.x, _bounds.min.y)
+		// },
+		// width: {
+		// 	type: 'f',
+		// 	value: _bounds.width
+		// },
+		// height: {
+		// 	type: 'f',
+		// 	value: _bounds.height
+		// },
+
+		//texture: { type: "t", value: data.texture },
     }
 
     const material = new THREE.ShaderMaterial({
       fragmentShader: data.fragmentShader,
       vertexShader: data.vertexShader,
-      uniforms
+      //uniforms: uniforms,
+		//side: THREE.DoubleSide
     })
 
     this.viewer.impl.matman().addMaterial(
@@ -540,6 +561,67 @@ class FaderExtension extends ExtensionBase {
 
     return material;
   }
+
+	calculateUVs (mesh) {
+		var bbox =new THREE.Box3 ().setFromObject (mesh.clone ()) ;
+
+		var max =bbox.max, min =bbox.min ;
+		var offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
+		var range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
+
+		mesh.faces =mesh.geometry.attributes.index ;
+		var faces =mesh.faces ;
+
+		mesh.faceVertexUvs =[] ;
+		mesh.faceVertexUvs [0] =[] ;
+
+		var vertices =mesh.geometry.attributes.position ;
+		for ( var i =0 ; i < faces.length ; i +=3 ) {
+			var v1 =new THREE.Vector3 (
+				vertices.array [faces.array [i * faces.itemSize]],
+				vertices.array [faces.array [i * faces.itemSize] + 1],
+				vertices.array [faces.array [i * faces.itemSize] + 2],
+				0.0
+			) ;
+			var v2 =new THREE.Vector3 (
+				vertices.array [faces.array [i * faces.itemSize + 1]],
+				vertices.array [faces.array [i * faces.itemSize + 1] + 1],
+				vertices.array [faces.array [i * faces.itemSize + 1] + 2],
+				0.0
+			) ;
+			var v3 =new THREE.Vector3 (
+				vertices.array [faces.array [i * faces.itemSize + 2]],
+				vertices.array [faces.array [i * faces.itemSize + 2] + 1],
+				vertices.array [faces.array [i * faces.itemSize + 2] + 2],
+				0.0
+			) ;
+
+			// mesh.faceVertexUvs [0].push ([
+			// 	new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
+			// 	new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
+			// 	new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
+			// ]) ;
+
+			var pt =new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
+			var pt =new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
+			var pt =new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
+			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
+		}
+		mesh.uvsNeedUpdate =true ;
+		mesh.geometry.attributes.uv.array =mesh.faceVertexUvs ;
+		//mesh.geometry.attributes.uv.bytesPerItem =2 ;
+		mesh.geometry.attributes.uv.isPattern =false ;
+		mesh.geometry.attributes.uv.needsUpdate =true ;
+
+		mesh.faceVertexUvs =undefined ;
+		mesh.faces =undefined ;
+		mesh.uvsNeedUpdate =undefined ;
+	}
 
   ///////////////////////////////////////////////////////////////////////////
   // draw a line
