@@ -82,17 +82,14 @@ It is called in `onGeometryLoaded` to generate meshes representing all walls in 
   })
 </pre>
 
-These meshes is used to determine the number of walls between a given pair of source and target points by `getWallCountBetween`.
+These meshes are used to determine the number of walls between a given pair of source and target points by `getWallCountBetween`.
 
 I raised a question with the Forge viewer development team before embarking on the research to implement the above.
-
-Unfortunately, due to time differences, they replied only after I had completed it.
-
-Here is the result:
+Unfortunately, due to time differences, they replied only after I had completed it:
 
 [Q@14:19 PM] How can I invoke `Raycaster.intersectObjects` with viewer fragments?
 
-[Q@21:35 PM] I solved my `Raycaster.intersectObjects` challenge by [generating my own threejs mesh from the lmv original](https://github.com/jeremytammik/forgefader/compare/0.0.13...0.0.15)
+[Q@21:35 PM] I solved my `Raycaster.intersectObjects` challenge by [generating my own threejs mesh from the lmv original](https://github.com/jeremytammik/forgefader/compare/0.0.13...0.0.15).
 
 [A@21:39 PM] Ok well, for the record, you can intersect the whole scene using `viewer.impl.rayIntersect`, or you can do it per model via `model.rayIntersect`, or per mesh via `VBIntersector.rayCast`. The first two approaches take advantage of the spatial index acceleration structure.
 
