@@ -102,7 +102,12 @@ In summary, please ignore the interesting solution I present above and use the b
 
 ## Implementing Custom Shaders in the Forge Viewer
 
-Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
+Todo: Create a custom fragment shader to display the heat map, in three steps:
+
+- Constant.
+- Concentric colour gradient around uv centre.
+- The real signal attenuation gradient calculated by `rayTraceToFindWalls`.
+
 
 
 ## Running the Sample
