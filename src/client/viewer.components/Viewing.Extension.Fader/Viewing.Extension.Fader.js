@@ -50,8 +50,8 @@ class FaderExtension extends ExtensionBase {
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
     this._attenuation_per_m_in_air = 2.8
     this._attenuation_per_wall = 3.2
-    this._debug_floor_top_face = true
-    this._debug_raycast_rays = true
+    this._debug_floor_top_face = false
+    this._debug_raycast_rays = false
   }
 
   /////////////////////////////////////////////////////////////////
@@ -215,10 +215,14 @@ class FaderExtension extends ExtensionBase {
               this.drawLine(vB, vC)
               this.drawLine(vC, vA)
             }
-            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, null===top_face_z?vA.z:top_face_z))
-            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, null===top_face_z?vB.z:top_face_z))
-            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, null===top_face_z?vC.z:top_face_z))
-            geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) )
+            geo.vertices.push(new THREE.Vector3( vA.x, vA.y, 
+              null===top_face_z?vA.z:top_face_z ))
+            geo.vertices.push(new THREE.Vector3( vB.x, vB.y, 
+              null===top_face_z?vB.z:top_face_z ))
+            geo.vertices.push(new THREE.Vector3( vC.x, vC.y, 
+              null===top_face_z?vC.z:top_face_z ))
+            geo.faces.push( new THREE.Face3( 
+              iv, iv+1, iv+2 ) )
             iv = iv+3
           }
         }
