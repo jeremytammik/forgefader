@@ -14,7 +14,6 @@ Two signal attenuation values in decibels are defined in the application setting
 The extension expects an RVT model with a floor element, e.g., [little_house_floor.rvt](test/little_house_floor.rvt). You can translate it in Forge using your credentials and pass in its resulting `URN` to the viewer as described [below](#loading-custom-models-in-the-forge-viewer).
 
 This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
-
 Please refer to that for more details on the underlying architecture and components used.
 
 
@@ -28,7 +27,7 @@ On loading, in `onGeometryLoaded`, it determines the Revit BIM wall fragments fo
 
 On picking a point on a floor in the model, in `onSelection`, it launches the `attenuationCalculator` function to do the work.
 
-That fiddles around a bit to determine the picked floor top faces and add a new mesh to the model on which to draw the attenuation map.
+That determines the picked floor top face and adds a new mesh to the model on which to draw the attenuation map.
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
 
@@ -63,6 +62,46 @@ Create a mesh to represent the floor top face and offset it up slightly above th
 A debug helper displaying lines in the model representing the ray tracing rays:
 
 ![Ray tracing rays](img/ray_trace_rays_250.png "Ray tracing rays")
+
+
+## Three.js Raytracing in the Forge Viewer
+
+I tried to call the three.js `Raycaster.intersectObjects` on the Forge viewer fragments representing the Revit BIM walls with little success.
+
+After struggling significantly with it, I determined that the easiest solution to achieve that was to analyse the Forge viewer fragments and generate new three.js mesh objects from them.
+
+That is achieved by the following `getMeshFromRenderProxy` function for my specific use case covering Revit BIM floors and walls:
+
+I use it like this in `onGeometryLoaded` to generate meshes representing all the walls in my model:
+
+<pre class="prettyprint">
+  this.wallMeshes = fragIds.map((fragId) => {
+    return this.getMeshFromRenderProxy( 
+      this.viewer.impl.getRenderProxy( 
+        this.viewer.model, fragId ), null, null, null );
+  })
+</pre>
+
+Then, when the time is ripe, I can determine all walls between a given pair of source and target points like this:
+
+I raised a question with the Forge viewer development team before embarking on the research to implement the above.
+
+Unfortunately, due to time differences, they replied only after I had completed it.
+
+Here is the result:
+
+[Q@14:19 PM] How can I invoke `Raycaster.intersectObjects` with viewer fragments?
+
+[Q@21:35 PM] I solved my `Raycaster.intersectObjects` challenge by [generating my own threejs mesh from the lmv original](https://github.com/jeremytammik/forgefader/compare/0.0.13...0.0.15)
+
+[A@21:39 PM] Ok well, for the record, you can intersect the whole scene using `viewer.impl.rayIntersect`, or you can do it per model via `model.rayIntersect`, or per mesh via `VBIntersector.rayCast`. The first two approaches take advantage of the spatial index acceleration structure.
+
+[Q@21:42 PM] Thank you for the info! I assume these approaches would offer multiple advantages: (i) more efficient (ii) easier to set up and use (iii) more fool- and future-proof. Do you agree?
+
+[A@21:43 PM] Probably better to use the high level hit testing APIs instead of messing with internal mesh representation directly... i.e. avoid doing fragile stuff like `this.viewer.impl.getRenderProxy(this.viewer.model, fragId)`
+
+In summary, please ignore the interesting solution I present above and use the built-in viewer functionality instead.
+
 
 Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
 
