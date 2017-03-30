@@ -4,37 +4,20 @@ import './AboutDlg.scss'
 
 export default class AboutDlg extends React.Component {
 
-  /////////////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////////////
   constructor() {
-
     super()
-
   }
 
-  /////////////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////////////
   close () {
-
     this.props.close()
   }
 
-  /////////////////////////////////////////////////////////////////
-  //
-  //
-  /////////////////////////////////////////////////////////////////
   render() {
-
     const style = {
       overlay: {
         backgroundColor: 'rgba(201, 201, 201, 0.50)'
       }
     }
-
     return (
       <div>
         <Modal className="dialog about"
@@ -45,22 +28,22 @@ export default class AboutDlg extends React.Component {
 
           <div className="title">
             <img/>
-            <b>About Forge React Boiler ...</b>
+            <b>About ForgeFader...</b>
           </div>
 
           <div className="content">
              <div>
-               Written by Philippe Leefsma
+               Written by Jeremy Tammik
                <br/>
-               <a href="https://twitter.com/F3lipek" target="_blank">
-               @F3lipek
+               <a href="http://thebuildingcoder.typepad.com" target="_blank">
+               The Building Coder
                </a>
-               &nbsp;- February 2017
+               &nbsp;- March 2017
                <br/>
                <br/>
                Source on github:
                <br/>
-               <a href="https://github.com/Autodesk-Forge/forge-react-boiler.nodejs" target="_blank">
+               <a href="https://github.com/jeremytammik/forgefader" target="_blank">
                Forge React Boiler
                </a>
              </div>

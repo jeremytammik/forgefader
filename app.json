@@ -1,7 +1,7 @@
 {
-  "name": "forge-react-boiler",
-  "description": "Forge React Boiler",
-  "repository": "https://github.com/Autodesk-Forge/forge-react-boiler.nodejs",
+  "name": "forgefader",
+  "description": "ForgeFader signal attenuation calculator",
+  "repository": "https://github.com/jeremytammik/forgefader",
   "logo": "https://github.com/Autodesk-Forge/forge-react-boiler.nodejs/resources/img/forge.png",
   "keywords": ["autodesk", "forge", "node", "express"],
   "env": {
