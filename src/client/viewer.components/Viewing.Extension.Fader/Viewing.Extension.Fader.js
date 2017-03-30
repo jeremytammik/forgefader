@@ -50,6 +50,8 @@ class FaderExtension extends ExtensionBase {
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
     this._attenuation_per_m_in_air = 2.8
     this._attenuation_per_wall = 3.2
+    this._debug_floor_top_face = true
+    this._debug_raycast_rays = true
   }
 
   /////////////////////////////////////////////////////////////////
@@ -292,13 +294,15 @@ class FaderExtension extends ExtensionBase {
     // the render proxy is used instead:
 
     var floor_mesh_render = fragIds.map((fragId) => {
-      return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
+      return this.viewer.impl.getRenderProxy(
+        this.viewer.model, fragId )
     })
 
     floor_mesh_render = floor_mesh_render[0]
 
     var mesh = this.getMeshFromRenderProxy(
-      floor_mesh_render, floor_normal, top_face_z, false )
+      floor_mesh_render, floor_normal, top_face_z, 
+      this._debug_floor_top_face )
 
     this.viewer.impl.scene.add(mesh)
 
@@ -317,8 +321,10 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   getWallCountBetween( psource, ptarget, max_dist ) {
 
-    //this.drawLine(psource, ptarget)
-    //this.drawVertex(ptarget)
+    if( this._debug_raycast_rays ) {
+      this.drawLine(psource, ptarget)
+      this.drawVertex(ptarget)
+    }
 
     var vray = new THREE.Vector3( ptarget.x - psource.x,
       ptarget.y - psource.y, ptarget.z - psource.z )
@@ -469,9 +475,9 @@ class FaderExtension extends ExtensionBase {
     //this.viewer.impl.invalidate(true)
   }
 
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   // create vertex material
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   createVertexMaterial() {
 
     var material = new THREE.MeshPhongMaterial({
@@ -483,9 +489,9 @@ class FaderExtension extends ExtensionBase {
     return material
   }
 
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   // create line material
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   createLineMaterial() {
 
     var material = new THREE.LineBasicMaterial({
@@ -559,9 +565,9 @@ class FaderExtension extends ExtensionBase {
 		mesh.uvsNeedUpdate =undefined 
 	}
 
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   // draw a line
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   drawLine(start, end) {
 
     var geometry = new THREE.Geometry()
@@ -577,9 +583,9 @@ class FaderExtension extends ExtensionBase {
     this.viewer.impl.scene.add(line)
   }
 
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   // draw a vertex
-  ///////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
   drawVertex (v) {
 
     var vertex = new THREE.Mesh(
