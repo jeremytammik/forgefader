@@ -45,9 +45,9 @@ class FaderExtension extends ExtensionBase {
 
     this._eps = 0.000001
     this._pointSize = 0.3
-    this._topFaceOffset = 0.01; // offset above floor in imperial feet
-    this._rayTraceOffset = 5; // offset above floor in imperial feet
-    this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
+    this._topFaceOffset = 0.01 // offset above floor in imperial feet
+    this._rayTraceOffset = 5 // offset above floor in imperial feet
+    this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
     this._attenuation_per_m_in_air = 2.8
     this._attenuation_per_wall = 3.2
   }
