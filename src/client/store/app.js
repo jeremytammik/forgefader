@@ -73,7 +73,7 @@ const createInitialState = () => {
     navbar: {
       links:{
         about: true,
-        home: true
+        home: false // stay where you are
       }
     },
     viewerEnv: null
