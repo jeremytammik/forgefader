@@ -8,10 +8,13 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
-  //varying vec2 vUv;
+
+	varying vec4 worldCoord;
   void main() {
-     //vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+         worldCoord = modelMatrix * vec4( position, 1.0 );
+         gl_Position = projectionMatrix * mvPosition;
+      //gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
 `
 
@@ -19,10 +22,37 @@ const attenuationFragmentShader = `
   uniform vec4 color;
   //uniform sampler2D texture;
   //varying vec2 vUv;
+  varying vec4 worldCoord;
   void main() {
-  	gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
+  	vec3 fragPos = vec3(worldCoord.x, worldCoord.y, worldCoord.z);
+  	//gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
     //  float d = vUv.u - 0.5;
     //  gl_FragColor = d * d * color;
+    
+    float normalizedX = gl_FragCoord.x - 200.0;
+	float normalizedY = gl_FragCoord.y - 0.0;
+ 
+    if (sqrt(normalizedX * normalizedX + normalizedY * normalizedY) < 80.0 ) { //1080.0) {
+	  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	} else {
+	  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+	}
+	
+	
+	vec3 light = vec3(0.5, 0.2, 1.0);
+
+  // ensure it's normalized
+  light = normalize(light);
+
+  // calculate the dot product of
+  // the light to the vertex normal
+  //float dProd = max(0.0,dot(vec3(normal,0.), light));
+
+  // feed into our frag colour
+  // gl_FragColor = vec4(dProd, // R
+  //                     dProd, // G
+  //                     dProd, // B
+  //                     1.0);  // A
   }
 `
 
@@ -51,7 +81,7 @@ class FaderExtension extends ExtensionBase {
       name: 'fader-material-shader',
 		fragmentShader: attenuationFragmentShader,
 		vertexShader: attenuationVertexShader
-    })    
+    })
 
     this._eps = 0.000001;    
     this._pointSize = 0.3;    
@@ -117,33 +147,6 @@ class FaderExtension extends ExtensionBase {
     return true
   }
 
-  clean_up_render_proxy( proxy )
-  {
-    var geo = proxy.geometry;
-
-    if (geo.attributes.index !== undefined) {
-
-      var indices = geo.attributes.index.array || geo.ib;
-      var positions = geo.vb ? geo.vb : geo.attributes.position.array;
-      var stride = geo.vb ? geo.vbstride : 3;
-      var offsets = geo.offsets;
-
-      // make the raytracer and box calculation working
-
-      //proxy.attributes.position.length =positions.length ;
-      geo.attributes.position.array =positions ;
-      geo.attributes.position.bytesPerItem =4 ;
-
-      //geo.attributes.index.length =indices.length ;
-      geo.attributes.index.array =indices ;
-      geo.attributes.index.itemSize =1 ;
-
-      //geo.computeBoundingSphere();
-      //geo.boundingSphere.radius = 100;
-    }
-    return proxy;
-  }
-
   /////////////////////////////////////////////////////////////////
   // onGeometryLoaded - retrieve all wall meshes
   /////////////////////////////////////////////////////////////////
@@ -180,7 +183,7 @@ class FaderExtension extends ExtensionBase {
           //proxy.geometry.boundingSphere.radius = 100;
 
         this.wallMeshes = fragIds.map((fragId) => {
-          return this.getMeshFromRenderProxy( 
+          return this.getMeshFromRenderProxy(
             this.viewer.impl.getRenderProxy( 
               this.viewer.model, fragId ), null, null, null );
         })
@@ -507,12 +510,13 @@ class FaderExtension extends ExtensionBase {
 		//texture: { type: "t", value: data.texture },
     }
 
-    const material = new THREE.ShaderMaterial({
+    let material = new THREE.ShaderMaterial({
       fragmentShader: data.fragmentShader,
       vertexShader: data.vertexShader,
-      //uniforms: uniforms,
-		//side: THREE.DoubleSide
+      uniforms: uniforms,
+		side: THREE.DoubleSide
     })
+
 
     this.viewer.impl.matman().addMaterial(
       data.name, material, true)

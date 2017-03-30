@@ -14,8 +14,8 @@ const config = {
   forge: {
 
     oauth: {
-      clientSecret: process.env.FORGE_DEV_CLIENT_SECRET,
-      clientId: process.env.FORGE_DEV_CLIENT_ID,
+      clientSecret: process.env.FORGE_CLIENT_SECRET,
+      clientId: process.env.FORGE_CLIENT_ID,
       scope: [
         'data:read',
         'data:create',
