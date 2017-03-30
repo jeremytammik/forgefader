@@ -368,7 +368,7 @@ class FaderExtension extends ExtensionBase {
       mesh, psource)
 
     console.log( map_uv_to_color )
-    
+
     this.viewer.impl.invalidate(true)
   }
 
@@ -410,7 +410,7 @@ class FaderExtension extends ExtensionBase {
     var n = this._rayTraceGrid; 
     var map_uv_to_color = new Array(n);
     for (var i = 0; i < n; i++) {
-      x[i] = new Array(n);
+      map_uv_to_color[i] = new Array(n);
     }
 
     var ptarget, d, nWalls, signal_attenuation;
@@ -448,8 +448,8 @@ class FaderExtension extends ExtensionBase {
       //        if p is on the face (skip this, it requires raytrace too, so no saving)
       //          raytrace from source to target 
 
-      for (var u = 0.0; u < 1.0 + this._eps; u += step) {
-        for (var v = 0.0; v < 1.0 + this._eps; v += step) {
+      for (var u = 0.0, i = 0; u < 1.0 + this._eps; u += step, ++i ) {
+        for (var v = 0.0, j = 0; v < 1.0 + this._eps; v += step, ++j ) {
 
           ptarget = new THREE.Vector3(
             bb.min.x + u * vsize.x,
