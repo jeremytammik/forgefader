@@ -1,6 +1,6 @@
 {
   "name": "forgefader",
-  "version": "0.0.9",
+  "version": "0.0.18",
   "description": "ForgeFader signal attenuation calculator",
   "scripts": {
     "build-prod": "cross-env NODE_ENV=production npm run build",
