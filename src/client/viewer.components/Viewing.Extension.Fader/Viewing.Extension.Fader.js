@@ -315,7 +315,7 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   async attenuationCalculator(data)
   {
-    this.drawVertex(data.point)
+    //this.drawVertex(data.point)
 
     var psource = new THREE.Vector3(
       data.point.x, data.point.y,
@@ -369,8 +369,8 @@ class FaderExtension extends ExtensionBase
   /////////////////////////////////////////////////////////////////
   getWallCountBetween( psource, ptarget, max_dist )
   {
-    this.drawLine(psource, ptarget)
-    this.drawVertex(ptarget);
+    //this.drawLine(psource, ptarget)
+    //this.drawVertex(ptarget);
 
     var vray = new THREE.Vector3( ptarget.x - psource.x, 
       ptarget.y - psource.y, ptarget.z - psource.z );
