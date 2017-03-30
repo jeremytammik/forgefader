@@ -350,7 +350,7 @@ class FaderExtension extends ExtensionBase
     floor_mesh_render = floor_mesh_render[0]
 
     var mesh = this.getMeshFromRenderProxy( 
-      floor_mesh_render, floor_normal, top_face_z, true )
+      floor_mesh_render, floor_normal, top_face_z, false )
 
     this.viewer.impl.scene.add(mesh);
 

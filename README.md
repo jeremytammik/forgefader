@@ -17,6 +17,14 @@ This app is based on Philippe Leefsma's [Forge React boilerplate sample](https:/
 
 Please refer to that for more details on the underlying architecture and components used.
 
+For more detailed discussions of the implementation process, check the following discussion 
+by [The Building Coder](http://thebuildingcoder.typepad.com):
+
+- [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
+- [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
+- [<span style="color:grey">Implementing custom shaders in the Forge Viewer</span>](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
+
+
 
 ## Implementation
 
