@@ -8,21 +8,15 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
-  //varying vec2 vUv;
   void main() {
-     //vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
 `
 
 const attenuationFragmentShader = `
   uniform vec4 color;
-  //uniform sampler2D texture;
-  //varying vec2 vUv;
   void main() {
   	gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
-    //  float d = vUv.u - 0.5;
-    //  gl_FragColor = d * d * color;
   }
 `
 
