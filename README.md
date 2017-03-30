@@ -36,7 +36,7 @@ by [The Building Coder](http://thebuildingcoder.typepad.com):
 
 - [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
 - [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
-- [<span style="color:grey">Implementing custom shaders in the Forge Viewer</span>](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
+- [Implementing custom shaders in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
 
 
 ## Adding Custom Geometry to the Forge Viewer
@@ -66,13 +66,13 @@ A debug helper displaying lines in the model representing the ray tracing rays:
 
 ## Three.js Raytracing in the Forge Viewer
 
-I tried to call the three.js `Raycaster.intersectObjects` on the Forge viewer fragments representing the Revit BIM walls with little success.
+You cannot call the three.js `Raycaster.intersectObjects` directly on the Forge viewer fragments representing the Revit BIM walls.
 
-After struggling significantly with it, I determined that the easiest solution to achieve that was to analyse the Forge viewer fragments and generate new three.js mesh objects from them.
+One alternative approach is to analyse the Forge viewer fragments and generate new three.js mesh objects from them.
 
-That is achieved by the following `getMeshFromRenderProxy` function for my specific use case covering Revit BIM floors and walls:
+That is achieved by the `getMeshFromRenderProxy` function that successfully processes Revit BIM floors and walls.
 
-I use it like this in `onGeometryLoaded` to generate meshes representing all the walls in my model:
+It is called in `onGeometryLoaded` to generate meshes representing all walls in the model:
 
 <pre class="prettyprint">
   this.wallMeshes = fragIds.map((fragId) => {
@@ -82,7 +82,7 @@ I use it like this in `onGeometryLoaded` to generate meshes representing all the
   })
 </pre>
 
-Then, when the time is ripe, I can determine all walls between a given pair of source and target points like this:
+These meshes is used to determine the number of walls between a given pair of source and target points by `getWallCountBetween`.
 
 I raised a question with the Forge viewer development team before embarking on the research to implement the above.
 
@@ -102,6 +102,8 @@ Here is the result:
 
 In summary, please ignore the interesting solution I present above and use the built-in viewer functionality instead.
 
+
+## Implementing Custom Shaders in the Forge Viewer
 
 Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
 
