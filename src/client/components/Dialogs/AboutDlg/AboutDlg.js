@@ -44,7 +44,7 @@ export default class AboutDlg extends React.Component {
                Source on github:
                <br/>
                <a href="https://github.com/jeremytammik/forgefader" target="_blank">
-               Forge React Boiler
+               ForgeFader
                </a>
              </div>
           </div>
