@@ -8,6 +8,23 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
+  uniform mat4 modelMatrix;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  uniform mat4 viewMatrix;
+  uniform mat3 normalMatrix;
+  uniform vec3 cameraPosition;
+
+  attribute vec3 position;
+
+  #ifdef UNPACK_NORMALS
+    attribute vec2 normal;
+  #else
+    attribute vec3 normal;
+  #endif
+
+  attribute vec2 uv;
+  attribute vec2 uv2;
   void main() {
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
