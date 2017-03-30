@@ -425,7 +425,7 @@ class FaderExtension extends ExtensionBase {
     // create a test ray going diagonally across the entire
     // floor top to test the ray tracing functionality:
 
-    var debug_shoot_single_diagonal_ray = true;
+    var debug_shoot_single_diagonal_ray = false;
 
     if( debug_shoot_single_diagonal_ray ) 
     {
