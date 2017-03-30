@@ -17,13 +17,6 @@ This app is based on Philippe Leefsma's [Forge React boilerplate sample](https:/
 
 Please refer to that for more details on the underlying architecture and components used.
 
-For more detailed discussions of the implementation process, check the following discussion 
-by [The Building Coder](http://thebuildingcoder.typepad.com):
-
-- [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
-- [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
-- [<span style="color:grey">Implementing custom shaders in the Forge Viewer</span>](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
-
 
 
 ## Implementation
@@ -38,6 +31,13 @@ On picking a point on a floor in the model, in `onSelection`, it launches the `a
 That fiddles around a bit to determine the picked floor top faces and add a new mesh to the model on which to draw the attenuation map.
 
 Once the mesh has been added, it in turn calls `rayTraceToFindWalls` to create a bitmap representing the signal attenuation to be displayed by a custom shader.
+
+The following sections describing details of the implementation process have also been published 
+by [The Building Coder](http://thebuildingcoder.typepad.com):
+
+- [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
+- [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
+- [<span style="color:grey">Implementing custom shaders in the Forge Viewer</span>](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
 
 
 ## Adding Custom Geometry to the Forge Viewer
@@ -60,11 +60,11 @@ Create a mesh to represent the floor top face and offset it up slightly above th
 
 ![Floor top face mesh](img/floor_top_face_mesh_250.png "Floor top face mesh")
 
-Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
-
 A debug helper displaying lines in the model representing the ray tracing rays:
 
 ![Ray tracing rays](img/ray_trace_rays_250.png "Ray tracing rays")
+
+Todo: Create a custom fragment shader to display the heat map, e.g., a concentric colour gradient around uv centre.
 
 
 ## Running the Sample
