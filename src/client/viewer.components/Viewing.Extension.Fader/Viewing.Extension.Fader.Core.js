@@ -159,7 +159,9 @@ class FaderExtension extends ExtensionBase {
       const data = this.viewer.clientToWorld(
         this.pointer.canvasX, this.pointer.canvasY, true )
 
-      this.attenuationCalculator(data)
+      if( data.face ) {
+        this.attenuationCalculator( data )
+      }
     }
   }
 
