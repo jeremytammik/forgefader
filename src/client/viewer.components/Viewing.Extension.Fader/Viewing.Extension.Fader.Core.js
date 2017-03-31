@@ -48,7 +48,7 @@ class FaderExtension extends ExtensionBase {
     this._topFaceOffset = 0.01 // offset above floor in imperial feet
     this._rayTraceOffset = 5 // offset above floor in imperial feet
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
-    this._lastMeshAdded = null // delete when a new one is added
+    this._lastSceneObjects = [] // objects added to scene, delete in next run
     this._debug_floor_top_face = true
     this._debug_raycast_rays = true
     this._attenuation_per_m_in_air = 2.8
@@ -321,16 +321,15 @@ class FaderExtension extends ExtensionBase {
 
     floor_mesh_render = floor_mesh_render[0]
 
-    if( null !== this._lastMeshAdded ) {
-      this.viewer.impl.scene.remove(
-        this._lastMeshAdded )
-    }
+    this._lastSceneObjects.forEach( (obj) => {
+      this.viewer.impl.scene.remove( obj )
+    })
 
-    this._lastMeshAdded = this.getMeshFromRenderProxy(
+    var mesh = this.getMeshFromRenderProxy(
       floor_mesh_render, floor_normal, top_face_z, 
       this._debug_floor_top_face )
 
-    this.viewer.impl.scene.add( this._lastMeshAdded )
+    this.addToScene( mesh )
 
     // ray trace to determine wall locations on mesh
 
@@ -599,26 +598,26 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // draw a line
   /////////////////////////////////////////////////////////////////
-  drawLine(start, end) {
+  drawLine( start, end ) {
     var geometry = new THREE.Geometry()
     geometry.vertices.push(new THREE.Vector3(
-      start.x, start.y, start.z))
+      start.x, start.y, start.z ))
     geometry.vertices.push(new THREE.Vector3(
-      end.x, end.y, end.z))
+      end.x, end.y, end.z ))
     var line = new THREE.Line( 
-      geometry, this._lineMaterial)
-    this.viewer.impl.scene.add(line)
+      geometry, this._lineMaterial )
+    this.addToScene( line )
   }
 
   /////////////////////////////////////////////////////////////////
   // draw a vertex
   /////////////////////////////////////////////////////////////////
-  drawVertex (v) {
+  drawVertex( v ) {
     var vertex = new THREE.Mesh(
       new THREE.SphereGeometry( this._pointSize, 4, 3 ),
       this._vertexMaterial )
     vertex.position.set( v.x, v.y, v.z )
-    this.viewer.impl.scene.add(vertex)
+    this.addToScene( vertex )
   }
 
   isEqualWithPrecision (a, b) {
@@ -651,7 +650,12 @@ class FaderExtension extends ExtensionBase {
       }
     }
     return max;
-  }  
+  }
+
+  addToScene( obj ) {
+    this.viewer.impl.scene.add( obj )
+    this._lastSceneObjects.push( obj )
+  }
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
