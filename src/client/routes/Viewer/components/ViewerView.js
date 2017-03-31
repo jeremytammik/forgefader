@@ -157,7 +157,7 @@ class ViewerView extends React.Component {
 
         viewer.loadModel(path)
 
-        viewer.loadExtension('Viewing.Extension.Fader')
+        viewer.loadExtension('Viewing.Extension.Fader.Core')
 
       } catch (ex) {
 

@@ -92,7 +92,7 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   static get ExtensionId () {
 
-    return 'Viewing.Extension.Fader'
+    return 'Viewing.Extension.Fader.Core'
   }
 
   /////////////////////////////////////////////////////////////////
