@@ -90,6 +90,11 @@ class FaderExtension extends ExtensionBase {
     this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
     this._attenuation_per_m_in_air = 2.8;
     this._attenuation_per_wall = 3.2;
+
+	  this._materials ={} ;
+	  this._proxyMeshes ={} ;
+	  this._overlayName ='fader-material-shader' ;
+	  this.viewer.impl.createOverlayScene (this._overlayName) ;
   }
 
   /////////////////////////////////////////////////////////////////
@@ -165,7 +170,7 @@ class FaderExtension extends ExtensionBase {
   // onGeometryLoaded - retrieve all wall meshes
   /////////////////////////////////////////////////////////////////
   onGeometryLoaded (event) {
-    console.log('onGeometryLoaded')
+    //console.log('onGeometryLoaded')
     const instanceTree = this.viewer.model.getData().instanceTree
     var rootId = instanceTree.getRootId()
     instanceTree.enumNodeChildren(rootId, async(childId) => {
@@ -175,7 +180,7 @@ class FaderExtension extends ExtensionBase {
         const fragIds = await Toolkit.getFragIds(
           this.viewer.model, childId)
 
-        console.log(fragIds)
+        //console.log(fragIds)
 
         // this.wallProxies = fragIds.map((fragId) => {
         //   return this.viewer.impl.getRenderProxy(
@@ -197,7 +202,7 @@ class FaderExtension extends ExtensionBase {
           //proxy.geometry.boundingSphere.radius = 100;
 
         this.wallMeshes = fragIds.map((fragId) => {
-          return this.getMeshFromRenderProxy(
+          return this.getMeshFromRenderProxy(childId,
             this.viewer.impl.getRenderProxy( 
               this.viewer.model, fragId ), null, null, null );
         })
@@ -230,7 +235,7 @@ class FaderExtension extends ExtensionBase {
   // top_face_z: use for the face Z coordinates unless null
   // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
-  getMeshFromRenderProxy( render_proxy, floor_normal, top_face_z, debug_draw )
+  getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z, debug_draw )
   {
     var matrix = render_proxy.matrixWorld;
     var geometry = render_proxy.geometry;
@@ -322,17 +327,13 @@ class FaderExtension extends ExtensionBase {
     // for( var i = 0; i < triangles.length; i++ ){
     //   geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
     // }
-    console.log(geo);
+    //console.log(geo);
     geo.computeFaceNormals();
     geo.computeVertexNormals();
     geo.computeBoundingBox();
     //geo.computeBoundingSphere();
     let mat =new THREE.Mesh( geo, new THREE.MeshBasicMaterial( { color: 0xffff00 } )) ;
-    let shaderMat =this.createShaderMaterial({
-		name: 'fader-material-shader',
-		fragmentShader: attenuationFragmentShader,
-		vertexShader: attenuationVertexShader
-	}) ;
+    let shaderMat =this.createShaderMaterial (dbId) ;
 
 	  var mesh = new THREE.Mesh( geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
 
@@ -391,7 +392,7 @@ class FaderExtension extends ExtensionBase {
 
     floor_mesh_render = floor_mesh_render[0]
 
-    var mesh = this.getMeshFromRenderProxy(
+    var mesh = this.getMeshFromRenderProxy(data.dbId,
       floor_mesh_render, floor_normal, top_face_z, true )
 
     this.viewer.impl.scene.add(mesh);
@@ -512,7 +513,9 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // create attenuation shader material
   /////////////////////////////////////////////////////////////////
-  createShaderMaterial (data) {
+  createShaderMaterial (dbId) {
+	  if ( this._materials[dbId] !== undefined )
+		  return (this._materials [dbId]) ;
 
     const uniforms = {
       color: {
@@ -537,16 +540,17 @@ class FaderExtension extends ExtensionBase {
     }
 
     let material = new THREE.ShaderMaterial({
-      fragmentShader: data.fragmentShader,
-      vertexShader: data.vertexShader,
+      fragmentShader: attenuationFragmentShader,
+      vertexShader: attenuationVertexShader,
       uniforms: uniforms,
 		side: THREE.DoubleSide
     })
 
 
-     this.viewer.impl.matman().addMaterial(
-       data.name, material, true)
+     // this.viewer.impl.matman().addMaterial(
+     //   this._overlayName, material, true)
 
+	  this._materials [dbId] =material ;
     return material
   }  
 
