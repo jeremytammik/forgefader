@@ -331,7 +331,8 @@ class FaderExtension extends ExtensionBase {
 
     //console.log( map_uv_to_color )
 
-    this._attenuation_max = array2dMax( map_uv_to_color )
+    this._attenuation_max = this.array2dMax( 
+      map_uv_to_color )
 
     this.viewer.impl.invalidate(true)
   }
