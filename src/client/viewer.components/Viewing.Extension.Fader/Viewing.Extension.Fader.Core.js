@@ -48,11 +48,25 @@ class FaderExtension extends ExtensionBase {
     this._topFaceOffset = 0.01 // offset above floor in imperial feet
     this._rayTraceOffset = 5 // offset above floor in imperial feet
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
-    this._attenuation_per_m_in_air = 2.8
-    this._attenuation_per_wall = 3.2
     this._debug_floor_top_face = false
     this._debug_raycast_rays = false
+    this._attenuation_per_m_in_air = 2.8
+    this._attenuation_per_wall = 3.2
+    this._attenuation_max = 0.0
   }
+
+  /////////////////////////////////////////////////////////////////
+  // Accessors - es6 getters and setters
+  /////////////////////////////////////////////////////////////////
+  get debugFloorTopFace() { return this._debug_floor_top_face }
+  set debugFloorTopFace(a) { this._debug_floor_top_face = a }
+  get debugRaycastRays() { return this._debug_raycast_rays }
+  set debugRaycastRays(a) {  this._debug_raycast_rays = a }
+  get attenuationPerMeterInAir() { return this._attenuation_per_m_in_air }
+  set attenuationPerMeterInAir(a) { this._attenuation_per_m_in_air = a }
+  get attenuationPerWall() { return this._attenuation_per_wall }
+  set attenuationPerWall(a) { this._attenuation_per_wall = a }
+  get attenuationMax() { return this._attenuation_max }
 
   /////////////////////////////////////////////////////////////////
   // Load callback
