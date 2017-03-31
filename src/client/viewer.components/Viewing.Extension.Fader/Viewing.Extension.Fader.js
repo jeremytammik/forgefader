@@ -385,17 +385,18 @@ class FaderExtension extends ExtensionBase {
     // function drawMeshData, the fragment proxy is ignored and 
     // the render proxy is used instead:
 
-    var floor_mesh_render = fragIds.map((fragId) => {
-      return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
-    })
-    //console.log(floor_mesh_render)
-
-    floor_mesh_render = floor_mesh_render[0]
+    // var floor_mesh_render = fragIds.map((fragId) => {
+    //   return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
+    // })
+    // //console.log(floor_mesh_render)
+	//
+    // floor_mesh_render = floor_mesh_render[0]
+	  var floor_mesh_render =this.viewer.impl.getRenderProxy(this.viewer.model, fragIds [0]);
 
     var mesh = this.getMeshFromRenderProxy(data.dbId,
       floor_mesh_render, floor_normal, top_face_z, true )
 
-    this.viewer.impl.scene.add(mesh);
+    //this.viewer.impl.scene.add(mesh);
 
     // ray trace to determine wall locations on mesh
 
@@ -403,6 +404,19 @@ class FaderExtension extends ExtensionBase {
       mesh, psource)
 
     //console.log( map_uv_to_color )
+
+	  let renderProxy = this.viewer.impl.getRenderProxy(this.viewer.model, fragIds [0]);
+	  let meshProxy = new THREE.Mesh(
+		  renderProxy.geometry,
+		  this.createShaderMaterial(data.dbId));
+	  meshProxy.matrix.copy(renderProxy.matrixWorld);
+	  meshProxy.matrixWorldNeedsUpdate = true;
+	  meshProxy.matrixAutoUpdate = false;
+	  meshProxy.frustumCulled = false;
+
+	  this._proxyMeshes[fragIds [0]] = meshProxy;
+
+	  this.setMaterialOverlay (fragIds [0], this._overlayName) ;
 
     this.viewer.impl.invalidate(true)
   }
@@ -513,6 +527,16 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // create attenuation shader material
   /////////////////////////////////////////////////////////////////
+	setMaterialOverlay(fragId, materialName) {
+		this.viewer.impl.addOverlay(materialName, this._proxyMeshes[fragId]);
+		this.viewer.impl.invalidate(false, false, true);
+	}
+
+	removeMaterialOverlay(fragId, materialName) {
+		this.viewer.impl.removeOverlay(materialName, this._proxyMeshes[fragId]);
+		this.viewer.impl.invalidate(false, false, true);
+	}
+
   createShaderMaterial (dbId) {
 	  if ( this._materials[dbId] !== undefined )
 		  return (this._materials [dbId]) ;
