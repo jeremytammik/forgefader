@@ -635,7 +635,7 @@ class FaderExtension extends ExtensionBase {
   array2dMax( arr ) {
     var len = arr.length, max = -Infinity, m2;
     while( len-- ) {
-      m2 = arrayMax(arr[len])
+      m2 = this.arrayMax(arr[len])
       if( m2 > max) {
         max = m2;
       }
