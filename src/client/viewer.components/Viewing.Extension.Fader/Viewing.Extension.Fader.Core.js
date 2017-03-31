@@ -331,6 +331,8 @@ class FaderExtension extends ExtensionBase {
 
     //console.log( map_uv_to_color )
 
+    this._attenuation_max = array2dMax( map_uv_to_color )
+
     this.viewer.impl.invalidate(true)
   }
 
@@ -587,17 +589,13 @@ class FaderExtension extends ExtensionBase {
   // draw a line
   /////////////////////////////////////////////////////////////////
   drawLine(start, end) {
-
     var geometry = new THREE.Geometry()
-
     geometry.vertices.push(new THREE.Vector3(
       start.x, start.y, start.z))
-
     geometry.vertices.push(new THREE.Vector3(
       end.x, end.y, end.z))
-
-    var line = new THREE.Line(geometry, this._lineMaterial)
-
+    var line = new THREE.Line( 
+      geometry, this._lineMaterial)
     this.viewer.impl.scene.add(line)
   }
 
@@ -605,13 +603,10 @@ class FaderExtension extends ExtensionBase {
   // draw a vertex
   /////////////////////////////////////////////////////////////////
   drawVertex (v) {
-
     var vertex = new THREE.Mesh(
-      new THREE.SphereGeometry(this._pointSize, 4, 3),
-      this._vertexMaterial)
-
-    vertex.position.set(v.x, v.y, v.z)
-
+      new THREE.SphereGeometry( this._pointSize, 4, 3 ),
+      this._vertexMaterial )
+    vertex.position.set( v.x, v.y, v.z )
     this.viewer.impl.scene.add(vertex)
   }
 
@@ -625,6 +620,27 @@ class FaderExtension extends ExtensionBase {
       && this.isEqualWithPrecision (v.y, w.y)
       && this.isEqualWithPrecision (v.z, w.z)
   }
+
+  arrayMax( arr ) {
+    var len = arr.length, max = -Infinity;
+    while( len-- ) {
+      if( arr[len] > max ) {
+        max = arr[len];
+      }
+    }
+    return max;
+  }  
+
+  array2dMax( arr ) {
+    var len = arr.length, max = -Infinity, m2;
+    while( len-- ) {
+      m2 = arrayMax(arr[len])
+      if( m2 > max) {
+        max = m2;
+      }
+    }
+    return max;
+  }  
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension(
