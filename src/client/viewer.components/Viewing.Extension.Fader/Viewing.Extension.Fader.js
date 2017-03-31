@@ -13,8 +13,8 @@ const attenuationVertexShader = `
   void main() {
 		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
          worldCoord = modelMatrix * vec4( position, 1.0 );
-         gl_Position = projectionMatrix * mvPosition;
-      //gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      //   gl_Position = projectionMatrix * mvPosition;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
 `
 
@@ -29,11 +29,11 @@ const attenuationFragmentShader = `
     //  float d = vUv.u - 0.5;
     //  gl_FragColor = d * d * color;
     
-    float normalizedX = gl_FragCoord.x - 200.0;
+    float normalizedX = gl_FragCoord.x - 0.0;
 	float normalizedY = gl_FragCoord.y - 0.0;
  
     if (sqrt(normalizedX * normalizedX + normalizedY * normalizedY) < 80.0 ) { //1080.0) {
-	  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	  gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 	} else {
 	  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	}
@@ -77,11 +77,11 @@ class FaderExtension extends ExtensionBase {
 
     this._vertexMaterial = this.createVertexMaterial();
 
-    this._shaderMaterial = this.createShaderMaterial({
-      name: 'fader-material-shader',
-		fragmentShader: attenuationFragmentShader,
-		vertexShader: attenuationVertexShader
-    })
+    // this._shaderMaterial = this.createShaderMaterial({
+    //   name: 'fader-material-shader',
+		// fragmentShader: attenuationFragmentShader,
+		// vertexShader: attenuationVertexShader
+    // })
 
     this._eps = 0.000001;    
     this._pointSize = 0.3;    
@@ -146,6 +146,20 @@ class FaderExtension extends ExtensionBase {
 
     return true
   }
+
+	getBounds (id) {
+		let bounds = new THREE.Box3();
+		let box = new THREE.Box3();
+		let instanceTree = this.viewer.impl.model.getData().instanceTree;
+		let fragList = this.viewer.impl.model.getFragmentList();
+
+		instanceTree.enumNodeFragments(id, function (fragId) {
+			fragList.getWorldBounds(fragId, box);
+			bounds.union(box);
+		}, true);
+
+		return bounds;
+	}
 
   /////////////////////////////////////////////////////////////////
   // onGeometryLoaded - retrieve all wall meshes
@@ -313,7 +327,19 @@ class FaderExtension extends ExtensionBase {
     geo.computeVertexNormals();
     geo.computeBoundingBox();
     //geo.computeBoundingSphere();
-    var mesh = new THREE.Mesh( geo, this._shaderMaterial );
+    let mat =new THREE.Mesh( geo, new THREE.MeshBasicMaterial( { color: 0xffff00 } )) ;
+    let shaderMat =this.createShaderMaterial({
+		name: 'fader-material-shader',
+		fragmentShader: attenuationFragmentShader,
+		vertexShader: attenuationVertexShader
+	}) ;
+
+	  var mesh = new THREE.Mesh( geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
+
+	  //mesh.matrix.copy(render_proxy.matrixWorld);
+	  //mesh.matrixWorldNeedsUpdate = true;
+	  //mesh.matrixAutoUpdate = false;
+	  //mesh.frustumCulled = false;
     return mesh;
   }
 
@@ -327,7 +353,7 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   async attenuationCalculator(data)
   {
-    console.log(data)
+    //console.log(data)
 
     this.drawVertex(data.point)
 
@@ -340,19 +366,19 @@ class FaderExtension extends ExtensionBase {
     // from the selected THREE.Face, extract the normal
 
     var floor_normal = data.face.normal
-    console.log(floor_normal)
+    //console.log(floor_normal)
 
     // retrieve floor render proxies matching normal
 
     var instanceTree = this.viewer.model.getData().instanceTree
-    console.log(instanceTree)
+    //console.log(instanceTree)
     const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
-    console.log(fragIds)
+    ////console.log(fragIds)
 
-    var floor_mesh_fragment = fragIds.map((fragId) => {
-      return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
-    })
-    console.log(floor_mesh_fragment)
+    // var floor_mesh_fragment = fragIds.map((fragId) => {
+    //   return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
+    // })
+    //console.log(floor_mesh_fragment)
 
     // in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
     // function drawMeshData, the fragment proxy is ignored and 
@@ -361,11 +387,11 @@ class FaderExtension extends ExtensionBase {
     var floor_mesh_render = fragIds.map((fragId) => {
       return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
     })
-    console.log(floor_mesh_render)
+    //console.log(floor_mesh_render)
 
     floor_mesh_render = floor_mesh_render[0]
 
-    var mesh = this.getMeshFromRenderProxy( 
+    var mesh = this.getMeshFromRenderProxy(
       floor_mesh_render, floor_normal, top_face_z, true )
 
     this.viewer.impl.scene.add(mesh);
@@ -375,7 +401,7 @@ class FaderExtension extends ExtensionBase {
     var map_uv_to_color = this.rayTraceToFindWalls(
       mesh, psource)
 
-    console.log( map_uv_to_color )
+    //console.log( map_uv_to_color )
 
     this.viewer.impl.invalidate(true)
   }
@@ -518,8 +544,8 @@ class FaderExtension extends ExtensionBase {
     })
 
 
-    this.viewer.impl.matman().addMaterial(
-      data.name, material, true)
+     this.viewer.impl.matman().addMaterial(
+       data.name, material, true)
 
     return material
   }  
