@@ -48,8 +48,8 @@ class FaderExtension extends ExtensionBase {
     this._topFaceOffset = 0.01 // offset above floor in imperial feet
     this._rayTraceOffset = 5 // offset above floor in imperial feet
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
-    this._debug_floor_top_face = false
-    this._debug_raycast_rays = false
+    this._debug_floor_top_face = true
+    this._debug_raycast_rays = true
     this._attenuation_per_m_in_air = 2.8
     this._attenuation_per_wall = 3.2
     this._attenuation_max = 0.0
@@ -331,7 +331,7 @@ class FaderExtension extends ExtensionBase {
     var map_uv_to_color = this.rayTraceToFindWalls(
       mesh, psource)
 
-    //console.log( map_uv_to_color )
+    console.log( map_uv_to_color )
 
     this._attenuation_max = this.array2dMax( 
       map_uv_to_color )
