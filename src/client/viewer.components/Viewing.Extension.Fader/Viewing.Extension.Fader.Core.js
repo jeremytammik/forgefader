@@ -139,6 +139,8 @@ class FaderExtension extends ExtensionBase {
 		this.viewer.setGroundShadow (false) ;
 		// this.viewer.setLightPreset (1) ;
 
+    console.log('Viewing.Extension.Fader.Core')
+
 		return (true) ;
 	}
 
@@ -146,7 +148,7 @@ class FaderExtension extends ExtensionBase {
 	// Extension Id
 	/////////////////////////////////////////////////////////////////
 	static get ExtensionId () {
-		return ('Viewing.Extension.Fader') ;
+		return ('Viewing.Extension.Fader.Core') ;
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -586,9 +588,8 @@ class FaderExtension extends ExtensionBase {
 		this.viewer.impl.scene.add (obj) ;
 		this._lastSceneObjects.push (obj) ;
 	}
-
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension (FaderExtension.ExtensionId, FaderExtension) ;
 
-module.exports = 'Viewing.Extension.FaderExtension'
+module.exports = 'Viewing.Extension.Fader.Core'
