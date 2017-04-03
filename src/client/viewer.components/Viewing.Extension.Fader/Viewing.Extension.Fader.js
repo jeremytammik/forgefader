@@ -80,29 +80,40 @@ class FaderExtension extends ExtensionBase {
 
     this.onSelection = this.onSelection.bind(this)
 
-    this._lineMaterial = this.createLineMaterial();
+    this._lineMaterial = this.createLineMaterial()
 
-    this._vertexMaterial = this.createVertexMaterial();
+    this._vertexMaterial = this.createVertexMaterial()
 
-    // this._shaderMaterial = this.createShaderMaterial({
-    //   name: 'fader-material-shader',
-		// fragmentShader: attenuationFragmentShader,
-		// vertexShader: attenuationVertexShader
-    // })
-
-    this._eps = 0.000001;    
-    this._pointSize = 0.3;    
-    this._topFaceOffset = 0.01; // offset above floor in imperial feet
-    this._rayTraceOffset = 5; // offset above floor in imperial feet
-    this._rayTraceGrid = 8; // how many grid points in u and v direction to evaluate: 8*8=64
-    this._attenuation_per_m_in_air = 2.8;
-    this._attenuation_per_wall = 3.2;
-
+    
+    this._eps = 0.000001
+    this._pointSize = 0.3
+    this._topFaceOffset = 0.01 // offset above floor in imperial feet
+    this._rayTraceOffset = 5 // offset above floor in imperial feet
+    this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
+    this._lastSceneObjects = [] // objects added to scene, delete in next run
+    this._debug_floor_top_face = true
+    this._debug_raycast_rays = true
+    this._attenuation_per_m_in_air = 2.8
+    this._attenuation_per_wall = 3.2
+    this._attenuation_max = 0.0
+  
 	  this._materials ={} ;
 	  this._proxyMeshes ={} ;
 	  this._overlayName ='fader-material-shader' ;
 	  this.viewer.impl.createOverlayScene (this._overlayName) ;
   }
+  /////////////////////////////////////////////////////////////////
+  // Accessors - es6 getters and setters
+  /////////////////////////////////////////////////////////////////
+  get debugFloorTopFace() { return this._debug_floor_top_face }
+  set debugFloorTopFace(a) { this._debug_floor_top_face = a }
+  get debugRaycastRays() { return this._debug_raycast_rays }
+  set debugRaycastRays(a) {  this._debug_raycast_rays = a }
+  get attenuationPerMeterInAir() { return this._attenuation_per_m_in_air }
+  set attenuationPerMeterInAir(a) { this._attenuation_per_m_in_air = a }
+  get attenuationPerWall() { return this._attenuation_per_wall }
+  set attenuationPerWall(a) { this._attenuation_per_wall = a }
+  get attenuationMax() { return this._attenuation_max }
 
   /////////////////////////////////////////////////////////////////
   // Load callback
@@ -114,7 +125,6 @@ class FaderExtension extends ExtensionBase {
     this.eventTool.activate()
 
     this.eventTool.on('singleclick', (event) => {
-
       this.pointer = event
     })
 
@@ -142,7 +152,6 @@ class FaderExtension extends ExtensionBase {
   // Extension Id
   /////////////////////////////////////////////////////////////////
   static get ExtensionId () {
-
     return 'Viewing.Extension.Fader'
   }
 
@@ -177,7 +186,7 @@ class FaderExtension extends ExtensionBase {
   // onGeometryLoaded - retrieve all wall meshes
   /////////////////////////////////////////////////////////////////
   onGeometryLoaded (event) {
-    //console.log('onGeometryLoaded')
+
     const instanceTree = this.viewer.model.getData().instanceTree
     var rootId = instanceTree.getRootId()
     instanceTree.enumNodeChildren(rootId, async(childId) => {
@@ -187,53 +196,27 @@ class FaderExtension extends ExtensionBase {
         const fragIds = await Toolkit.getFragIds(
           this.viewer.model, childId)
 
-        //console.log(fragIds)
-
-        // this.wallProxies = fragIds.map((fragId) => {
-        //   return this.viewer.impl.getRenderProxy(
-        //     this.viewer.model, fragId );
-        // })
- 
-          //return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
-
-          // var proxy = this.viewer.impl.getRenderProxy(
-          //   this.viewer.model, fragId )
-          
-          // the wall render proxy does not have a valid 
-          // bounding sphere. if i ask it to compute one,
-          // the resulting radius is zero.
-          //proxy.geometry.computeBoundingSphere();
-          // i can force a larger radius, but the 
-          // Raycaster intersectObjects function will 
-          // still not detect any intersections.
-          //proxy.geometry.boundingSphere.radius = 100;
-
         this.wallMeshes = fragIds.map((fragId) => {
-          return this.getMeshFromRenderProxy(childId,
+          return this.getMeshFromRenderProxy(
             this.viewer.impl.getRenderProxy( 
-              this.viewer.model, fragId ), null, null, null );
+              this.viewer.model, fragId ), null, null, null )
         })
       }
     })
   }
 
-  /////////////////////////////////////////////////////////////////
-  // onSelection
-  /////////////////////////////////////////////////////////////////
-  onSelection (event) {
-
-    if (event.selections && event.selections.length) {
-
-      const selection = event.selections[0]
-
-      const dbIds = selection.dbIdArray
-
-      const data = this.viewer.clientToWorld(
-        this.pointer.canvasX, this.pointer.canvasY, true )
-
-      this.attenuationCalculator(data)
-    }
-  }
+	/////////////////////////////////////////////////////////////////
+	// onSelection
+	/////////////////////////////////////////////////////////////////
+	onSelection (event) {
+		if ( event.selections && event.selections.length ) {
+			const selection =event.selections [0] ;
+			//const dbIds =selection.dbIdArray ;
+			const data =this.viewer.clientToWorld (this.pointer.canvasX, this.pointer.canvasY, true) ;
+			if ( data.face )
+				this.attenuationCalculator (data) ;
+		}
+	}
 
 	calculateUVsGeo (geometry) {
 		geometry.computeBoundingBox () ;
@@ -354,7 +337,6 @@ class FaderExtension extends ExtensionBase {
 	// later, add number of walls intersected by ray between them
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
-		//console.log(data)
 
 		this.drawVertex (data.point) ;
 
@@ -367,28 +349,14 @@ class FaderExtension extends ExtensionBase {
 
 		// from the selected THREE.Face, extract the normal
 		var floor_normal =data.face.normal ;
-		//console.log(floor_normal) ;
 
 		// retrieve floor render proxies matching normal
 		var instanceTree =this.viewer.model.getData ().instanceTree ;
-		//console.log(instanceTree) ;
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
-		//console.log(fragIds) ;
-
-		// var floor_mesh_fragment =fragIds.map((fragId) => {
-		//   return (this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)) ;
-		// }) ;
-		//console.log(floor_mesh_fragment) ;
 
 		// in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
 		// function drawMeshData, the fragment proxy is ignored and
 		// the render proxy is used instead:
-
-		// var floor_mesh_render = fragIds.map((fragId) => {
-		//   return (this.viewer.impl.getRenderProxy(this.viewer.model, fragId)) ;
-		// }) ;
-		// //console.log(floor_mesh_render) ;
-		// floor_mesh_render = floor_mesh_render [0] ;
 
 		var mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
@@ -405,42 +373,35 @@ class FaderExtension extends ExtensionBase {
 		var map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
 		//console.log( map_uv_to_color )
 
+		this._attenuation_max =this.array2dMax (map_uv_to_color) ;
+		//console.log (this._attenuation_max) ;
+
 		this.viewer.impl.invalidate (true) ;
 	}
 
-  /////////////////////////////////////////////////////////////////
-  // ray trace to count walls between source and target points
-  /////////////////////////////////////////////////////////////////
-  getWallCountBetween( psource, ptarget, max_dist )
-  {
-    this.drawLine(psource, ptarget)
-    this.drawVertex(ptarget);
-
-    var vray = new THREE.Vector3( ptarget.x - psource.x, 
-      ptarget.y - psource.y, ptarget.z - psource.z );
-
-    vray.normalize()
-
-    var ray = new THREE.Raycaster( 
-      psource, vray, 0, max_dist )
-
-    var intersectResults = ray.intersectObjects(
-      this.wallMeshes, true)
-
-    //console.log(intersectResults)
-
-    var nWalls = intersectResults.length
-
-    return nWalls
-  }
+	/////////////////////////////////////////////////////////////////
+	// ray trace to count walls between source and target points
+	/////////////////////////////////////////////////////////////////
+	getWallCountBetween (psource, ptarget, max_dist) {
+		if ( this._debug_raycast_rays ) {
+			this.drawLine (psource, ptarget) ;
+			this.drawVertex (ptarget) ;
+		}
+		var vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z) ;
+		vray.normalize () ;
+		var ray =new THREE.Raycaster (psource, vray, 0, max_dist) ;
+		var intersectResults =ray.intersectObjects (this.wallMeshes, true) ;
+		let nWalls =intersectResults.length ;
+		return (nWalls) ;
+	}
 
   /////////////////////////////////////////////////////////////////
   // ray trace to find walls from picked point to mesh extents
   //
   // return 2D array mapping (u,v) to signal attenuation in dB.
   /////////////////////////////////////////////////////////////////
-  rayTraceToFindWalls( mesh, psource )
-  {
+  rayTraceToFindWalls( mesh, psource ) {
+
     // set up the result map
 
     var n = this._rayTraceGrid; 
@@ -587,127 +548,81 @@ class FaderExtension extends ExtensionBase {
     return material;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
-  // create line material
-  ///////////////////////////////////////////////////////////////////////////
-  createLineMaterial() {
-
-    var material = new THREE.LineBasicMaterial({
-      color: 0xffffff, linewidth: 50 });
-
-    this.viewer.impl.matman().addMaterial(
-      'fader-material-line', material, true );
-
-    return material;
-  }
-
-	calculateUVs (mesh) {
-		var bbox =new THREE.Box3 ().setFromObject (mesh.clone ()) ;
-
-		var max =bbox.max, min =bbox.min ;
-		var offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
-		var range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
-
-		mesh.faces =mesh.geometry.attributes.index ;
-		var faces =mesh.faces ;
-
-		mesh.faceVertexUvs =[] ;
-		mesh.faceVertexUvs [0] =[] ;
-
-		var vertices =mesh.geometry.attributes.position ;
-		for ( var i =0 ; i < faces.length ; i +=3 ) {
-			var v1 =new THREE.Vector3 (
-				vertices.array [faces.array [i * faces.itemSize]],
-				vertices.array [faces.array [i * faces.itemSize] + 1],
-				vertices.array [faces.array [i * faces.itemSize] + 2],
-				0.0
-			) ;
-			var v2 =new THREE.Vector3 (
-				vertices.array [faces.array [i * faces.itemSize + 1]],
-				vertices.array [faces.array [i * faces.itemSize + 1] + 1],
-				vertices.array [faces.array [i * faces.itemSize + 1] + 2],
-				0.0
-			) ;
-			var v3 =new THREE.Vector3 (
-				vertices.array [faces.array [i * faces.itemSize + 2]],
-				vertices.array [faces.array [i * faces.itemSize + 2] + 1],
-				vertices.array [faces.array [i * faces.itemSize + 2] + 2],
-				0.0
-			) ;
-
-			// mesh.faceVertexUvs [0].push ([
-			// 	new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
-			// 	new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
-			// 	new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
-			// ]) ;
-
-			var pt =new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
-			var pt =new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
-			var pt =new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.x)) ;
-			mesh.faceVertexUvs [0].push (Math.max (0, pt.y)) ;
-		}
-		mesh.uvsNeedUpdate =true ;
-		mesh.geometry.attributes.uv.array =mesh.faceVertexUvs ;
-		//mesh.geometry.attributes.uv.bytesPerItem =2 ;
-		mesh.geometry.attributes.uv.isPattern =false ;
-		mesh.geometry.attributes.uv.needsUpdate =true ;
-
-		mesh.faceVertexUvs =undefined ;
-		mesh.faces =undefined ;
-		mesh.uvsNeedUpdate =undefined ;
+	///////////////////////////////////////////////////////////////////////////
+	// create line material
+	///////////////////////////////////////////////////////////////////////////
+	createLineMaterial () {
+		var material =new THREE.LineBasicMaterial ({
+			color: 0xffffff, linewidth: 50
+		}) ;
+		this.viewer.impl.matman ().addMaterial ('fader-material-line', material, true) ;
+		return (material) ;
 	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // draw a line
-  ///////////////////////////////////////////////////////////////////////////
-  drawLine(start, end) {
+	///////////////////////////////////////////////////////////////////////////
+	// draw a line
+	///////////////////////////////////////////////////////////////////////////
+	drawLine(start, end) {
+		let geometry =new THREE.Geometry () ;
+		geometry.vertices.push (
+			new THREE.Vector3 (start.x, start.y, start.z)
+		) ;
+		geometry.vertices.push (
+			new THREE.Vector3 (end.x, end.y, end.z)
+		) ;
+		let line =new THREE.Line (geometry, this._lineMaterial) ;
+		this.addToScene (line) ;
+	}
 
-    var geometry = new THREE.Geometry();
+	///////////////////////////////////////////////////////////////////////////
+	// draw a vertex
+	///////////////////////////////////////////////////////////////////////////
+	drawVertex (v) {
+		var vertex =new THREE.Mesh (
+			new THREE.SphereGeometry (this._pointSize, 4, 3),
+			this._vertexMaterial
+		) ;
+		vertex.position.set (v.x, v.y, v.z) ;
+		this.addToScene (vertex) ;
+	}
 
-    geometry.vertices.push(new THREE.Vector3(
-      start.x, start.y, start.z));
+	isEqualWithPrecision (a, b) {
+		return (a < b + this._eps)
+			&& (a > b - this._eps) ;
+	}
 
-    geometry.vertices.push(new THREE.Vector3(
-      end.x, end.y, end.z));
+	isEqualVectorsWithPrecision (v, w) {
+		return this.isEqualWithPrecision (v.x, w.x)
+			&& this.isEqualWithPrecision (v.y, w.y)
+			&& this.isEqualWithPrecision (v.z, w.z) ;
+	}
 
-    var line = new THREE.Line(geometry, this._lineMaterial);
+	arrayMax (arr) {
+		var len =arr.length, max =-Infinity ;
+		while ( len-- ) {
+			if ( arr [len] > max )
+				max =arr [len] ;
+		}
+		return (max) ;
+	}
 
-    this.viewer.impl.scene.add(line);
-  }
+	array2dMax( arr ) {
+		var len =arr.length, max =-Infinity, m2 ;
+		while ( len-- ) {
+			m2 =this.arrayMax (arr [len]) ;
+			if ( m2 > max )
+				max =m2 ;
+		}
+		return (max) ;
+	}
 
-  ///////////////////////////////////////////////////////////////////////////
-  // draw a vertex
-  ///////////////////////////////////////////////////////////////////////////
-  drawVertex (v) {
+	addToScene (obj) {
+		this.viewer.impl.scene.add (obj) ;
+		this._lastSceneObjects.push (obj) ;
+	}
 
-    var vertex = new THREE.Mesh(
-      new THREE.SphereGeometry(this._pointSize, 4, 3),
-      this._vertexMaterial);
-
-    vertex.position.set(v.x, v.y, v.z);
-
-    this.viewer.impl.scene.add(vertex);
-  }
-
-  isEqualWithPrecision (a, b) {
-    return (a < b + this._eps)
-      && (a > b - this._eps);
-  }
-
-  isEqualVectorsWithPrecision (v, w) {
-    return this.isEqualWithPrecision (v.x, w.x)
-      && this.isEqualWithPrecision (v.y, w.y)
-      && this.isEqualWithPrecision (v.z, w.z);
-  }
 }
 
-Autodesk.Viewing.theExtensionManager.registerExtension(
-  FaderExtension.ExtensionId,
-  FaderExtension)
+Autodesk.Viewing.theExtensionManager.registerExtension (FaderExtension.ExtensionId, FaderExtension) ;
 
 module.exports = 'Viewing.Extension.FaderExtension'
