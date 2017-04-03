@@ -8,16 +8,9 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
-  void main() {
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-  }
 `
 
 const attenuationFragmentShader = `
-  uniform vec4 color;
-  void main() {
-  	gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
-  }
 `
 
 class FaderExtension extends ExtensionBase {
