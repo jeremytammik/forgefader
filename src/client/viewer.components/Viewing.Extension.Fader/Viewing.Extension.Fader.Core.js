@@ -199,7 +199,8 @@ class FaderExtension extends ExtensionBase {
 		instanceTree.enumNodeChildren (rootId, async (childId) => {
 			const nodeName =instanceTree.getNodeName (childId)
 			if ( nodeName === 'Walls' ) {
-				const fragIds =await Toolkit.getFragIds (this.viewer.model, childId)
+				const fragIds =await Toolkit.getFragIds (
+					this.viewer.model, childId)
 				this.wallMeshes =fragIds.map ((fragId) => {
 					return this.getMeshFromRenderProxy (
 						childId,
@@ -247,12 +248,15 @@ class FaderExtension extends ExtensionBase {
 			let v3 =vertices [faces [i].c]
 
 			uvs.push ([
-				new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
-				new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
-				new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
+				new THREE.Vector2 ((v1.x + offset.x) / range.x, 
+				  (v1.y + offset.y) / range.y),
+				new THREE.Vector2 ((v2.x + offset.x) / range.x, 
+				  (v2.y + offset.y) / range.y),
+				new THREE.Vector2 ((v3.x + offset.x) / range.x, 
+				  (v3.y + offset.y) / range.y)
 			])
 		}
-		geometry.uvsNeedUpdate =true
+		geometry.uvsNeedUpdate = true
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -311,9 +315,12 @@ class FaderExtension extends ExtensionBase {
 							this.drawLine (vB, vC)
 							this.drawLine (vC, vA)
 						}
-						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, top_face_z === null ? vA.z : top_face_z))
-						geo.vertices.push (new THREE.Vector3 (vB.x, vB.y, top_face_z === null ? vB.z : top_face_z))
-						geo.vertices.push (new THREE.Vector3 (vC.x, vC.y, top_face_z === null ? vC.z : top_face_z))
+						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, 
+						  top_face_z === null ? vA.z : top_face_z))
+						geo.vertices.push (new THREE.Vector3 (vB.x, vB.y, 
+						  top_face_z === null ? vB.z : top_face_z))
+						geo.vertices.push (new THREE.Vector3 (vC.x, vC.y, 
+						  top_face_z === null ? vC.z : top_face_z))
 						geo.faces.push (new THREE.Face3 (iv, iv + 1, iv + 2))
 						iv =iv + 3
 					}
@@ -329,8 +336,8 @@ class FaderExtension extends ExtensionBase {
 		let mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 })
 		let shaderMat =this.createShaderMaterial (dbId)
 
-		//let mesh =new THREE.Mesh (geo, mat)
-		let mesh =new THREE.Mesh (geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
+		let mesh = new THREE.Mesh( geo, 
+		  top_face_z !== null ? shaderMat : mat )
 
 		//mesh.matrix.copy (render_proxy.matrixWorld)
 		mesh.matrixWorldNeedsUpdate =true
@@ -375,19 +382,20 @@ class FaderExtension extends ExtensionBase {
 
 		let mesh
 		if ( !this._proxyMeshes [fragIds [0]] ) {
-			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0])
-			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, 
+			let floor_mesh_render =this.viewer.impl.getRenderProxy (
+				this.viewer.model, fragIds [0])
+			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render,
 			  floor_normal, top_face_z, this._debug_floor_top_face)
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test'
 			this._proxyMeshes [fragIds [0]] =mesh
 			this.viewer.impl.scene.add (mesh)
-			//this.addToScene(mesh)
 		} else {
 			mesh =this._proxyMeshes [fragIds [0]]
 		}
 
 		// ray trace to determine wall locations on mesh
 		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource)
+		
 		//console.log( map_uv_to_color )
 
 		this._attenuation_max =this.array2dMax (map_uv_to_color)
@@ -407,10 +415,12 @@ class FaderExtension extends ExtensionBase {
 			this.drawLine (psource, ptarget)
 			this.drawVertex (ptarget)
 		}
-		let vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z)
+		let vray =new THREE.Vector3 (ptarget.x - psource.x, 
+		  ptarget.y - psource.y, ptarget.z - psource.z)
 		vray.normalize ()
 		let ray =new THREE.Raycaster (psource, vray, 0, max_dist)
-		let intersectResults =ray.intersectObjects (this.wallMeshes, true)
+		let intersectResults =ray.intersectObjects (
+			this.wallMeshes, true)
 		let nWalls =intersectResults.length
 		return (nWalls)
 	}
@@ -449,13 +459,14 @@ class FaderExtension extends ExtensionBase {
 				// to generate a colour for each u,v coordinate pair
 				nWalls =this.getWallCountBetween (psource, ptarget, vsize.length)
 				let signal_attenuation =
-					  d * this._attenuation_per_m_in_air
-					+ nWalls * this._attenuation_per_wall
-				//map_uv_to_color [i] [j] =signal_attenuation
-				map_uv_to_color [i] [j] =new THREE.Vector4 (ptarget.x, ptarget.y, ptarget.z, signal_attenuation)
+					d * this._attenuation_per_m_in_air
+					  + nWalls * this._attenuation_per_wall
+
+				map_uv_to_color [i] [j] =new THREE.Vector4 (
+					ptarget.x, ptarget.y, ptarget.z, signal_attenuation)
 			}
 		}
-		return (map_uv_to_color)
+		return map_uv_to_color
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -493,7 +504,7 @@ class FaderExtension extends ExtensionBase {
 		dataTexture.needsUpdate =true
 		dataTexture.flipY =false
 
-		return (dataTexture)
+		return dataTexture
 	}
 
 	createShaderMaterial (dbId) {
@@ -549,7 +560,7 @@ class FaderExtension extends ExtensionBase {
 		this.viewer.impl.matman ().removeMaterial ('shaderMaterial')
 		this.viewer.impl.matman ().addMaterial ('shaderMaterial', material, true)
 		this._materials [dbId] =material
-		return (material)
+		return material
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -571,7 +582,7 @@ class FaderExtension extends ExtensionBase {
 		})
 		this.viewer.impl.matman ().addMaterial (
 			'fader-material-vertex', material, true)
-		return (material)
+		return material
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -583,7 +594,7 @@ class FaderExtension extends ExtensionBase {
 		})
 		this.viewer.impl.matman ().addMaterial (
 			'fader-material-line', material, true)
-		return (material)
+		return material
 	}
 
 	///////////////////////////////////////////////////////////////////////////
