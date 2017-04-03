@@ -8,60 +8,67 @@ import ServiceManager from 'SvcManager'
 import Toolkit from 'Viewer.Toolkit'
 
 const attenuationVertexShader = `
+// See http://threejs.org/docs/api/renderers/webgl/WebGLProgram.html for variables
+// Default uniforms (do not add)
+//uniform mat4 modelMatrix;
+//uniform mat4 modelViewMatrix;
+//uniform mat4 projectionMatrix;
+//uniform mat4 viewMatrix;
+//uniform mat3 normalMatrix;
+//uniform vec3 cameraPosition;
 
-	varying vec4 worldCoord;
-  void main() {
-		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-         worldCoord = modelMatrix * vec4( position, 1.0 );
-      //   gl_Position = projectionMatrix * mvPosition;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-  }
-`
+// Default attributes (do not add)
+//attribute vec3 position;
+//attribute vec3 normal;
+//attribute vec2 uv;
+//attribute vec2 uv2;
+
+uniform vec3 mycolor;
+uniform float opacity;
+varying vec4 vcolor;
+
+uniform vec3 strength [4]; // vec4
+varying vec4 worldCoord;
+varying vec2 vUv;
+varying vec3 vPosition;
+
+void main() {
+    vPosition =normalize (position) ;
+    vUv =uv;
+    vcolor =vec4(mycolor, opacity);
+    //vcolor =vec4(uv, 1.0, opacity);
+
+    vec4 mvPosition =modelViewMatrix * vec4(position, 1.0);
+    worldCoord =modelMatrix * vec4(position, 1.0) ;
+    gl_Position =projectionMatrix * mvPosition;
+}
+` ;
 
 const attenuationFragmentShader = `
-  uniform vec4 color;
-  //uniform sampler2D texture;
-  //varying vec2 vUv;
-  varying vec4 worldCoord;
-  void main() {
-  	vec3 fragPos = vec3(worldCoord.x, worldCoord.y, worldCoord.z);
-  	//gl_FragColor =vec4(0.2, 1.0, 0.5, 1.) ;
-    //  float d = vUv.u - 0.5;
-    //  gl_FragColor = d * d * color;
-    
-    float normalizedX = gl_FragCoord.x - 0.0;
-	float normalizedY = gl_FragCoord.y - 0.0;
- 
-    if (sqrt(normalizedX * normalizedX + normalizedY * normalizedY) < 80.0 ) { //1080.0) {
-	  gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-	} else {
-	  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-	}
-	
-	
-	vec3 light = vec3(0.5, 0.2, 1.0);
+// Default uniforms (do not add)
+//uniform mat4 viewMatrix;
+//uniform vec3 cameraPosition;
 
-  // ensure it's normalized
-  light = normalize(light);
+#define pi 3.141592653589793238462643383279
 
-  // calculate the dot product of
-  // the light to the vertex normal
-  //float dProd = max(0.0,dot(vec3(normal,0.), light));
+varying vec4 vcolor;
 
-  // feed into our frag colour
-  // gl_FragColor = vec4(dProd, // R
-  //                     dProd, // G
-  //                     dProd, // B
-  //                     1.0);  // A
-  }
-`
+uniform vec3 strength [4]; // vec4
+varying vec4 worldCoord;
+varying vec2 vUv;
 
+varying vec3 vPosition;
+vec3 c2 =vec3(1., .2, .2);
+vec4 c24 =vec4(1., .2, .2, .9);
 
-// vec4 tColor = texture2D( texture, vUv );
-// gl_FragColor = vec4( mix( color, tColor.rgb, tColor.a ), 1.0 );
+void main() {
+    float dist =2.0*distance (vUv.xy, vec2(.5, .5)) ;
+    gl_FragColor =vec4(dist, dist, dist, 1.0);
+    //gl_FragColor =mix (c24, vcolor, 10.5);
+}
+` ;
 
 class FaderExtension extends ExtensionBase {
-
   /////////////////////////////////////////////////////////////////
   // Class constructor
   /////////////////////////////////////////////////////////////////
@@ -122,11 +129,11 @@ class FaderExtension extends ExtensionBase {
 
     // this.viewer.setProgressiveRendering(true)
     // this.viewer.setQualityLevel(false, true)
-    // this.viewer.setGroundReflection(false)
-    // this.viewer.setGroundShadow(false)
+    this.viewer.setGroundReflection (false) ;
+    this.viewer.setGroundShadow (false) ;
     // this.viewer.setLightPreset(1)
 
-    console.log('Viewing.Extension.Fader')
+    //console.log('Viewing.Extension.Fader')
 
     return true
   }
@@ -228,198 +235,178 @@ class FaderExtension extends ExtensionBase {
     }
   }
 
-  /////////////////////////////////////////////////////////////////
-  // getMeshFromRenderProxy - generate a new mesh from render proxy
-  //
-  // floor_normal: skip all triangles whose normal differs from that
-  // top_face_z: use for the face Z coordinates unless null
-  // debug_draw: draw lines and points representing edges and vertices
-  /////////////////////////////////////////////////////////////////
-  getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z, debug_draw )
-  {
-    var matrix = render_proxy.matrixWorld;
-    var geometry = render_proxy.geometry;
-    var attributes = geometry.attributes;
+	calculateUVsGeo (geometry) {
+		geometry.computeBoundingBox () ;
+		var bbox =geometry.boundingBox ;
 
-    var vA = new THREE.Vector3();
-    var vB = new THREE.Vector3();
-    var vC = new THREE.Vector3();
+		var max =bbox.max, min =bbox.min ;
+		var offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
+		var range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
 
-    var geo = new THREE.Geometry();
-    var iv = 0;
+		var faces =geometry.faces ;
+		var uvs =geometry.faceVertexUvs [0] ;
+		var vertices =geometry.vertices ;
+		for ( var i =0 ; i < faces.length ; i++ ) {
+			var v1 =vertices [faces [i].a] ;
+			var v2 =vertices [faces [i].b] ;
+			var v3 =vertices [faces [i].c] ;
 
-    if (attributes.index !== undefined) {
+			uvs.push ([
+				new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
+				new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
+				new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
+			]) ;
+		}
+		geometry.uvsNeedUpdate =true ;
+	}
 
-      var indices = attributes.index.array || geometry.ib;
-      var positions = geometry.vb ? geometry.vb : attributes.position.array;
-      var stride = geometry.vb ? geometry.vbstride : 3;
-      var offsets = geometry.offsets;
-
-      if (!offsets || offsets.length === 0) {
-        offsets = [{start: 0, count: indices.length, index: 0}];
-      }
-
-      for (var oi = 0, ol = offsets.length; oi < ol; ++oi) {
-
-        var start = offsets[oi].start;
-        var count = offsets[oi].count;
-        var index = offsets[oi].index;
-
-        for (var i = start, il = start + count; i < il; i += 3) {
-
-          var a = index + indices[i];
-          var b = index + indices[i + 1];
-          var c = index + indices[i + 2];
-
-          vA.fromArray(positions, a * stride);
-          vB.fromArray(positions, b * stride);
-          vC.fromArray(positions, c * stride);
-
-          vA.applyMatrix4(matrix);
-          vB.applyMatrix4(matrix);
-          vC.applyMatrix4(matrix);
-
-          var n = THREE.Triangle.normal(vA, vB, vC);
-
-          if( null === floor_normal 
-            || this.isEqualVectorsWithPrecision( n, floor_normal )) 
-          {
-            if( debug_draw )
-            {
-              this.drawVertex (vA);
-              this.drawVertex (vB);
-              this.drawVertex (vC);
-
-              this.drawLine(vA, vB);
-              this.drawLine(vB, vC);
-              this.drawLine(vC, vA);
-            }
-            geo.vertices.push(new THREE.Vector3(vA.x, vA.y, null===top_face_z?vA.z:top_face_z));
-            geo.vertices.push(new THREE.Vector3(vB.x, vB.y, null===top_face_z?vB.z:top_face_z));
-            geo.vertices.push(new THREE.Vector3(vC.x, vC.y, null===top_face_z?vC.z:top_face_z));
-            geo.faces.push( new THREE.Face3( iv, iv+1, iv+2 ) );
-            iv = iv+3;
-          }
-        }
-      }
-    }
-    else {
-
-      throw 'Is this section of code ever called?'
-
-      var positions = geometry.vb ? geometry.vb : attributes.position.array;
-      var stride = geometry.vb ? geometry.vbstride : 3;
-
-      for (var i = 0, il = positions.length; i < il; i += 3) {
-
-        var a = i;
-        var b = i + 1;
-        var c = i + 2;
-
-        // copy code from above if this `else` clause is ever required
-      }
-    }
-    // console.log(floor_top_vertices);
-    // var geo = new THREE.Geometry(); 
-    // var holes = [];
-    // var triangles = ShapeUtils.triangulateShape( floor_top_vertices, holes );
-    // console.log(triangles);
-    // for( var i = 0; i < triangles.length; i++ ){
-    //   geo.faces.push( new THREE.Face3( triangles[i][0], triangles[i][1], triangles[i][2] ));
-    // }
-    //console.log(geo);
-    geo.computeFaceNormals();
-    geo.computeVertexNormals();
-    geo.computeBoundingBox();
-    //geo.computeBoundingSphere();
-    let mat =new THREE.Mesh( geo, new THREE.MeshBasicMaterial( { color: 0xffff00 } )) ;
-    let shaderMat =this.createShaderMaterial (dbId) ;
-
-	  var mesh = new THREE.Mesh( geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
-
-	  //mesh.matrix.copy(render_proxy.matrixWorld);
-	  //mesh.matrixWorldNeedsUpdate = true;
-	  //mesh.matrixAutoUpdate = false;
-	  //mesh.frustumCulled = false;
-    return mesh;
-  }
-
-  /////////////////////////////////////////////////////////////////
-  // attenuationCalculator - given a picked source point on a face
-  //
-  // determine face shape
-  // draw a heat map on it
-  // initially, just use distance from source to target point
-  // later, add number of walls intersected by ray between them
-  /////////////////////////////////////////////////////////////////
-  async attenuationCalculator(data)
-  {
-    //console.log(data)
-
-    this.drawVertex(data.point)
-
-    var psource = new THREE.Vector3(
-      data.point.x, data.point.y,
-      data.point.z + this._rayTraceOffset)
-
-    var top_face_z = data.point.z + this._topFaceOffset;
-
-    // from the selected THREE.Face, extract the normal
-
-    var floor_normal = data.face.normal
-    //console.log(floor_normal)
-
-    // retrieve floor render proxies matching normal
-
-    var instanceTree = this.viewer.model.getData().instanceTree
-    //console.log(instanceTree)
-    const fragIds = await Toolkit.getFragIds(this.viewer.model, data.dbId)
-    ////console.log(fragIds)
-
-    // var floor_mesh_fragment = fragIds.map((fragId) => {
-    //   return this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)
-    // })
-    //console.log(floor_mesh_fragment)
-
-    // in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
-    // function drawMeshData, the fragment proxy is ignored and 
-    // the render proxy is used instead:
-
-    // var floor_mesh_render = fragIds.map((fragId) => {
-    //   return this.viewer.impl.getRenderProxy(this.viewer.model, fragId)
-    // })
-    // //console.log(floor_mesh_render)
+	/////////////////////////////////////////////////////////////////
+	// getMeshFromRenderProxy - generate a new mesh from render proxy
 	//
-    // floor_mesh_render = floor_mesh_render[0]
-	  var floor_mesh_render =this.viewer.impl.getRenderProxy(this.viewer.model, fragIds [0]);
+	// floor_normal: skip all triangles whose normal differs from that
+	// top_face_z: use for the face Z coordinates unless null
+	// debug_draw: draw lines and points representing edges and vertices
+	/////////////////////////////////////////////////////////////////
+	getMeshFromRenderProxy (dbId, render_proxy, floor_normal, top_face_z, debug_draw) {
+		var matrix =render_proxy.matrixWorld ;
+		var geometry =render_proxy.geometry ;
+		var attributes =geometry.attributes ;
 
-    var mesh = this.getMeshFromRenderProxy(data.dbId,
-      floor_mesh_render, floor_normal, top_face_z, true )
+		var vA =new THREE.Vector3 () ;
+		var vB =new THREE.Vector3 () ;
+		var vC =new THREE.Vector3 () ;
 
-    //this.viewer.impl.scene.add(mesh);
+		var geo =new THREE.Geometry () ;
+		var iv =0 ;
 
-    // ray trace to determine wall locations on mesh
+		if ( attributes.index !== undefined ) {
+			var indices =attributes.index.array || geometry.ib ;
+			var positions =geometry.vb ? geometry.vb : attributes.position.array ;
+			var stride =geometry.vb ? geometry.vbstride : 3 ;
+			var offsets =geometry.offsets ;
+			if ( !offsets || offsets.length === 0 )
+				offsets =[ { start: 0, count: indices.length, index: 0 } ] ;
 
-    var map_uv_to_color = this.rayTraceToFindWalls(
-      mesh, psource)
+			for ( var oi =0, ol = offsets.length ; oi < ol ; ++oi ) {
+				var start =offsets[oi].start ;
+				var count =offsets[oi].count ;
+				var index =offsets[oi].index ;
+				for ( var i =start, il =start + count ; i < il ; i +=3 ) {
+					var a =index + indices [i] ;
+					var b =index + indices [i + 1] ;
+					var c =index + indices [i + 2] ;
 
-    //console.log( map_uv_to_color )
+					vA.fromArray (positions, a * stride) ;
+					vB.fromArray (positions, b * stride) ;
+					vC.fromArray (positions, c * stride) ;
 
-	  let renderProxy = this.viewer.impl.getRenderProxy(this.viewer.model, fragIds [0]);
-	  let meshProxy = new THREE.Mesh(
-		  renderProxy.geometry,
-		  this.createShaderMaterial(data.dbId));
-	  meshProxy.matrix.copy(renderProxy.matrixWorld);
-	  meshProxy.matrixWorldNeedsUpdate = true;
-	  meshProxy.matrixAutoUpdate = false;
-	  meshProxy.frustumCulled = false;
+					vA.applyMatrix4 (matrix) ;
+					vB.applyMatrix4 (matrix) ;
+					vC.applyMatrix4 (matrix) ;
 
-	  this._proxyMeshes[fragIds [0]] = meshProxy;
+					var n =THREE.Triangle.normal (vA, vB, vC) ;
+					if (   floor_normal === null
+						|| this.isEqualVectorsWithPrecision (n, floor_normal)
+					) {
+						if ( debug_draw ) {
+							this.drawVertex (vA) ;
+							this.drawVertex (vB) ;
+							this.drawVertex (vC) ;
+							this.drawLine (vA, vB) ;
+							this.drawLine (vB, vC) ;
+							this.drawLine (vC, vA) ;
+						}
+						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, top_face_z === null ? vA.z : top_face_z)) ;
+						geo.vertices.push (new THREE.Vector3 (vB.x, vB.y, top_face_z === null ? vB.z : top_face_z)) ;
+						geo.vertices.push (new THREE.Vector3 (vC.x, vC.y, top_face_z === null ? vC.z : top_face_z)) ;
+						geo.faces.push (new THREE.Face3 (iv, iv + 1, iv + 2)) ;
+						iv =iv + 3 ;
+					}
+				}
+			}
+		}
 
-	  this.setMaterialOverlay (fragIds [0], this._overlayName) ;
+		this.calculateUVsGeo (geo) ;
+		geo.computeFaceNormals () ;
+		geo.computeVertexNormals () ;
+		geo.computeBoundingBox () ;
 
-    this.viewer.impl.invalidate(true)
-  }
+		var mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 }) ;
+		var shaderMat =this.createShaderMaterial (dbId) ;
+
+		//var mesh =new THREE.Mesh (geo, mat) ;
+		var mesh =new THREE.Mesh (geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
+
+		//mesh.matrix.copy (render_proxy.matrixWorld) ;
+		mesh.matrixWorldNeedsUpdate =true ;
+		mesh.matrixAutoUpdate =false ;
+		mesh.frustumCulled =false ;
+
+		return (mesh) ;
+	}
+
+	/////////////////////////////////////////////////////////////////
+	// attenuationCalculator - given a picked source point on a face
+	//
+	// determine face shape
+	// draw a heat map on it
+	// initially, just use distance from source to target point
+	// later, add number of walls intersected by ray between them
+	/////////////////////////////////////////////////////////////////
+	async attenuationCalculator(data) {
+		//console.log(data)
+
+		this.drawVertex (data.point) ;
+
+		var psource =new THREE.Vector3 (
+			data.point.x, data.point.y,
+			data.point.z + this._rayTraceOffset
+		) ;
+
+		var top_face_z =data.point.z + this._topFaceOffset ;
+
+		// from the selected THREE.Face, extract the normal
+		var floor_normal =data.face.normal ;
+		//console.log(floor_normal) ;
+
+		// retrieve floor render proxies matching normal
+		var instanceTree =this.viewer.model.getData ().instanceTree ;
+		//console.log(instanceTree) ;
+		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
+		//console.log(fragIds) ;
+
+		// var floor_mesh_fragment =fragIds.map((fragId) => {
+		//   return (this.viewer.impl.getFragmentProxy(this.viewer.model, fragId)) ;
+		// }) ;
+		//console.log(floor_mesh_fragment) ;
+
+		// in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
+		// function drawMeshData, the fragment proxy is ignored and
+		// the render proxy is used instead:
+
+		// var floor_mesh_render = fragIds.map((fragId) => {
+		//   return (this.viewer.impl.getRenderProxy(this.viewer.model, fragId)) ;
+		// }) ;
+		// //console.log(floor_mesh_render) ;
+		// floor_mesh_render = floor_mesh_render [0] ;
+
+		var mesh ;
+		if ( !this._proxyMeshes [fragIds [0]] ) {
+			var floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
+			var mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, true) ;
+			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
+			this._proxyMeshes [fragIds [0]] =mesh ;
+			this.viewer.impl.scene.add (mesh) ;
+		} else {
+			mesh =this._proxyMeshes [fragIds [0]] ;
+		}
+
+		// ray trace to determine wall locations on mesh
+		var map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
+		//console.log( map_uv_to_color )
+
+		this.viewer.impl.invalidate (true) ;
+	}
 
   /////////////////////////////////////////////////////////////////
   // ray trace to count walls between source and target points
@@ -440,7 +427,7 @@ class FaderExtension extends ExtensionBase {
     var intersectResults = ray.intersectObjects(
       this.wallMeshes, true)
 
-    console.log(intersectResults)
+    //console.log(intersectResults)
 
     var nWalls = intersectResults.length
 
@@ -527,56 +514,50 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // create attenuation shader material
   /////////////////////////////////////////////////////////////////
-	setMaterialOverlay(fragId, materialName) {
-		this.viewer.impl.addOverlay(materialName, this._proxyMeshes[fragId]);
-		this.viewer.impl.invalidate(false, false, true);
+	setMaterialOverlay (fragId, materialName) {
+		this.viewer.impl.addOverlay (materialName, this._proxyMeshes [fragId]) ;
+		this.viewer.impl.invalidate (false, false, true) ;
 	}
 
-	removeMaterialOverlay(fragId, materialName) {
-		this.viewer.impl.removeOverlay(materialName, this._proxyMeshes[fragId]);
-		this.viewer.impl.invalidate(false, false, true);
+	removeMaterialOverlay (fragId, materialName) {
+		this.viewer.impl.removeOverlay (materialName, this._proxyMeshes [fragId]) ;
+		this.viewer.impl.invalidate (false, false, true) ;
 	}
 
-  createShaderMaterial (dbId) {
-	  if ( this._materials[dbId] !== undefined )
-		  return (this._materials [dbId]) ;
+	createShaderMaterial (dbId) {
+		if ( this._materials [dbId] !== undefined )
+			return (this._materials [dbId]) ;
 
-    const uniforms = {
-      color: {
-        value: new THREE.Vector4(0.1, 1.0, 0.5, 0.6),
-        type: 'v4'
-      },
+		let uniforms ={
+			"time": { "value": 1 },
+			"resolution": { "value": 1 },
+			"mycolor": {
+				"type": "c",
+				"value": { "r": 0.2, "g": 1, "b": 0.5 }
+			},
+			"opacity": { "type": "f", "value": 0.9 },
+			"strength": {
+				"type": "v3v",
+				"value": [
+					[ 0, 0, 1 ], [ 0, 1, 0.5 ],
+					[ 1, 0, 0.8 ], [ 1, 1, 0.3 ]
+				]
+			}
+		} ;
 
-		// corner: {
-		// 	type: 'v2',
-		// 	value: new THREE.Vector2(_bounds.min.x, _bounds.min.y)
-		// },
-		// width: {
-		// 	type: 'f',
-		// 	value: _bounds.width
-		// },
-		// height: {
-		// 	type: 'f',
-		// 	value: _bounds.height
-		// },
+		var material =new THREE.ShaderMaterial ({
+			uniforms: uniforms,
+			//attributes: attributes,
+			vertexShader: attenuationVertexShader,
+			fragmentShader: attenuationFragmentShader,
+			side: THREE.DoubleSide
+		}) ;
 
-		//texture: { type: "t", value: data.texture },
-    }
-
-    let material = new THREE.ShaderMaterial({
-      fragmentShader: attenuationFragmentShader,
-      vertexShader: attenuationVertexShader,
-      uniforms: uniforms,
-		side: THREE.DoubleSide
-    })
-
-
-     // this.viewer.impl.matman().addMaterial(
-     //   this._overlayName, material, true)
-
-	  this._materials [dbId] =material ;
-    return material
-  }  
+		this.viewer.impl.matman ().removeMaterial ('shaderMaterial') ;
+		this.viewer.impl.matman ().addMaterial ('shaderMaterial', material, true) ;
+		this._materials [dbId] =material ;
+		return (material) ;
+	}
 
   /////////////////////////////////////////////////////////////////
   // apply material to specific fragments
