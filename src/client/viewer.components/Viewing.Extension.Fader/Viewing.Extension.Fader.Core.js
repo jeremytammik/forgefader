@@ -82,30 +82,30 @@ class FaderExtension extends ExtensionBase {
 	// Class constructor
 	/////////////////////////////////////////////////////////////////
 	constructor (viewer, options) {
-		super (viewer, options) ;
-		this.onGeometryLoaded =this.onGeometryLoaded.bind (this) ;
-		this.onSelection =this.onSelection.bind (this) ;
+		super (viewer, options)
+		this.onGeometryLoaded =this.onGeometryLoaded.bind (this)
+		this.onSelection =this.onSelection.bind (this)
 
-		this._lineMaterial =this.createLineMaterial () ;
-		this._vertexMaterial =this.createVertexMaterial () ;
+		this._lineMaterial =this.createLineMaterial ()
+		this._vertexMaterial =this.createVertexMaterial ()
 
-		this._eps =0.000001 ;
-		this._pointSize =0.3 ;
-		this._topFaceOffset =0.01 ; // offset above floor in imperial feet
-		this._rayTraceOffset =5 ; // offset above floor in imperial feet
-		this._rayTraceGrid =8 ; // how many grid points in u and v direction to evaluate: 8*8=64
-		this._lastSceneObjects =[] ; // objects added to scene, delete in next run
-		this._debug_floor_top_face =false ;
-		this._debug_raycast_rays =false ;
-		this._attenuation_per_m_in_air =2.8 ;
-		this._attenuation_per_wall =3.2 ;
-		this._attenuation_max =0.0;
-		this._attenuation_min =0.0 ;
+		this._eps =0.000001
+		this._pointSize =0.3
+		this._topFaceOffset =0.01 // offset above floor in imperial feet
+		this._rayTraceOffset =5 // offset above floor in imperial feet
+		this._rayTraceGrid =8 // how many grid points in u and v direction to evaluate: 8*8=64
+		this._lastSceneObjects =[] // objects added to scene, delete in next run
+		this._debug_floor_top_face =false
+		this._debug_raycast_rays =false
+		this._attenuation_per_m_in_air =2.8
+		this._attenuation_per_wall =8
+		this._attenuation_max =0.0
+		this._attenuation_min =0.0
 
-		this._materials ={} ;
-		this._proxyMeshes ={} ;
-		this._overlayName ='fader-material-shader' ;
-		this.viewer.impl.createOverlayScene (this._overlayName) ;
+		this._materials ={}
+		this._proxyMeshes ={}
+		this._overlayName ='fader-material-shader'
+		this.viewer.impl.createOverlayScene (this._overlayName)
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -126,38 +126,38 @@ class FaderExtension extends ExtensionBase {
 	// Load callback
 	/////////////////////////////////////////////////////////////////
 	load () {
-		this.eventTool =new EventTool (this.viewer) ;
-		this.eventTool.activate () ;
+		this.eventTool =new EventTool (this.viewer)
+		this.eventTool.activate ()
 		this.eventTool.on ('singleclick', (event) => {
 			this.pointer = event
-		}) ;
+		})
 
 		this.viewer.addEventListener (
 			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
 			this.onSelection
-		) ;
+		)
 		this.viewer.addEventListener (
 			//Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
 			Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
 			() => this.onGeometryLoaded ()
-		) ;
+		)
 
-		// this.viewer.setProgressiveRendering (true) ;
-		// this.viewer.setQualityLevel (false, true) ;
-		this.viewer.setGroundReflection (false) ;
-		this.viewer.setGroundShadow (false) ;
-		// this.viewer.setLightPreset (1) ;
+		// this.viewer.setProgressiveRendering (true)
+		// this.viewer.setQualityLevel (false, true)
+		this.viewer.setGroundReflection (false)
+		this.viewer.setGroundShadow (false)
+		// this.viewer.setLightPreset (1)
 
     console.log('Viewing.Extension.Fader.Core')
 
-		return (true) ;
+		return (true)
 	}
 
 	/////////////////////////////////////////////////////////////////
 	// Extension Id
 	/////////////////////////////////////////////////////////////////
 	static get ExtensionId () {
-		return ('Viewing.Extension.Fader.Core') ;
+		return ('Viewing.Extension.Fader.Core')
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -168,12 +168,12 @@ class FaderExtension extends ExtensionBase {
 			//Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
 			Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
 			this.onGeometryLoaded
-		) ;
+		)
 		this.viewer.removeEventListener (
 			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
 			this.onSelection
-		) ;
-		return (true) ;
+		)
+		return (true)
 	}
 
 	getBounds (id) {
@@ -194,21 +194,21 @@ class FaderExtension extends ExtensionBase {
 	// onGeometryLoaded - retrieve all wall meshes
 	/////////////////////////////////////////////////////////////////
 	onGeometryLoaded (event) {
-		const instanceTree =this.viewer.model.getData ().instanceTree ;
-		let rootId =instanceTree.getRootId () ;
+		const instanceTree =this.viewer.model.getData ().instanceTree
+		let rootId =instanceTree.getRootId ()
 		instanceTree.enumNodeChildren (rootId, async (childId) => {
-			const nodeName =instanceTree.getNodeName (childId) ;
+			const nodeName =instanceTree.getNodeName (childId)
 			if ( nodeName === 'Walls' ) {
-				const fragIds =await Toolkit.getFragIds (this.viewer.model, childId) ;
+				const fragIds =await Toolkit.getFragIds (this.viewer.model, childId)
 				this.wallMeshes =fragIds.map ((fragId) => {
 					return this.getMeshFromRenderProxy (
 						childId,
 						this.viewer.impl.getRenderProxy (this.viewer.model, fragId),
 						null, null, null
-					) ;
-				}) ;
+					)
+				})
 			}
-		}) ;
+		})
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -216,43 +216,43 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	onSelection (event) {
 		if ( event.selections && event.selections.length ) {
-			const selection =event.selections [0] ;
-			//const dbIds =selection.dbIdArray ;
+			const selection =event.selections [0]
+			//const dbIds =selection.dbIdArray
 			const data =this.viewer.clientToWorld (
-				this.pointer.canvasX, this.pointer.canvasY, true) ;
+				this.pointer.canvasX, this.pointer.canvasY, true)
 			if ( data.face ) {
 				var n = data.face.normal
 			  if( this.isEqualWithPrecision( n.x, 0 )
 				  && this.isEqualWithPrecision( n.y, 0 )) {
-    				this.attenuationCalculator (data) ;
+    				this.attenuationCalculator (data)
 				}
 			}
 		}
 	}
 
 	calculateUVsGeo (geometry) {
-		geometry.computeBoundingBox () ;
-		let bbox =geometry.boundingBox ;
+		geometry.computeBoundingBox ()
+		let bbox =geometry.boundingBox
 
-		let max =bbox.max, min =bbox.min ;
-		let offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
-		let range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
+		let max =bbox.max, min =bbox.min
+		let offset =new THREE.Vector2 (0 - min.x, 0 - min.y)
+		let range =new THREE.Vector2 (max.x - min.x, max.y - min.y)
 
-		let faces =geometry.faces ;
-		let uvs =geometry.faceVertexUvs [0] ;
-		let vertices =geometry.vertices ;
+		let faces =geometry.faces
+		let uvs =geometry.faceVertexUvs [0]
+		let vertices =geometry.vertices
 		for ( let i =0 ; i < faces.length ; i++ ) {
-			let v1 =vertices [faces [i].a] ;
-			let v2 =vertices [faces [i].b] ;
-			let v3 =vertices [faces [i].c] ;
+			let v1 =vertices [faces [i].a]
+			let v2 =vertices [faces [i].b]
+			let v3 =vertices [faces [i].c]
 
 			uvs.push ([
 				new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
 				new THREE.Vector2 ((v2.x + offset.x) / range.x, (v2.y + offset.y) / range.y),
 				new THREE.Vector2 ((v3.x + offset.x) / range.x, (v3.y + offset.y) / range.y)
-			]) ;
+			])
 		}
-		geometry.uvsNeedUpdate =true ;
+		geometry.uvsNeedUpdate =true
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -263,81 +263,81 @@ class FaderExtension extends ExtensionBase {
 	// debug_draw: draw lines and points representing edges and vertices
 	/////////////////////////////////////////////////////////////////
 	getMeshFromRenderProxy (dbId, render_proxy, floor_normal, top_face_z, debug_draw) {
-		let matrix =render_proxy.matrixWorld ;
-		let geometry =render_proxy.geometry ;
-		let attributes =geometry.attributes ;
+		let matrix =render_proxy.matrixWorld
+		let geometry =render_proxy.geometry
+		let attributes =geometry.attributes
 
-		let vA =new THREE.Vector3 () ;
-		let vB =new THREE.Vector3 () ;
-		let vC =new THREE.Vector3 () ;
+		let vA =new THREE.Vector3 ()
+		let vB =new THREE.Vector3 ()
+		let vC =new THREE.Vector3 ()
 
-		let geo =new THREE.Geometry () ;
-		let iv =0 ;
+		let geo =new THREE.Geometry ()
+		let iv =0
 
 		if ( attributes.index !== undefined ) {
-			let indices =attributes.index.array || geometry.ib ;
-			let positions =geometry.vb ? geometry.vb : attributes.position.array ;
-			let stride =geometry.vb ? geometry.vbstride : 3 ;
-			let offsets =geometry.offsets ;
+			let indices =attributes.index.array || geometry.ib
+			let positions =geometry.vb ? geometry.vb : attributes.position.array
+			let stride =geometry.vb ? geometry.vbstride : 3
+			let offsets =geometry.offsets
 			if ( !offsets || offsets.length === 0 )
-				offsets =[ { start: 0, count: indices.length, index: 0 } ] ;
+				offsets =[ { start: 0, count: indices.length, index: 0 } ]
 
 			for ( let oi =0, ol = offsets.length ; oi < ol ; ++oi ) {
-				let start =offsets[oi].start ;
-				let count =offsets[oi].count ;
-				let index =offsets[oi].index ;
+				let start =offsets[oi].start
+				let count =offsets[oi].count
+				let index =offsets[oi].index
 				for ( let i =start, il =start + count ; i < il ; i +=3 ) {
-					let a =index + indices [i] ;
-					let b =index + indices [i + 1] ;
-					let c =index + indices [i + 2] ;
+					let a =index + indices [i]
+					let b =index + indices [i + 1]
+					let c =index + indices [i + 2]
 
-					vA.fromArray (positions, a * stride) ;
-					vB.fromArray (positions, b * stride) ;
-					vC.fromArray (positions, c * stride) ;
+					vA.fromArray (positions, a * stride)
+					vB.fromArray (positions, b * stride)
+					vC.fromArray (positions, c * stride)
 
-					vA.applyMatrix4 (matrix) ;
-					vB.applyMatrix4 (matrix) ;
-					vC.applyMatrix4 (matrix) ;
+					vA.applyMatrix4 (matrix)
+					vB.applyMatrix4 (matrix)
+					vC.applyMatrix4 (matrix)
 
-					let n =THREE.Triangle.normal (vA, vB, vC) ;
+					let n =THREE.Triangle.normal (vA, vB, vC)
 					if ( floor_normal === null
 						|| this.isEqualVectorsWithPrecision (n, floor_normal)
 					) {
 						if ( debug_draw ) {
-							this.drawVertex (vA) ;
-							this.drawVertex (vB) ;
-							this.drawVertex (vC) ;
-							this.drawLine (vA, vB) ;
-							this.drawLine (vB, vC) ;
-							this.drawLine (vC, vA) ;
+							this.drawVertex (vA)
+							this.drawVertex (vB)
+							this.drawVertex (vC)
+							this.drawLine (vA, vB)
+							this.drawLine (vB, vC)
+							this.drawLine (vC, vA)
 						}
-						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, top_face_z === null ? vA.z : top_face_z)) ;
-						geo.vertices.push (new THREE.Vector3 (vB.x, vB.y, top_face_z === null ? vB.z : top_face_z)) ;
-						geo.vertices.push (new THREE.Vector3 (vC.x, vC.y, top_face_z === null ? vC.z : top_face_z)) ;
-						geo.faces.push (new THREE.Face3 (iv, iv + 1, iv + 2)) ;
-						iv =iv + 3 ;
+						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, top_face_z === null ? vA.z : top_face_z))
+						geo.vertices.push (new THREE.Vector3 (vB.x, vB.y, top_face_z === null ? vB.z : top_face_z))
+						geo.vertices.push (new THREE.Vector3 (vC.x, vC.y, top_face_z === null ? vC.z : top_face_z))
+						geo.faces.push (new THREE.Face3 (iv, iv + 1, iv + 2))
+						iv =iv + 3
 					}
 				}
 			}
 		}
 
-		this.calculateUVsGeo (geo) ;
-		geo.computeFaceNormals () ;
-		geo.computeVertexNormals () ;
-		geo.computeBoundingBox () ;
+		this.calculateUVsGeo (geo)
+		geo.computeFaceNormals ()
+		geo.computeVertexNormals ()
+		geo.computeBoundingBox ()
 
-		let mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 }) ;
-		let shaderMat =this.createShaderMaterial (dbId) ;
+		let mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 })
+		let shaderMat =this.createShaderMaterial (dbId)
 
-		//let mesh =new THREE.Mesh (geo, mat) ;
+		//let mesh =new THREE.Mesh (geo, mat)
 		let mesh =new THREE.Mesh (geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
 
-		//mesh.matrix.copy (render_proxy.matrixWorld) ;
-		mesh.matrixWorldNeedsUpdate =true ;
-		mesh.matrixAutoUpdate =false ;
-		mesh.frustumCulled =false ;
+		//mesh.matrix.copy (render_proxy.matrixWorld)
+		mesh.matrixWorldNeedsUpdate =true
+		mesh.matrixAutoUpdate =false
+		mesh.frustumCulled =false
 
-		return (mesh) ;
+		return (mesh)
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -356,47 +356,47 @@ class FaderExtension extends ExtensionBase {
     })
 
     if(this._debug_floor_top_face) {
-		  this.drawVertex (data.point) ;
+		  this.drawVertex (data.point)
 		}
 
 		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
 			data.point.z + this._rayTraceOffset
-		) ;
+		)
 
-		let top_face_z =data.point.z + this._topFaceOffset ;
+		let top_face_z =data.point.z + this._topFaceOffset
 
 		// from the selected THREE.Face, extract the normal
-		let floor_normal =data.face.normal ;
+		let floor_normal =data.face.normal
 
 		// retrieve floor render proxies matching normal
-		let instanceTree =this.viewer.model.getData ().instanceTree ;
-		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
+		let instanceTree =this.viewer.model.getData ().instanceTree
+		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId)
 
-		let mesh ;
+		let mesh
 		if ( !this._proxyMeshes [fragIds [0]] ) {
-			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
+			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0])
 			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, 
-			  floor_normal, top_face_z, this._debug_floor_top_face) ;
-			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
-			this._proxyMeshes [fragIds [0]] =mesh ;
-			this.viewer.impl.scene.add (mesh) ;
+			  floor_normal, top_face_z, this._debug_floor_top_face)
+			mesh.name =data.dbId + '-' + fragIds [0] + '-Test'
+			this._proxyMeshes [fragIds [0]] =mesh
+			this.viewer.impl.scene.add (mesh)
 			//this.addToScene(mesh)
 		} else {
-			mesh =this._proxyMeshes [fragIds [0]] ;
+			mesh =this._proxyMeshes [fragIds [0]]
 		}
 
 		// ray trace to determine wall locations on mesh
-		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
+		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource)
 		//console.log( map_uv_to_color )
 
-		this._attenuation_max =this.array2dMax (map_uv_to_color) ;
-		this._attenuation_min =this.array2dMin (map_uv_to_color) ;
+		this._attenuation_max =this.array2dMax (map_uv_to_color)
+		this._attenuation_min =this.array2dMin (map_uv_to_color)
 
-		let tex =this.createTexture (map_uv_to_color, this._attenuation_max) ;
-		mesh.material.uniforms.checkerboard.value =tex ;
+		let tex =this.createTexture (map_uv_to_color, this._attenuation_max)
+		mesh.material.uniforms.checkerboard.value =tex
 
-		this.viewer.impl.invalidate (true) ;
+		this.viewer.impl.invalidate (true)
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -404,15 +404,15 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	getWallCountBetween (psource, ptarget, max_dist) {
 		if ( this._debug_raycast_rays ) {
-			this.drawLine (psource, ptarget) ;
-			this.drawVertex (ptarget) ;
+			this.drawLine (psource, ptarget)
+			this.drawVertex (ptarget)
 		}
-		let vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z) ;
-		vray.normalize () ;
-		let ray =new THREE.Raycaster (psource, vray, 0, max_dist) ;
-		let intersectResults =ray.intersectObjects (this.wallMeshes, true) ;
-		let nWalls =intersectResults.length ;
-		return (nWalls) ;
+		let vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z)
+		vray.normalize ()
+		let ray =new THREE.Raycaster (psource, vray, 0, max_dist)
+		let intersectResults =ray.intersectObjects (this.wallMeshes, true)
+		let nWalls =intersectResults.length
+		return (nWalls)
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -422,62 +422,62 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	rayTraceToFindWalls (mesh, psource) {
 		// set up the result map
-		let n =this._rayTraceGrid ;
-		let map_uv_to_color =new Array (n) ;
+		let n =this._rayTraceGrid
+		let map_uv_to_color =new Array (n)
 		for ( let i =0 ; i < n ; i++ )
-			map_uv_to_color [i] =new Array (n) ;
+			map_uv_to_color [i] =new Array (n)
 
-		let ptarget, d, nWalls ;
-		let bb =mesh.geometry.boundingBox ;
+		let ptarget, d, nWalls
+		let bb =mesh.geometry.boundingBox
 		let vsize =new THREE.Vector3 (
 			bb.max.x - bb.min.x,
 			bb.max.y - bb.min.y,
 			bb.max.z - bb.min.z
-		) ;
+		)
 
-		let step =1.0 / (n - 1) ;
+		let step =1.0 / (n - 1)
 		for ( let u =0.0, i =0 ; u < 1.0 + this._eps ; u +=step, ++i ) {
 			for ( let v =0.0, j =0 ; v < 1.0 + this._eps ; v +=step, ++j ) {
 				ptarget =new THREE.Vector3 (
 					bb.min.x + u * vsize.x,
 					bb.min.y + v * vsize.y,
 					psource.z
-				) ;
-				d =psource.distanceTo (ptarget) ;
+				)
+				d =psource.distanceTo (ptarget)
 
 				// determine number of walls between psource and ptarget
 				// to generate a colour for each u,v coordinate pair
-				nWalls =this.getWallCountBetween (psource, ptarget, vsize.length) ;
+				nWalls =this.getWallCountBetween (psource, ptarget, vsize.length)
 				let signal_attenuation =
 					  d * this._attenuation_per_m_in_air
-					+ nWalls * this._attenuation_per_wall ;
-				//map_uv_to_color [i] [j] =signal_attenuation ;
-				map_uv_to_color [i] [j] =new THREE.Vector4 (ptarget.x, ptarget.y, ptarget.z, signal_attenuation) ;
+					+ nWalls * this._attenuation_per_wall
+				//map_uv_to_color [i] [j] =signal_attenuation
+				map_uv_to_color [i] [j] =new THREE.Vector4 (ptarget.x, ptarget.y, ptarget.z, signal_attenuation)
 			}
 		}
-		return (map_uv_to_color) ;
+		return (map_uv_to_color)
 	}
 
 	/////////////////////////////////////////////////////////////////
 	// create attenuation shader material
 	/////////////////////////////////////////////////////////////////
 	setMaterialOverlay (fragId, materialName) {
-		this.viewer.impl.addOverlay (materialName, this._proxyMeshes [fragId]) ;
-		this.viewer.impl.invalidate (false, false, true) ;
+		this.viewer.impl.addOverlay (materialName, this._proxyMeshes [fragId])
+		this.viewer.impl.invalidate (false, false, true)
 	}
 
 	removeMaterialOverlay (fragId, materialName) {
-		this.viewer.impl.removeOverlay (materialName, this._proxyMeshes [fragId]) ;
-		this.viewer.impl.invalidate (false, false, true) ;
+		this.viewer.impl.removeOverlay (materialName, this._proxyMeshes [fragId])
+		this.viewer.impl.invalidate (false, false, true)
 	}
 
 	createTexture (data, attenuation_max) {
-		let pixelData =[] ;
+		let pixelData =[]
 		for ( let i =0 ; i < data.length ; i++ ) {
 			for ( let j =0 ; j < data [i].length ; j++ ) {
-				let c =data [j] [i].w / attenuation_max ;
-				c =parseInt (c * 0xff) ;
-				pixelData.push (c, 0xff - c, 0, 0xff) ;
+				let c =data [j] [i].w / attenuation_max
+				c =parseInt (c * 0xff)
+				pixelData.push (c, 0xff - c, 0, 0xff)
 			}
 		}
 
@@ -487,18 +487,18 @@ class FaderExtension extends ExtensionBase {
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
-		) ;
-		dataTexture.minFilter =THREE.LinearFilter ;
-		dataTexture.magFilter =THREE.LinearFilter ;
-		dataTexture.needsUpdate =true ;
-		dataTexture.flipY =false ;
+		)
+		dataTexture.minFilter =THREE.LinearFilter
+		dataTexture.magFilter =THREE.LinearFilter
+		dataTexture.needsUpdate =true
+		dataTexture.flipY =false
 
-		return (dataTexture) ;
+		return (dataTexture)
 	}
 
 	createShaderMaterial (dbId) {
 		if ( this._materials [dbId] !== undefined )
-			return (this._materials [dbId]) ;
+			return (this._materials [dbId])
 
 		let uniforms ={
 			"time": { "value": 1 },
@@ -517,10 +517,10 @@ class FaderExtension extends ExtensionBase {
 			// }
 		}
 
-		let pixelData =[] ;
+		let pixelData =[]
 		for ( let i =0 ; i < this._rayTraceGrid ; i++ )
 			for ( let j =0 ; j < this._rayTraceGrid ; j++ )
-				pixelData.push (0x88, 0x88, 0, 0xff) ;
+				pixelData.push (0x88, 0x88, 0, 0xff)
 
 		let dataTexture =new THREE.DataTexture (
 			Uint8Array.from (pixelData),
@@ -528,15 +528,15 @@ class FaderExtension extends ExtensionBase {
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
-		) ;
-		dataTexture.minFilter =THREE.LinearFilter ;
-		dataTexture.magFilter =THREE.LinearFilter ;
-		dataTexture.needsUpdate =true ;
+		)
+		dataTexture.minFilter =THREE.LinearFilter
+		dataTexture.magFilter =THREE.LinearFilter
+		dataTexture.needsUpdate =true
 
 		uniforms.checkerboard ={
 			type: 't',
 			value: dataTexture			
-		} ;
+		}
 
 		let material =new THREE.ShaderMaterial ({
 			uniforms: uniforms,
@@ -544,22 +544,22 @@ class FaderExtension extends ExtensionBase {
 			vertexShader: attenuationVertexShader,
 			fragmentShader: attenuationFragmentShader,
 			side: THREE.DoubleSide
-		}) ;
+		})
 
-		this.viewer.impl.matman ().removeMaterial ('shaderMaterial') ;
-		this.viewer.impl.matman ().addMaterial ('shaderMaterial', material, true) ;
-		this._materials [dbId] =material ;
-		return (material) ;
+		this.viewer.impl.matman ().removeMaterial ('shaderMaterial')
+		this.viewer.impl.matman ().addMaterial ('shaderMaterial', material, true)
+		this._materials [dbId] =material
+		return (material)
 	}
 
 	/////////////////////////////////////////////////////////////////
 	// apply material to specific fragments
 	/////////////////////////////////////////////////////////////////
 	setMaterial (fragIds, material) {
-		const fragList =this.viewer.model.getFragmentList () ;
+		const fragList =this.viewer.model.getFragmentList ()
 		fragIds.forEach ((fragId) => { // removed this.toArray()
-			fragList.setMaterial (fragId, material) ;
-		}) ;
+			fragList.setMaterial (fragId, material)
+		})
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -568,10 +568,10 @@ class FaderExtension extends ExtensionBase {
 	createVertexMaterial () {
 		let material = new THREE.MeshPhongMaterial ({
 			color: 0xffffff
-		}) ;
+		})
 		this.viewer.impl.matman ().addMaterial (
-			'fader-material-vertex', material, true) ;
-		return (material) ;
+			'fader-material-vertex', material, true)
+		return (material)
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -580,25 +580,25 @@ class FaderExtension extends ExtensionBase {
 	createLineMaterial () {
 		let material =new THREE.LineBasicMaterial ({
 			color: 0xffffff, linewidth: 50
-		}) ;
+		})
 		this.viewer.impl.matman ().addMaterial (
-			'fader-material-line', material, true) ;
-		return (material) ;
+			'fader-material-line', material, true)
+		return (material)
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// draw a line
 	///////////////////////////////////////////////////////////////////////////
 	drawLine(start, end) {
-		let geometry =new THREE.Geometry () ;
+		let geometry =new THREE.Geometry ()
 		geometry.vertices.push (
 			new THREE.Vector3 (start.x, start.y, start.z)
-		) ;
+		)
 		geometry.vertices.push (
 			new THREE.Vector3 (end.x, end.y, end.z)
-		) ;
-		let line =new THREE.Line (geometry, this._lineMaterial) ;
-		this.addToScene (line) ;
+		)
+		let line =new THREE.Line (geometry, this._lineMaterial)
+		this.addToScene (line)
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -608,61 +608,61 @@ class FaderExtension extends ExtensionBase {
 		let vertex =new THREE.Mesh (
 			new THREE.SphereGeometry (this._pointSize, 4, 3),
 			this._vertexMaterial
-		) ;
-		vertex.position.set (v.x, v.y, v.z) ;
-		this.addToScene (vertex) ;
+		)
+		vertex.position.set (v.x, v.y, v.z)
+		this.addToScene (vertex)
 	}
 
 	isEqualWithPrecision (a, b) {
 		return (a < b + this._eps)
-			&& (a > b - this._eps) ;
+			&& (a > b - this._eps)
 	}
 
 	isEqualVectorsWithPrecision (v, w) {
 		return this.isEqualWithPrecision (v.x, w.x)
 			&& this.isEqualWithPrecision (v.y, w.y)
-			&& this.isEqualWithPrecision (v.z, w.z) ;
+			&& this.isEqualWithPrecision (v.z, w.z)
 	}
 
 	arrayMax (arr) {
-		let len =arr.length, max =-Infinity ;
+		let len =arr.length, max =-Infinity
 		while ( len-- )
-			max =Math.max (arr [len].w, max) ;
-		return (max) ;
+			max =Math.max (arr [len].w, max)
+		return (max)
 	}
 
 	array2dMax (arr) {
-		let len =arr.length, max =-Infinity, m2 ;
+		let len =arr.length, max =-Infinity, m2
 		while ( len-- ) {
-			m2 =this.arrayMax (arr [len]) ;
-			max =Math.max (m2, max) ;
+			m2 =this.arrayMax (arr [len])
+			max =Math.max (m2, max)
 		}
-		return (max) ;
+		return (max)
 	}
 
 	arrayMin (arr) {
-		let len =arr.length, min =+Infinity ;
+		let len =arr.length, min =+Infinity
 		while ( len-- )
-			min =Math.min (arr [len].w, min) ;
-		return (min) ;
+			min =Math.min (arr [len].w, min)
+		return (min)
 	}
 
 	array2dMin (arr) {
-		let len =arr.length, min =+Infinity, m2 ;
+		let len =arr.length, min =+Infinity, m2
 		while ( len-- ) {
-			m2 =this.arrayMin (arr [len]) ;
-			min =Math.min (m2, min) ;
+			m2 =this.arrayMin (arr [len])
+			min =Math.min (m2, min)
 		}
-		return (min) ;
+		return (min)
 	}
 
 	addToScene (obj) {
-		this.viewer.impl.scene.add (obj) ;
-		this._lastSceneObjects.push (obj) ;
+		this.viewer.impl.scene.add (obj)
+		this._lastSceneObjects.push (obj)
 	}
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension (
-	FaderExtension.ExtensionId, FaderExtension) ;
+	FaderExtension.ExtensionId, FaderExtension)
 
 module.exports = 'Viewing.Extension.Fader.Core'
