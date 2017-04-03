@@ -39,7 +39,9 @@ void main() {
     //vcolor =vec4(uv, 1.0, opacity);
 
     vec4 mvPosition =modelViewMatrix * vec4(position, 1.0);
-    worldCoord =modelMatrix * vec4(position, 1.0) ;
+    worldCoord =modelMatrix * vec4(position, 1.0);
+    
+    gl_PointSize =8.0;
     gl_Position =projectionMatrix * mvPosition;
 }
 ` ;
@@ -61,9 +63,16 @@ varying vec3 vPosition;
 vec3 c2 =vec3(1., .2, .2);
 vec4 c24 =vec4(1., .2, .2, .9);
 
+uniform sampler2D checkerboard;
+
 void main() {
-    float dist =2.0*distance (vUv.xy, vec2(.5, .5)) ;
-    gl_FragColor =vec4(dist, dist, dist, 1.0);
+	//vec3 fragPos =vec3(worldCoord.xyz);
+	
+	gl_FragColor =texture2D(checkerboard, vUv);
+
+    //float dist =2.0*distance (vUv.xy, vec2(.5, .5)) ;
+    //gl_FragColor =vec4(dist, dist, dist, 1.0);
+    
     //gl_FragColor =mix (c24, vcolor, 10.5);
 }
 ` ;
@@ -86,8 +95,8 @@ class FaderExtension extends ExtensionBase {
 		this._rayTraceOffset =5 ; // offset above floor in imperial feet
 		this._rayTraceGrid =8 ; // how many grid points in u and v direction to evaluate: 8*8=64
 		this._lastSceneObjects =[] ; // objects added to scene, delete in next run
-		this._debug_floor_top_face =true ;
-		this._debug_raycast_rays =true ;
+		this._debug_floor_top_face =false ;
+		this._debug_raycast_rays =false ;
 		this._attenuation_per_m_in_air =2.8 ;
 		this._attenuation_per_wall =3.2 ;
 		this._attenuation_max =0.0;
@@ -332,7 +341,7 @@ class FaderExtension extends ExtensionBase {
 	// later, add number of walls intersected by ray between them
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
-		this.drawVertex (data.point) ;
+		let pt =this.drawVertex (data.point, 'sel-point') ;
 
 		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
@@ -365,10 +374,13 @@ class FaderExtension extends ExtensionBase {
 
 		// ray trace to determine wall locations on mesh
 		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
-		//console.log( map_uv_to_color )
+		//console.log (map_uv_to_color) ;
 
 		this._attenuation_max =this.array2dMax (map_uv_to_color) ;
 		this._attenuation_min =this.array2dMin (map_uv_to_color) ;
+
+		let tex =this.createTexture (map_uv_to_color, this._attenuation_max) ;
+		mesh.material.uniforms.checkerboard.value =tex ;
 
 		this.viewer.impl.invalidate (true) ;
 	}
@@ -445,6 +457,31 @@ class FaderExtension extends ExtensionBase {
 		this.viewer.impl.invalidate (false, false, true) ;
 	}
 
+	createTexture (data, attenuation_max) {
+		let pixelData =[] ;
+		for ( let i =0 ; i < data.length ; i++ ) {
+			for ( let j =0 ; j < data [i].length ; j++ ) {
+				let c =data [j] [i].w / attenuation_max ;
+				c =parseInt (c * 0xff) ;
+				pixelData.push (c, 0xff - c, 0, 0xff) ;
+			}
+		}
+
+		let dataTexture =new THREE.DataTexture (
+			Uint8Array.from (pixelData),
+			8, 8,
+			THREE.RGBAFormat,
+			THREE.UnsignedByteType,
+			THREE.UVMapping
+		) ;
+		dataTexture.minFilter =THREE.LinearFilter ;
+		dataTexture.magFilter =THREE.LinearFilter ;
+		dataTexture.needsUpdate =true ;
+		dataTexture.flipY =false ;
+
+		return (dataTexture) ;
+	}
+
 	createShaderMaterial (dbId) {
 		if ( this._materials [dbId] !== undefined )
 			return (this._materials [dbId]) ;
@@ -456,14 +493,28 @@ class FaderExtension extends ExtensionBase {
 				"type": "c",
 				"value": { "r": 0.2, "g": 1, "b": 0.5 }
 			},
-			"opacity": { "type": "f", "value": 0.9 },
-			"strength": {
-				"type": "v3v",
-				"value": [
-					[ 0, 0, 1 ], [ 0, 1, 0.5 ],
-					[ 1, 0, 0.8 ], [ 1, 1, 0.3 ]
-				]
-			}
+			"opacity": { "type": "f", "value": 0.9 }
+		} ;
+
+		let pixelData =[] ;
+		for ( let i =0 ; i < 8 ; i++ )
+			for ( let j =0 ; j < 8 ; j++ )
+				pixelData.push (0x88, 0x88, 0, 0xff) ;
+
+		let dataTexture =new THREE.DataTexture (
+			Uint8Array.from (pixelData),
+			8, 8,
+			THREE.RGBAFormat,
+			THREE.UnsignedByteType,
+			THREE.UVMapping
+		) ;
+		dataTexture.minFilter =THREE.LinearFilter ;
+		dataTexture.magFilter =THREE.LinearFilter ;
+		dataTexture.needsUpdate =true ;
+
+		uniforms.checkerboard ={
+			type: 't',
+			value: dataTexture
 		} ;
 
 		let material =new THREE.ShaderMaterial ({
@@ -530,13 +581,22 @@ class FaderExtension extends ExtensionBase {
 	///////////////////////////////////////////////////////////////////////////
 	// draw a vertex
 	///////////////////////////////////////////////////////////////////////////
-	drawVertex (v) {
+	drawVertex (v, name) {
+		if ( name !== undefined ) {
+			let selectedObject =this.viewer.impl.scene.getObjectByName (name) ;
+			if ( selectedObject )
+				this.viewer.impl.scene.remove (selectedObject) ;
+		}
+
 		let vertex =new THREE.Mesh (
 			new THREE.SphereGeometry (this._pointSize, 4, 3),
 			this._vertexMaterial
 		) ;
 		vertex.position.set (v.x, v.y, v.z) ;
+		if ( name !== undefined )
+			vertex.name =name ;
 		this.addToScene (vertex) ;
+		return (vertex) ;
 	}
 
 	isEqualWithPrecision (a, b) {
