@@ -100,14 +100,13 @@ Unfortunately, due to time differences, they replied only after I had completed 
 In summary, please ignore the interesting solution I present above and use the built-in viewer functionality instead.
 
 
-## Implementing Custom Shaders in the Forge Viewer
+## Implementing a Custom Shader in the Forge Viewer
 
-Todo: Create a custom fragment shader to display the heat map, in three steps:
+I [release 0.0.30](https://github.com/jeremytammik/forgefader/releases/tag/0.0.30), 
+Cyrille Fauvel shows how a custom shader can be applied to a Forge viewer element:
 
-- Constant.
-- Concentric colour gradient around uv centre.
-- The real signal attenuation gradient calculated by `rayTraceToFindWalls`.
 
+![Radial gradient shader](img/shader_radial_gradient.png "Radial gradient shader")
 
 
 ## Running the Sample
