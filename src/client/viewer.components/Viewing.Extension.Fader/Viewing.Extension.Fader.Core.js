@@ -95,7 +95,7 @@ class FaderExtension extends ExtensionBase {
 		this._rayTraceOffset =5 ; // offset above floor in imperial feet
 		this._rayTraceGrid =8 ; // how many grid points in u and v direction to evaluate: 8*8=64
 		this._lastSceneObjects =[] ; // objects added to scene, delete in next run
-		this._debug_floor_top_face =true ;
+		this._debug_floor_top_face =false ;
 		this._debug_raycast_rays =false ;
 		this._attenuation_per_m_in_air =2.8 ;
 		this._attenuation_per_wall =3.2 ;
@@ -218,7 +218,8 @@ class FaderExtension extends ExtensionBase {
 		if ( event.selections && event.selections.length ) {
 			const selection =event.selections [0] ;
 			//const dbIds =selection.dbIdArray ;
-			const data =this.viewer.clientToWorld (this.pointer.canvasX, this.pointer.canvasY, true) ;
+			const data =this.viewer.clientToWorld (
+				this.pointer.canvasX, this.pointer.canvasY, true) ;
 			if ( data.face ) {
 				var n = data.face.normal
 			  if( this.isEqualWithPrecision( n.x, 0 )
@@ -348,7 +349,13 @@ class FaderExtension extends ExtensionBase {
 	// later, add number of walls intersected by ray between them
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
-		let pt =this.drawVertex (data.point, 'sel-point') ;
+
+    // remove debug markers
+    this._lastSceneObjects.forEach( (obj) => {
+      this.viewer.impl.scene.remove( obj )
+    })
+
+		let pt =this.drawVertex (data.point) ;
 
 		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
@@ -363,11 +370,6 @@ class FaderExtension extends ExtensionBase {
 		// retrieve floor render proxies matching normal
 		let instanceTree =this.viewer.model.getData ().instanceTree ;
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
-
-    // remove debug markers
-    this._lastSceneObjects.forEach( (obj) => {
-      this.viewer.impl.scene.remove( obj )
-    })
 
 		let mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
@@ -599,22 +601,13 @@ class FaderExtension extends ExtensionBase {
 	///////////////////////////////////////////////////////////////////////////
 	// draw a vertex
 	///////////////////////////////////////////////////////////////////////////
-	drawVertex (v, name) {
-		if ( name !== undefined ) {
-			let selectedObject =this.viewer.impl.scene.getObjectByName (name) ;
-			if ( selectedObject )
-				this.viewer.impl.scene.remove (selectedObject) ;
-		}
-
+	drawVertex (v) {
 		let vertex =new THREE.Mesh (
 			new THREE.SphereGeometry (this._pointSize, 4, 3),
 			this._vertexMaterial
 		) ;
 		vertex.position.set (v.x, v.y, v.z) ;
-		
-		if ( name !== undefined ) { vertex.name =name }
 		this.addToScene (vertex) ;
-		return (vertex) ;
 	}
 
 	isEqualWithPrecision (a, b) {
