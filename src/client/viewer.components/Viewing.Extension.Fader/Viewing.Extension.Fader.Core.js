@@ -210,8 +210,13 @@ class FaderExtension extends ExtensionBase {
 			const selection =event.selections [0] ;
 			//const dbIds =selection.dbIdArray ;
 			const data =this.viewer.clientToWorld (this.pointer.canvasX, this.pointer.canvasY, true) ;
-			if ( data.face )
-				this.attenuationCalculator (data) ;
+			if ( data.face ) {
+				var n = data.face.normal
+			  if( this.isEqualWithPrecision( n.x, 0 )
+				  && this.isEqualWithPrecision( n.y, 0 )) {
+    				this.attenuationCalculator (data) ;
+				}
+			}
 		}
 	}
 
@@ -285,7 +290,7 @@ class FaderExtension extends ExtensionBase {
 					vC.applyMatrix4 (matrix) ;
 
 					let n =THREE.Triangle.normal (vA, vB, vC) ;
-					if (   floor_normal === null
+					if ( floor_normal === null
 						|| this.isEqualVectorsWithPrecision (n, floor_normal)
 					) {
 						if ( debug_draw ) {
@@ -350,7 +355,7 @@ class FaderExtension extends ExtensionBase {
 		let instanceTree =this.viewer.model.getData ().instanceTree ;
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
 
-    // remove last mesh and debug markers
+    // remove debug markers
     this._lastSceneObjects.forEach( (obj) => {
       this.viewer.impl.scene.remove( obj )
     })
