@@ -355,7 +355,9 @@ class FaderExtension extends ExtensionBase {
       this.viewer.impl.scene.remove( obj )
     })
 
-		let pt =this.drawVertex (data.point) ;
+    if(this._debug_floor_top_face) {
+		  this.drawVertex (data.point) ;
+		}
 
 		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
@@ -374,7 +376,8 @@ class FaderExtension extends ExtensionBase {
 		let mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
 			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
-			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, true) ;
+			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, 
+			  floor_normal, top_face_z, this._debug_floor_top_face) ;
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
 			this._proxyMeshes [fragIds [0]] =mesh ;
 			this.viewer.impl.scene.add (mesh) ;
