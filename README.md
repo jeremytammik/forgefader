@@ -102,9 +102,9 @@ In summary, please ignore the interesting solution I present above and use the b
 
 ## Implementing a Custom Shader in the Forge Viewer
 
-I [release 0.0.30](https://github.com/jeremytammik/forgefader/releases/tag/0.0.30), 
+In the main [commit](https://github.com/jeremytammik/forgefader/commit/58dbdeb412b42eaf9a82d5109cfe352b6b3b02bb) 
+of [release 0.0.30](https://github.com/jeremytammik/forgefader/releases/tag/0.0.30), 
 Cyrille Fauvel shows how a custom shader can be applied to a Forge viewer element:
-
 
 ![Radial gradient shader](img/shader_radial_gradient.png "Radial gradient shader")
 
