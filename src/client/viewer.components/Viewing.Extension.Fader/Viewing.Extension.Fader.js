@@ -69,104 +69,101 @@ void main() {
 ` ;
 
 class FaderExtension extends ExtensionBase {
-  /////////////////////////////////////////////////////////////////
-  // Class constructor
-  /////////////////////////////////////////////////////////////////
-  constructor (viewer, options) {
+	/////////////////////////////////////////////////////////////////
+	// Class constructor
+	/////////////////////////////////////////////////////////////////
+	constructor (viewer, options) {
+		super (viewer, options) ;
+		this.onGeometryLoaded =this.onGeometryLoaded.bind (this) ;
+		this.onSelection =this.onSelection.bind (this) ;
 
-    super (viewer, options)
+		this._lineMaterial =this.createLineMaterial () ;
+		this._vertexMaterial =this.createVertexMaterial () ;
 
-    this.onGeometryLoaded = this.onGeometryLoaded.bind(this)
+		this._eps =0.000001 ;
+		this._pointSize =0.3 ;
+		this._topFaceOffset =0.01 ; // offset above floor in imperial feet
+		this._rayTraceOffset =5 ; // offset above floor in imperial feet
+		this._rayTraceGrid =8 ; // how many grid points in u and v direction to evaluate: 8*8=64
+		this._lastSceneObjects =[] ; // objects added to scene, delete in next run
+		this._debug_floor_top_face =true ;
+		this._debug_raycast_rays =true ;
+		this._attenuation_per_m_in_air =2.8 ;
+		this._attenuation_per_wall =3.2 ;
+		this._attenuation_max =0.0;
+		this._attenuation_min =0.0 ;
 
-    this.onSelection = this.onSelection.bind(this)
+		this._materials ={} ;
+		this._proxyMeshes ={} ;
+		this._overlayName ='fader-material-shader' ;
+		this.viewer.impl.createOverlayScene (this._overlayName) ;
+	}
 
-    this._lineMaterial = this.createLineMaterial()
+	/////////////////////////////////////////////////////////////////
+	// Accessors - es6 getters and setters
+	/////////////////////////////////////////////////////////////////
+	get debugFloorTopFace () { return (this._debug_floor_top_face) ; }
+	set debugFloorTopFace (a) { this._debug_floor_top_face =a ; }
+	get debugRaycastRays () { return (this._debug_raycast_rays) ; }
+	set debugRaycastRays (a) { this._debug_raycast_rays =a ; }
+	get attenuationPerMeterInAir () { return (this._attenuation_per_m_in_air) ; }
+	set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air =a ; }
+	get attenuationPerWall () { return (this._attenuation_per_wall) ; }
+	set attenuationPerWall (a) { this._attenuation_per_wall =a ; }
+	get attenuationMax () { return (this._attenuation_max) ; }
+	get attenuationMin () { return (this._attenuation_min) ; }
 
-    this._vertexMaterial = this.createVertexMaterial()
+	/////////////////////////////////////////////////////////////////
+	// Load callback
+	/////////////////////////////////////////////////////////////////
+	load () {
+		this.eventTool =new EventTool (this.viewer) ;
+		this.eventTool.activate () ;
+		this.eventTool.on ('singleclick', (event) => {
+			this.pointer = event
+		}) ;
 
-    
-    this._eps = 0.000001
-    this._pointSize = 0.3
-    this._topFaceOffset = 0.01 // offset above floor in imperial feet
-    this._rayTraceOffset = 5 // offset above floor in imperial feet
-    this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
-    this._lastSceneObjects = [] // objects added to scene, delete in next run
-    this._debug_floor_top_face = true
-    this._debug_raycast_rays = true
-    this._attenuation_per_m_in_air = 2.8
-    this._attenuation_per_wall = 3.2
-    this._attenuation_max = 0.0
-  
-	  this._materials ={} ;
-	  this._proxyMeshes ={} ;
-	  this._overlayName ='fader-material-shader' ;
-	  this.viewer.impl.createOverlayScene (this._overlayName) ;
-  }
-  /////////////////////////////////////////////////////////////////
-  // Accessors - es6 getters and setters
-  /////////////////////////////////////////////////////////////////
-  get debugFloorTopFace() { return this._debug_floor_top_face }
-  set debugFloorTopFace(a) { this._debug_floor_top_face = a }
-  get debugRaycastRays() { return this._debug_raycast_rays }
-  set debugRaycastRays(a) {  this._debug_raycast_rays = a }
-  get attenuationPerMeterInAir() { return this._attenuation_per_m_in_air }
-  set attenuationPerMeterInAir(a) { this._attenuation_per_m_in_air = a }
-  get attenuationPerWall() { return this._attenuation_per_wall }
-  set attenuationPerWall(a) { this._attenuation_per_wall = a }
-  get attenuationMax() { return this._attenuation_max }
+		this.viewer.addEventListener (
+			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
+			this.onSelection
+		) ;
+		this.viewer.addEventListener (
+			//Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
+			Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
+			() => this.onGeometryLoaded ()
+		) ;
 
-  /////////////////////////////////////////////////////////////////
-  // Load callback
-  /////////////////////////////////////////////////////////////////
-  load() {
+		// this.viewer.setProgressiveRendering (true) ;
+		// this.viewer.setQualityLevel (false, true) ;
+		this.viewer.setGroundReflection (false) ;
+		this.viewer.setGroundShadow (false) ;
+		// this.viewer.setLightPreset (1) ;
 
-    this.eventTool = new EventTool(this.viewer)
+		return (true) ;
+	}
 
-    this.eventTool.activate()
+	/////////////////////////////////////////////////////////////////
+	// Extension Id
+	/////////////////////////////////////////////////////////////////
+	static get ExtensionId () {
+		return ('Viewing.Extension.Fader') ;
+	}
 
-    this.eventTool.on('singleclick', (event) => {
-      this.pointer = event
-    })
-
-    this.viewer.addEventListener(
-      Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
-      this.onSelection)
-
-    this.viewer.addEventListener(
-      //Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
-      Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
-      () => this.onGeometryLoaded())
-
-    // this.viewer.setProgressiveRendering(true)
-    // this.viewer.setQualityLevel(false, true)
-    this.viewer.setGroundReflection (false) ;
-    this.viewer.setGroundShadow (false) ;
-    // this.viewer.setLightPreset(1)
-
-    //console.log('Viewing.Extension.Fader')
-
-    return true
-  }
-
-  /////////////////////////////////////////////////////////////////
-  // Extension Id
-  /////////////////////////////////////////////////////////////////
-  static get ExtensionId () {
-    return 'Viewing.Extension.Fader'
-  }
-
-  /////////////////////////////////////////////////////////////////
-  // Unload callback
-  /////////////////////////////////////////////////////////////////
-  unload () {
-
-    this.viewer.removeEventListener(
-      //Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
-      Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
-      this.onGeometryLoaded)
-
-    return true
-  }
+	/////////////////////////////////////////////////////////////////
+	// Unload callback
+	/////////////////////////////////////////////////////////////////
+	unload () {
+		this.viewer.removeEventListener (
+			//Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
+			Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
+			this.onGeometryLoaded
+		) ;
+		this.viewer.removeEventListener (
+			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
+			this.onSelection
+		) ;
+		return (true) ;
+	}
 
 	getBounds (id) {
 		let bounds = new THREE.Box3();
@@ -182,28 +179,26 @@ class FaderExtension extends ExtensionBase {
 		return bounds;
 	}
 
-  /////////////////////////////////////////////////////////////////
-  // onGeometryLoaded - retrieve all wall meshes
-  /////////////////////////////////////////////////////////////////
-  onGeometryLoaded (event) {
-
-    const instanceTree = this.viewer.model.getData().instanceTree
-    var rootId = instanceTree.getRootId()
-    instanceTree.enumNodeChildren(rootId, async(childId) => {
-      const nodeName = instanceTree.getNodeName(childId)
-      if (nodeName === 'Walls') {
-
-        const fragIds = await Toolkit.getFragIds(
-          this.viewer.model, childId)
-
-        this.wallMeshes = fragIds.map((fragId) => {
-          return this.getMeshFromRenderProxy(
-            this.viewer.impl.getRenderProxy( 
-              this.viewer.model, fragId ), null, null, null )
-        })
-      }
-    })
-  }
+	/////////////////////////////////////////////////////////////////
+	// onGeometryLoaded - retrieve all wall meshes
+	/////////////////////////////////////////////////////////////////
+	onGeometryLoaded (event) {
+		const instanceTree =this.viewer.model.getData ().instanceTree ;
+		let rootId =instanceTree.getRootId () ;
+		instanceTree.enumNodeChildren (rootId, async (childId) => {
+			const nodeName =instanceTree.getNodeName (childId) ;
+			if ( nodeName === 'Walls' ) {
+				const fragIds =await Toolkit.getFragIds (this.viewer.model, childId) ;
+				this.wallMeshes =fragIds.map ((fragId) => {
+					return this.getMeshFromRenderProxy (
+						childId,
+						this.viewer.impl.getRenderProxy (this.viewer.model, fragId),
+						null, null, null
+					) ;
+				}) ;
+			}
+		}) ;
+	}
 
 	/////////////////////////////////////////////////////////////////
 	// onSelection
@@ -220,19 +215,19 @@ class FaderExtension extends ExtensionBase {
 
 	calculateUVsGeo (geometry) {
 		geometry.computeBoundingBox () ;
-		var bbox =geometry.boundingBox ;
+		let bbox =geometry.boundingBox ;
 
-		var max =bbox.max, min =bbox.min ;
-		var offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
-		var range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
+		let max =bbox.max, min =bbox.min ;
+		let offset =new THREE.Vector2 (0 - min.x, 0 - min.y) ;
+		let range =new THREE.Vector2 (max.x - min.x, max.y - min.y) ;
 
-		var faces =geometry.faces ;
-		var uvs =geometry.faceVertexUvs [0] ;
-		var vertices =geometry.vertices ;
-		for ( var i =0 ; i < faces.length ; i++ ) {
-			var v1 =vertices [faces [i].a] ;
-			var v2 =vertices [faces [i].b] ;
-			var v3 =vertices [faces [i].c] ;
+		let faces =geometry.faces ;
+		let uvs =geometry.faceVertexUvs [0] ;
+		let vertices =geometry.vertices ;
+		for ( let i =0 ; i < faces.length ; i++ ) {
+			let v1 =vertices [faces [i].a] ;
+			let v2 =vertices [faces [i].b] ;
+			let v3 =vertices [faces [i].c] ;
 
 			uvs.push ([
 				new THREE.Vector2 ((v1.x + offset.x) / range.x, (v1.y + offset.y) / range.y),
@@ -251,33 +246,33 @@ class FaderExtension extends ExtensionBase {
 	// debug_draw: draw lines and points representing edges and vertices
 	/////////////////////////////////////////////////////////////////
 	getMeshFromRenderProxy (dbId, render_proxy, floor_normal, top_face_z, debug_draw) {
-		var matrix =render_proxy.matrixWorld ;
-		var geometry =render_proxy.geometry ;
-		var attributes =geometry.attributes ;
+		let matrix =render_proxy.matrixWorld ;
+		let geometry =render_proxy.geometry ;
+		let attributes =geometry.attributes ;
 
-		var vA =new THREE.Vector3 () ;
-		var vB =new THREE.Vector3 () ;
-		var vC =new THREE.Vector3 () ;
+		let vA =new THREE.Vector3 () ;
+		let vB =new THREE.Vector3 () ;
+		let vC =new THREE.Vector3 () ;
 
-		var geo =new THREE.Geometry () ;
-		var iv =0 ;
+		let geo =new THREE.Geometry () ;
+		let iv =0 ;
 
 		if ( attributes.index !== undefined ) {
-			var indices =attributes.index.array || geometry.ib ;
-			var positions =geometry.vb ? geometry.vb : attributes.position.array ;
-			var stride =geometry.vb ? geometry.vbstride : 3 ;
-			var offsets =geometry.offsets ;
+			let indices =attributes.index.array || geometry.ib ;
+			let positions =geometry.vb ? geometry.vb : attributes.position.array ;
+			let stride =geometry.vb ? geometry.vbstride : 3 ;
+			let offsets =geometry.offsets ;
 			if ( !offsets || offsets.length === 0 )
 				offsets =[ { start: 0, count: indices.length, index: 0 } ] ;
 
-			for ( var oi =0, ol = offsets.length ; oi < ol ; ++oi ) {
-				var start =offsets[oi].start ;
-				var count =offsets[oi].count ;
-				var index =offsets[oi].index ;
-				for ( var i =start, il =start + count ; i < il ; i +=3 ) {
-					var a =index + indices [i] ;
-					var b =index + indices [i + 1] ;
-					var c =index + indices [i + 2] ;
+			for ( let oi =0, ol = offsets.length ; oi < ol ; ++oi ) {
+				let start =offsets[oi].start ;
+				let count =offsets[oi].count ;
+				let index =offsets[oi].index ;
+				for ( let i =start, il =start + count ; i < il ; i +=3 ) {
+					let a =index + indices [i] ;
+					let b =index + indices [i + 1] ;
+					let c =index + indices [i + 2] ;
 
 					vA.fromArray (positions, a * stride) ;
 					vB.fromArray (positions, b * stride) ;
@@ -287,7 +282,7 @@ class FaderExtension extends ExtensionBase {
 					vB.applyMatrix4 (matrix) ;
 					vC.applyMatrix4 (matrix) ;
 
-					var n =THREE.Triangle.normal (vA, vB, vC) ;
+					let n =THREE.Triangle.normal (vA, vB, vC) ;
 					if (   floor_normal === null
 						|| this.isEqualVectorsWithPrecision (n, floor_normal)
 					) {
@@ -314,11 +309,11 @@ class FaderExtension extends ExtensionBase {
 		geo.computeVertexNormals () ;
 		geo.computeBoundingBox () ;
 
-		var mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 }) ;
-		var shaderMat =this.createShaderMaterial (dbId) ;
+		let mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 }) ;
+		let shaderMat =this.createShaderMaterial (dbId) ;
 
-		//var mesh =new THREE.Mesh (geo, mat) ;
-		var mesh =new THREE.Mesh (geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
+		//let mesh =new THREE.Mesh (geo, mat) ;
+		let mesh =new THREE.Mesh (geo, top_face_z !== null ? shaderMat : mat) ; //this._shaderMaterial );
 
 		//mesh.matrix.copy (render_proxy.matrixWorld) ;
 		mesh.matrixWorldNeedsUpdate =true ;
@@ -337,31 +332,30 @@ class FaderExtension extends ExtensionBase {
 	// later, add number of walls intersected by ray between them
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
-
 		this.drawVertex (data.point) ;
 
-		var psource =new THREE.Vector3 (
+		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
 			data.point.z + this._rayTraceOffset
 		) ;
 
-		var top_face_z =data.point.z + this._topFaceOffset ;
+		let top_face_z =data.point.z + this._topFaceOffset ;
 
 		// from the selected THREE.Face, extract the normal
-		var floor_normal =data.face.normal ;
+		let floor_normal =data.face.normal ;
 
 		// retrieve floor render proxies matching normal
-		var instanceTree =this.viewer.model.getData ().instanceTree ;
+		let instanceTree =this.viewer.model.getData ().instanceTree ;
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
 
 		// in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
 		// function drawMeshData, the fragment proxy is ignored and
 		// the render proxy is used instead:
 
-		var mesh ;
+		let mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
-			var floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
-			var mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, true) ;
+			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
+			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, true) ;
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
 			this._proxyMeshes [fragIds [0]] =mesh ;
 			this.viewer.impl.scene.add (mesh) ;
@@ -370,11 +364,11 @@ class FaderExtension extends ExtensionBase {
 		}
 
 		// ray trace to determine wall locations on mesh
-		var map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
+		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource) ;
 		//console.log( map_uv_to_color )
 
 		this._attenuation_max =this.array2dMax (map_uv_to_color) ;
-		//console.log (this._attenuation_max) ;
+		this._attenuation_min =this.array2dMin (map_uv_to_color) ;
 
 		this.viewer.impl.invalidate (true) ;
 	}
@@ -387,94 +381,60 @@ class FaderExtension extends ExtensionBase {
 			this.drawLine (psource, ptarget) ;
 			this.drawVertex (ptarget) ;
 		}
-		var vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z) ;
+		let vray =new THREE.Vector3 (ptarget.x - psource.x, ptarget.y - psource.y, ptarget.z - psource.z) ;
 		vray.normalize () ;
-		var ray =new THREE.Raycaster (psource, vray, 0, max_dist) ;
-		var intersectResults =ray.intersectObjects (this.wallMeshes, true) ;
+		let ray =new THREE.Raycaster (psource, vray, 0, max_dist) ;
+		let intersectResults =ray.intersectObjects (this.wallMeshes, true) ;
 		let nWalls =intersectResults.length ;
 		return (nWalls) ;
 	}
 
-  /////////////////////////////////////////////////////////////////
-  // ray trace to find walls from picked point to mesh extents
-  //
-  // return 2D array mapping (u,v) to signal attenuation in dB.
-  /////////////////////////////////////////////////////////////////
-  rayTraceToFindWalls( mesh, psource ) {
+	/////////////////////////////////////////////////////////////////
+	// ray trace to find walls from picked point to mesh extents
+	//
+	// return 2D array mapping (u,v) to signal attenuation in dB.
+	/////////////////////////////////////////////////////////////////
+	rayTraceToFindWalls (mesh, psource) {
+		// set up the result map
+		let n =this._rayTraceGrid ;
+		let map_uv_to_color =new Array (n) ;
+		for ( let i =0 ; i < n ; i++ )
+			map_uv_to_color [i] =new Array (n) ;
 
-    // set up the result map
+		let ptarget, d, nWalls ;
+		let bb =mesh.geometry.boundingBox ;
+		let vsize =new THREE.Vector3 (
+			bb.max.x - bb.min.x,
+			bb.max.y - bb.min.y,
+			bb.max.z - bb.min.z
+		) ;
 
-    var n = this._rayTraceGrid; 
-    var map_uv_to_color = new Array(n);
-    for (var i = 0; i < n; i++) {
-      map_uv_to_color[i] = new Array(n);
-    }
+		let step =1.0 / (n - 1) ;
+		for ( let u =0.0, i =0 ; u < 1.0 + this._eps ; u +=step, ++i ) {
+			for ( let v =0.0, j =0 ; v < 1.0 + this._eps ; v +=step, ++j ) {
+				ptarget =new THREE.Vector3 (
+					bb.min.x + u * vsize.x,
+					bb.min.y + v * vsize.y,
+					psource.z
+				) ;
+				d =psource.distanceTo (ptarget) ;
 
-    var ptarget, d, nWalls, signal_attenuation;
-    
-    var bb = mesh.geometry.boundingBox;
+				// determine number of walls between psource and ptarget
+				// to generate a colour for each u,v coordinate pair
+				nWalls =this.getWallCountBetween (psource, ptarget, vsize.length) ;
+				let signal_attenuation =
+					  d * this._attenuation_per_m_in_air
+					+ nWalls * this._attenuation_per_wall ;
+				//map_uv_to_color [i] [j] =signal_attenuation ;
+				map_uv_to_color [i] [j] =new THREE.Vector4 (ptarget.x, ptarget.y, ptarget.z, signal_attenuation) ;
+			}
+		}
+		return (map_uv_to_color) ;
+	}
 
-    var vsize = new THREE.Vector3( 
-      bb.max.x - bb.min.x,
-      bb.max.y - bb.min.y,  
-      bb.max.z - bb.min.z);
-
-    // create a test ray going diagonally across the entire
-    // floor top to test the ray tracing functionality:
-
-    var debug_shoot_single_diagonal_ray = false;
-
-    if( debug_shoot_single_diagonal_ray ) 
-    {
-      psource = new THREE.Vector3( 
-        bb.min.x, bb.min.y, psource.z );
-
-      ptarget = new THREE.Vector3( 
-        bb.max.x, bb.max.y, psource.z );
-
-      nWalls = this.getWallCountBetween( 
-        psource, ptarget, vsize.length )
-    }
-    else
-    {
-      var step = 1.0 / (n-1)
-
-      // for u in [0,1]
-      //   fo r v in [0,1]
-      //      p target = ??? (u,v)
-      //        if p is on the face (skip this, it requires raytrace too, so no saving)
-      //          raytrace from source to target 
-
-      for (var u = 0.0, i = 0; u < 1.0 + this._eps; u += step, ++i ) {
-        for (var v = 0.0, j = 0; v < 1.0 + this._eps; v += step, ++j ) {
-
-          ptarget = new THREE.Vector3(
-            bb.min.x + u * vsize.x,
-            bb.min.y + v * vsize.y,
-            psource.z )
-
-          d = psource.distanceTo( ptarget )
-
-          // determine number of walls between psource and ptarget
-          // to generate a colour for each u,v coordinate pair
-
-          nWalls = this.getWallCountBetween( 
-            psource, ptarget, vsize.length )
-
-          var signal_attenuation 
-            = d * this._attenuation_per_m_in_air
-              + nWalls * this._attenuation_per_wall
-          
-          map_uv_to_color[i][j] = signal_attenuation
-        }
-      }
-    }
-    return map_uv_to_color
-  }
-
-  /////////////////////////////////////////////////////////////////
-  // create attenuation shader material
-  /////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	// create attenuation shader material
+	/////////////////////////////////////////////////////////////////
 	setMaterialOverlay (fragId, materialName) {
 		this.viewer.impl.addOverlay (materialName, this._proxyMeshes [fragId]) ;
 		this.viewer.impl.invalidate (false, false, true) ;
@@ -506,7 +466,7 @@ class FaderExtension extends ExtensionBase {
 			}
 		} ;
 
-		var material =new THREE.ShaderMaterial ({
+		let material =new THREE.ShaderMaterial ({
 			uniforms: uniforms,
 			//attributes: attributes,
 			vertexShader: attenuationVertexShader,
@@ -520,39 +480,32 @@ class FaderExtension extends ExtensionBase {
 		return (material) ;
 	}
 
-  /////////////////////////////////////////////////////////////////
-  // apply material to specific fragments
-  /////////////////////////////////////////////////////////////////
-  setMaterial(fragIds, material) {
+	/////////////////////////////////////////////////////////////////
+	// apply material to specific fragments
+	/////////////////////////////////////////////////////////////////
+	setMaterial (fragIds, material) {
+		const fragList =this.viewer.model.getFragmentList () ;
+		fragIds.forEach ((fragId) => { // removed this.toArray()
+			fragList.setMaterial (fragId, material) ;
+		}) ;
+	}
 
-    const fragList = this.viewer.model.getFragmentList()
-
-    fragIds.forEach((fragId) => { // removed this.toArray()
-      fragList.setMaterial(fragId, material)
-    })
-
-    //this.viewer.impl.invalidate(true)
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // create vertex material
-  ///////////////////////////////////////////////////////////////////////////
-  createVertexMaterial() {
-
-    var material = new THREE.MeshPhongMaterial({ 
-      color: 0xffffff });
-
-    this.viewer.impl.matman().addMaterial(
-      'fader-material-vertex', material, true );
-
-    return material;
-  }
+	///////////////////////////////////////////////////////////////////////////
+	// create vertex material
+	///////////////////////////////////////////////////////////////////////////
+	createVertexMaterial () {
+		let material = new THREE.MeshPhongMaterial ({
+			color: 0xffffff
+		}) ;
+		this.viewer.impl.matman ().addMaterial ('fader-material-vertex', material, true) ;
+		return (material) ;
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// create line material
 	///////////////////////////////////////////////////////////////////////////
 	createLineMaterial () {
-		var material =new THREE.LineBasicMaterial ({
+		let material =new THREE.LineBasicMaterial ({
 			color: 0xffffff, linewidth: 50
 		}) ;
 		this.viewer.impl.matman ().addMaterial ('fader-material-line', material, true) ;
@@ -578,7 +531,7 @@ class FaderExtension extends ExtensionBase {
 	// draw a vertex
 	///////////////////////////////////////////////////////////////////////////
 	drawVertex (v) {
-		var vertex =new THREE.Mesh (
+		let vertex =new THREE.Mesh (
 			new THREE.SphereGeometry (this._pointSize, 4, 3),
 			this._vertexMaterial
 		) ;
@@ -598,22 +551,35 @@ class FaderExtension extends ExtensionBase {
 	}
 
 	arrayMax (arr) {
-		var len =arr.length, max =-Infinity ;
+		let len =arr.length, max =-Infinity ;
+		while ( len-- )
+			max =Math.max (arr [len].w, max) ;
+		return (max) ;
+	}
+
+	array2dMax (arr) {
+		let len =arr.length, max =-Infinity, m2 ;
 		while ( len-- ) {
-			if ( arr [len] > max )
-				max =arr [len] ;
+			m2 =this.arrayMax (arr [len]) ;
+			max =Math.max (m2, max) ;
 		}
 		return (max) ;
 	}
 
-	array2dMax( arr ) {
-		var len =arr.length, max =-Infinity, m2 ;
+	arrayMin (arr) {
+		let len =arr.length, min =+Infinity ;
+		while ( len-- )
+			min =Math.min (arr [len].w, min) ;
+		return (min) ;
+	}
+
+	array2dMin (arr) {
+		let len =arr.length, min =+Infinity, m2 ;
 		while ( len-- ) {
-			m2 =this.arrayMax (arr [len]) ;
-			if ( m2 > max )
-				max =m2 ;
+			m2 =this.arrayMin (arr [len]) ;
+			min =Math.min (m2, min) ;
 		}
-		return (max) ;
+		return (min) ;
 	}
 
 	addToScene (obj) {
