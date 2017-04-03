@@ -350,9 +350,10 @@ class FaderExtension extends ExtensionBase {
 		let instanceTree =this.viewer.model.getData ().instanceTree ;
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId) ;
 
-		// in Philippe's Autodesk.ADN.Viewing.Extension.MeshData.js
-		// function drawMeshData, the fragment proxy is ignored and
-		// the render proxy is used instead:
+    // remove last mesh and debug markers
+    this._lastSceneObjects.forEach( (obj) => {
+      this.viewer.impl.scene.remove( obj )
+    })
 
 		let mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
@@ -361,6 +362,7 @@ class FaderExtension extends ExtensionBase {
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
 			this._proxyMeshes [fragIds [0]] =mesh ;
 			this.viewer.impl.scene.add (mesh) ;
+			//this.addToScene(mesh)
 		} else {
 			mesh =this._proxyMeshes [fragIds [0]] ;
 		}
@@ -499,7 +501,8 @@ class FaderExtension extends ExtensionBase {
 		let material = new THREE.MeshPhongMaterial ({
 			color: 0xffffff
 		}) ;
-		this.viewer.impl.matman ().addMaterial ('fader-material-vertex', material, true) ;
+		this.viewer.impl.matman ().addMaterial (
+			'fader-material-vertex', material, true) ;
 		return (material) ;
 	}
 
@@ -510,7 +513,8 @@ class FaderExtension extends ExtensionBase {
 		let material =new THREE.LineBasicMaterial ({
 			color: 0xffffff, linewidth: 50
 		}) ;
-		this.viewer.impl.matman ().addMaterial ('fader-material-line', material, true) ;
+		this.viewer.impl.matman ().addMaterial (
+			'fader-material-line', material, true) ;
 		return (material) ;
 	}
 
@@ -590,6 +594,7 @@ class FaderExtension extends ExtensionBase {
 	}
 }
 
-Autodesk.Viewing.theExtensionManager.registerExtension (FaderExtension.ExtensionId, FaderExtension) ;
+Autodesk.Viewing.theExtensionManager.registerExtension (
+	FaderExtension.ExtensionId, FaderExtension) ;
 
 module.exports = 'Viewing.Extension.Fader.Core'
