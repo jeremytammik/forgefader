@@ -478,7 +478,7 @@ class FaderExtension extends ExtensionBase {
 
 		let dataTexture =new THREE.DataTexture (
 			Uint8Array.from (pixelData),
-			8, 8,
+			this._rayTraceGrid, this._rayTraceGrid,
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
@@ -513,13 +513,13 @@ class FaderExtension extends ExtensionBase {
 		}
 
 		let pixelData =[] ;
-		for ( let i =0 ; i < 8 ; i++ )
-			for ( let j =0 ; j < 8 ; j++ )
+		for ( let i =0 ; i < this._rayTraceGrid ; i++ )
+			for ( let j =0 ; j < this._rayTraceGrid ; j++ )
 				pixelData.push (0x88, 0x88, 0, 0xff) ;
 
 		let dataTexture =new THREE.DataTexture (
 			Uint8Array.from (pixelData),
-			8, 8,
+			this._rayTraceGrid, this._rayTraceGrid,
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
