@@ -89,38 +89,38 @@ class FaderExtension extends ExtensionBase {
 		this._lineMaterial =this.createLineMaterial ()
 		this._vertexMaterial =this.createVertexMaterial ()
 
-		this._eps =0.000001
-		this._pointSize =0.3
-		this._topFaceOffset =0.01 // offset above floor in imperial feet
-		this._rayTraceOffset =5 // offset above floor in imperial feet
-		this._rayTraceGrid =8 // how many grid points in u and v direction to evaluate: 8*8=64
-		this._lastSceneObjects =[] // objects added to scene, delete in next run
-		this._debug_floor_top_face =false
-		this._debug_raycast_rays =false
-		this._attenuation_per_m_in_air =2.8
-		this._attenuation_per_wall =8
-		this._attenuation_max =0.0
-		this._attenuation_min =0.0
+		this._eps = 0.000001
+		this._pointSize = 0.3
+		this._topFaceOffset = 0.01 // offset above floor in imperial feet
+		this._rayTraceOffset = 5 // offset above floor in imperial feet
+		this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
+		this._lastSceneObjects = [] // objects added to scene, delete in next run
+		this._debug_floor_top_face = false
+		this._debug_raycast_rays = false
+		this._attenuation_per_m_in_air = 1.8
+		this._attenuation_per_wall = 4
+		this._attenuation_max = 0.0
+		this._attenuation_min = 0.0
 
-		this._materials ={}
-		this._proxyMeshes ={}
-		this._overlayName ='fader-material-shader'
+		this._materials = {}
+		this._proxyMeshes = {}
+		this._overlayName = 'fader-material-shader'
 		this.viewer.impl.createOverlayScene (this._overlayName)
 	}
 
 	/////////////////////////////////////////////////////////////////
 	// Accessors - es6 getters and setters
 	/////////////////////////////////////////////////////////////////
-	get debugFloorTopFace () { return (this._debug_floor_top_face) ; }
+	get debugFloorTopFace () { return this._debug_floor_top_face ; }
 	set debugFloorTopFace (a) { this._debug_floor_top_face =a ; }
-	get debugRaycastRays () { return (this._debug_raycast_rays) ; }
+	get debugRaycastRays () { return this._debug_raycast_rays ; }
 	set debugRaycastRays (a) { this._debug_raycast_rays =a ; }
-	get attenuationPerMeterInAir () { return (this._attenuation_per_m_in_air) ; }
+	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air ; }
 	set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air =a ; }
-	get attenuationPerWall () { return (this._attenuation_per_wall) ; }
+	get attenuationPerWall () { return this._attenuation_per_wall ; }
 	set attenuationPerWall (a) { this._attenuation_per_wall =a ; }
-	get attenuationMax () { return (this._attenuation_max) ; }
-	get attenuationMin () { return (this._attenuation_min) ; }
+	get attenuationMax () { return this._attenuation_max ; }
+	get attenuationMin () { return this._attenuation_min ; }
 
 	/////////////////////////////////////////////////////////////////
 	// Load callback
