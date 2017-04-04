@@ -96,8 +96,8 @@ class FaderExtension extends ExtensionBase {
     this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
     this._floorTopEdges = [] // objects added to scene, delete in next run
     this._raycastRays = [] // objects added to scene, delete in next run
-    this._debug_floor_top_edges = false
-    this._debug_raycast_rays = false
+    this._debug_floor_top_edges = true
+    this._debug_raycast_rays = true
     this._attenuation_per_m_in_air = 1.8
     this._attenuation_per_wall = 4
     this._attenuation_max = 0.0
@@ -125,7 +125,9 @@ class FaderExtension extends ExtensionBase {
     let f = a
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
-    this._floorTopEdges.forEach( (obj) => { f( obj ) })
+    this._floorTopEdges.forEach( (obj) => { 
+      f( obj ) 
+    })
     this._debug_floor_top_edges = a
   }
 
@@ -133,7 +135,9 @@ class FaderExtension extends ExtensionBase {
     let f = a
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
-    this._raycastRays.forEach( (obj) => { f( obj ) })
+    this._raycastRays.forEach( (obj) => { 
+      f( obj ) 
+    })
     this._debug_raycast_rays = a
   }
 
@@ -255,14 +259,14 @@ class FaderExtension extends ExtensionBase {
   onSelection( event ) {
     if( event.selections && event.selections.length ) {
 
-      // let selection = event.selections[0]
-      //   , dbIds = selection.dbIdArray
+      let selection = event.selections[0]
+        , dbIds = selection.dbIdArray
 
       // debug test clicking on specific door
-      // if( 2850 === dbIds[0] ) {
-      //   this.debugFloorTopEdges = !this._debug_floor_top_edges
-      //   this.debugRaycastRays = !this._debug_raycast_rays
-      // }
+      if( 2850 === dbIds[0] ) {
+        this.debugFloorTopEdges = !this._debug_floor_top_edges
+        this.debugRaycastRays = !this._debug_raycast_rays
+      }
 
       const data = this.viewer.clientToWorld (
         this.pointer.canvasX, this.pointer.canvasY, true )
