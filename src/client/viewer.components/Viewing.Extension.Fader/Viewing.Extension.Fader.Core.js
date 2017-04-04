@@ -253,16 +253,24 @@ class FaderExtension extends ExtensionBase {
 	// onSelection
 	/////////////////////////////////////////////////////////////////
 	onSelection( event ) {
-		if ( event.selections && event.selections.length ) {
-			const selection = event.selections [0]
-			//const dbIds = selection.dbIdArray
-			const data = this.viewer.clientToWorld (
-				this.pointer.canvasX, this.pointer.canvasY, true )
-			if ( data.face ) {
-				var n = data.face.normal
-			  if( this.isEqualWithPrecision( n.x, 0 )
-				  && this.isEqualWithPrecision( n.y, 0 )) { 
-						this.attenuationCalculator (data) 
+		if( event.selections && event.selections.length ) {
+			let selection = event.selections[0]
+			  , dbIds = selection.dbIdArray
+
+  		// debug test
+			if( 2850 === dbIds[0] ) {
+				this.debugFloorTopEdges = !this._debug_floor_top_edges
+				this.debugRaycastRays = !this._debug_raycast_rays
+			}
+			else {
+				const data = this.viewer.clientToWorld (
+					this.pointer.canvasX, this.pointer.canvasY, true )
+				if ( data.face ) {
+					var n = data.face.normal
+					if( this.isEqualWithPrecision( n.x, 0 )
+						&& this.isEqualWithPrecision( n.y, 0 )) { 
+							this.attenuationCalculator( data )
+					}
 				}
 			}
 		}
