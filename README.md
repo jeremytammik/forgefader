@@ -99,7 +99,7 @@ Unfortunately, due to time differences, they replied only after I had completed 
 
 [A@21:43] Probably better to use the high level hit testing APIs instead of messing with internal mesh representation directly... i.e. avoid doing fragile stuff like `this.viewer.impl.getRenderProxy(this.viewer.model, fragId)`.
 
-In summary, please ignore the interesting solution I present above and use the built-in viewer functionality instead.
+In summary, you might be better off ignoring the interesting solution I present above and using the built-in viewer functionality instead.
 
 
 ## Implementing a Custom Shader in the Forge Viewer
