@@ -112,16 +112,30 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// Accessors - es6 getters and setters
 	/////////////////////////////////////////////////////////////////
-	get debugFloorTopEdges () { return this._debug_floor_top_edges }
-	set debugFloorTopEdges (a) { this._debug_floor_top_edges = a }
-	get debugRaycastRays () { return this._debug_raycast_rays }
-	set debugRaycastRays (a) { this._debug_raycast_rays = a }
 	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air }
 	set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air = a }
 	get attenuationPerWall () { return this._attenuation_per_wall }
 	set attenuationPerWall (a) { this._attenuation_per_wall = a }
 	get attenuationMax () { return this._attenuation_max }
 	get attenuationMin () { return this._attenuation_min }
+	get debugFloorTopEdges () { return this._debug_floor_top_edges }
+	get debugRaycastRays () { return this._debug_raycast_rays }
+	
+	set debugFloorTopEdges( a ) {
+		let f = a 
+		  ? this.viewer.impl.scene.add 
+			: this.viewer.impl.scene.remove;
+  	this._floorTopEdges.forEach( (obj) => { f( obj ) })
+	  this._debug_floor_top_edges = a 
+	}
+
+	set debugRaycastRays( a ) { 
+		let f = a 
+		  ? this.viewer.impl.scene.add 
+			: this.viewer.impl.scene.remove;
+  	this._raycastRays.forEach( (obj) => { f( obj ) })
+		this._debug_raycast_rays = a 
+	}
 
 	/////////////////////////////////////////////////////////////////
 	// Extension Id
@@ -444,7 +458,7 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// ray trace to count walls between source and target points
 	/////////////////////////////////////////////////////////////////
-	getWallCountBetween (psource, ptarget, max_dist) {
+	getWallCountBetween( psource, ptarget, max_dist ) {
 		if ( this._debug_raycast_rays ) {
 			this.drawLine( psource, ptarget, this._raycastRays )
 			this.drawVertex( ptarget, this._raycastRays )
