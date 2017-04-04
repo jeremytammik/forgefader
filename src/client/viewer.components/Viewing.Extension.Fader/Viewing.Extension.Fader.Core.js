@@ -126,10 +126,10 @@ class FaderExtension extends ExtensionBase {
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
     this._floorTopEdges.forEach( (obj) => { 
-      var args = [].slice.call(obj);
-      f.apply(this.viewer.impl.scene, args)
+      f.apply(this.viewer.impl.scene, [obj])
     })
     this._debug_floor_top_edges = a
+    this.viewer.impl.invalidate (true)
   }
 
   set debugRaycastRays( a ) {
@@ -137,10 +137,10 @@ class FaderExtension extends ExtensionBase {
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
     this._raycastRays.forEach( (obj) => { 
-      var args = [].slice.call(obj);
-      f.apply(this.viewer.impl.scene, args)
+      f.apply(this.viewer.impl.scene, [obj])
     })
     this._debug_raycast_rays = a
+    this.viewer.impl.invalidate (true)
   }
 
   /////////////////////////////////////////////////////////////////
@@ -425,9 +425,8 @@ class FaderExtension extends ExtensionBase {
     this._floorTopEdges = []
     this._raycastRays = []
 
-    if( this._debug_floor_top_edges ) {
-      this.drawVertex( data.point, this._floorTopEdges )
-    }
+
+    this.drawVertex( data.point, this._floorTopEdges, this._debug_floor_top_edges )
 
     let psource = new THREE.Vector3 (
       data.point.x, data.point.y,
@@ -475,10 +474,9 @@ class FaderExtension extends ExtensionBase {
   // ray trace to count walls between source and target points
   /////////////////////////////////////////////////////////////////
   getWallCountBetween( psource, ptarget, max_dist ) {
-    if ( this._debug_raycast_rays ) {
-      this.drawLine( psource, ptarget, this._raycastRays )
-      this.drawVertex( ptarget, this._raycastRays )
-    }
+    this.drawLine( psource, ptarget, this._raycastRays, this._debug_raycast_rays )
+    this.drawVertex( ptarget, this._raycastRays, this._debug_raycast_rays )
+
     let vray = new THREE.Vector3( ptarget.x - psource.x,
       ptarget.y - psource.y, ptarget.z - psource.z )
     vray.normalize ()
@@ -664,7 +662,7 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   // draw a line
   ///////////////////////////////////////////////////////////////////////////
-  drawLine( start, end, cache ) {
+  drawLine( start, end, cache, addToScene ) {
     let geometry = new THREE.Geometry ()
     geometry.vertices.push (
       new THREE.Vector3( start.x, start.y, start.z )
@@ -673,19 +671,19 @@ class FaderExtension extends ExtensionBase {
       new THREE.Vector3( end.x, end.y, end.z )
     )
     let line = new THREE.Line( geometry, this._lineMaterial )
-    this.addToScene( line, cache )
+    this.addToScene( line, cache, addToScene )
   }
 
   ///////////////////////////////////////////////////////////////////////////
   // draw a vertex
   ///////////////////////////////////////////////////////////////////////////
-  drawVertex( v, cache ) {
+  drawVertex( v, cache, addToScene ) {
     let vertex = new THREE.Mesh (
       new THREE.SphereGeometry( this._pointSize, 8, 6 ),
       this._vertexMaterial
     )
     vertex.position.set( v.x, v.y, v.z )
-    this.addToScene( vertex, cache )
+    this.addToScene( vertex, cache, addToScene )
   }
 
   isEqualWithPrecision (a, b) {
@@ -731,8 +729,9 @@ class FaderExtension extends ExtensionBase {
     return min
   }
 
-  addToScene( obj, cache ) {
-    this.viewer.impl.scene.add (obj)
+  addToScene( obj, cache, addToScene ) {
+    if ( addToScene )
+      this.viewer.impl.scene.add (obj)
     cache.push (obj)
   }
 }
