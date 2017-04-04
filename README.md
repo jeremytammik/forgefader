@@ -143,11 +143,11 @@ In **production**, the client requires a build step, so run:
 
 ## Loading Custom Models in the Forge Viewer
 
-The project contains a default model located in **/resources/models/seat** that can be loaded with no further
-setup and will also work offline.
-
-If you want to load a model from **Autodesk Cloud**, you first need to generate a viewable **URN** as documented in the
+To load a model into the Forge viewer for this extension to process, you first need to generate a viewable **URN** as documented in the
 [Prepare a File for the Viewer](https://developer.autodesk.com/en/docs/model-derivative/v2/tutorials/prepare-file-for-viewer/) tutorial.
+
+One easy way to achieve this manually is to upload it 
+to [models.autodesk.io](https://models.autodesk.io).
 
 Using the same Forge ClientId & ClientSecret used to upload the model,
 populate environment variables used by the config files (in **/config**):
@@ -164,8 +164,7 @@ populate environment variables used by the config files (in **/config**):
 
     `FORGE_CLIENT_SECRET`
 
-
-Restart the server, you can then directly load your model by specifying design **URN** as query parameter in the url of the viewer page:
+Restart the server; you can then directly load your model by specifying design **URN** as query parameter in the url of the viewer page, e.g.:
 
 - [http://localhost:3000/viewer?urn=YOUR_URN_HERE](http://localhost:3000/viewer?urn=YOUR_DESIGN_URN_HERE)
 
