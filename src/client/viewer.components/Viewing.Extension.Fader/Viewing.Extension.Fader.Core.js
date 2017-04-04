@@ -111,8 +111,8 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// Accessors - es6 getters and setters
 	/////////////////////////////////////////////////////////////////
-	get debugFloorTopFace () { return this._debug_floor_top_edges }
-	set debugFloorTopFace (a) { this._debug_floor_top_edges = a }
+	get debugFloorTopEdges () { return this._debug_floor_top_edges }
+	set debugFloorTopEdges (a) { this._debug_floor_top_edges = a }
 	get debugRaycastRays () { return this._debug_raycast_rays }
 	set debugRaycastRays (a) { this._debug_raycast_rays = a }
 	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air }
