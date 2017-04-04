@@ -11,7 +11,9 @@ Two signal attenuation values in decibels are defined in the application setting
 - Attenuation per metre in air
 - Attenuation by a wall
 
-The extension expects an RVT model with a floor element, e.g., [little_house_floor.rvt](test/little_house_floor.rvt). You can translate it in Forge using your credentials and pass in its resulting `URN` to the viewer as described [below](#loading-custom-models-in-the-forge-viewer).
+The extension expects an RVT model with a floor element.
+Two sample models are provided in the [test](test) subdirectory. 
+You can translate them for Forge using your credentials and pass in the resulting `URN` to the viewer as described [below](#loading-custom-models-in-the-forge-viewer).
 
 This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
 Please refer to that for more details on the underlying architecture and components used.
