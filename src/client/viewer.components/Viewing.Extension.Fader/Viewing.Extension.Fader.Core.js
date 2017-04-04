@@ -94,7 +94,8 @@ class FaderExtension extends ExtensionBase {
 		this._topFaceOffset = 0.01 // offset above floor in imperial feet
 		this._rayTraceOffset = 5 // offset above floor in imperial feet
 		this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
-		this._lastSceneObjects = [] // objects added to scene, delete in next run
+		this._floorTopEdges = [] // objects added to scene, delete in next run
+		this._raycastRays = [] // objects added to scene, delete in next run
 		this._debug_floor_top_edges = true
 		this._debug_raycast_rays = true
 		this._attenuation_per_m_in_air = 1.8
@@ -213,20 +214,19 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// onModelLoaded - retrieve all wall meshes
 	/////////////////////////////////////////////////////////////////
-	onModelLoaded (event) {
-		const instanceTree = this.viewer.model.getData ().instanceTree
-		let rootId = instanceTree.getRootId ()
-		instanceTree.enumNodeChildren (rootId, async (childId) => {
-			const nodeName = instanceTree.getNodeName (childId)
-			if ( nodeName === 'Walls' ) {
+	onModelLoaded( event ) {
+		const instanceTree = this.viewer.model.getData().instanceTree
+		let rootId = instanceTree.getRootId()
+		instanceTree.enumNodeChildren( rootId, async (childId ) => {
+			const nodeName = instanceTree.getNodeName( childId )
+			if( nodeName === 'Walls' ) {
 				const fragIds = await Toolkit.getFragIds (
-					this.viewer.model, childId)
-				this.wallMeshes = fragIds.map ((fragId) => {
-					return this.getMeshFromRenderProxy (
+					this.viewer.model, childId )
+				this.wallMeshes = fragIds.map( (fragId) => {
+					return this.getMeshFromRenderProxy(
 						childId,
-						this.viewer.impl.getRenderProxy (this.viewer.model, fragId),
-						null, null, null
-					)
+						this.viewer.impl.getRenderProxy( this.viewer.model, fragId ),
+						null, null, null )
 				})
 			}
 		})
@@ -235,17 +235,17 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// onSelection
 	/////////////////////////////////////////////////////////////////
-	onSelection (event) {
+	onSelection( event ) {
 		if ( event.selections && event.selections.length ) {
-			const selection =event.selections [0]
-			//const dbIds =selection.dbIdArray
+			const selection = event.selections [0]
+			//const dbIds = selection.dbIdArray
 			const data = this.viewer.clientToWorld (
-				this.pointer.canvasX, this.pointer.canvasY, true)
+				this.pointer.canvasX, this.pointer.canvasY, true )
 			if ( data.face ) {
 				var n = data.face.normal
 			  if( this.isEqualWithPrecision( n.x, 0 )
-				  && this.isEqualWithPrecision( n.y, 0 )) {
-    				this.attenuationCalculator (data)
+				  && this.isEqualWithPrecision( n.y, 0 )) { 
+						this.attenuationCalculator (data) 
 				}
 			}
 		}
@@ -286,54 +286,54 @@ class FaderExtension extends ExtensionBase {
 	// top_face_z: use for the face Z coordinates unless null
 	// debug_draw: draw lines and points representing edges and vertices
 	/////////////////////////////////////////////////////////////////
-	getMeshFromRenderProxy (dbId, render_proxy, floor_normal, top_face_z, debug_draw) {
-		let matrix =render_proxy.matrixWorld
-		let geometry =render_proxy.geometry
-		let attributes =geometry.attributes
+	getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z, debug_draw ) {
+		let matrix = render_proxy.matrixWorld
+		let geometry = render_proxy.geometry
+		let attributes = geometry.attributes
 
-		let vA =new THREE.Vector3 ()
-		let vB =new THREE.Vector3 ()
-		let vC =new THREE.Vector3 ()
+		let vA = new THREE.Vector3()
+		let vB = new THREE.Vector3()
+		let vC = new THREE.Vector3()
 
-		let geo =new THREE.Geometry ()
-		let iv =0
+		let geo = new THREE.Geometry()
+		let iv = 0
 
-		if ( attributes.index !== undefined ) {
-			let indices =attributes.index.array || geometry.ib
-			let positions =geometry.vb ? geometry.vb : attributes.position.array
-			let stride =geometry.vb ? geometry.vbstride : 3
-			let offsets =geometry.offsets
-			if ( !offsets || offsets.length === 0 )
+		if( attributes.index !== undefined ) {
+			let indices = attributes.index.array || geometry.ib
+			let positions = geometry.vb ? geometry.vb : attributes.position.array
+			let stride = geometry.vb ? geometry.vbstride : 3
+			let offsets = geometry.offsets
+			if( !offsets || offsets.length === 0 )
 				offsets =[ { start: 0, count: indices.length, index: 0 } ]
 
 			for ( let oi =0, ol = offsets.length ; oi < ol ; ++oi ) {
-				let start =offsets[oi].start
-				let count =offsets[oi].count
-				let index =offsets[oi].index
-				for ( let i =start, il =start + count ; i < il ; i +=3 ) {
-					let a =index + indices [i]
-					let b =index + indices [i + 1]
-					let c =index + indices [i + 2]
+				let start = offsets[oi].start
+				let count = offsets[oi].count
+				let index = offsets[oi].index
+				for ( let i = start, il = start + count ; i < il ; i += 3 ) {
+					let a = index + indices [i]
+					let b = index + indices [i + 1]
+					let c = index + indices [i + 2]
 
-					vA.fromArray (positions, a * stride)
-					vB.fromArray (positions, b * stride)
-					vC.fromArray (positions, c * stride)
+					vA.fromArray( positions, a * stride )
+					vB.fromArray( positions, b * stride )
+					vC.fromArray( positions, c * stride )
 
-					vA.applyMatrix4 (matrix)
-					vB.applyMatrix4 (matrix)
-					vC.applyMatrix4 (matrix)
+					vA.applyMatrix4( matrix )
+					vB.applyMatrix4( matrix )
+					vC.applyMatrix4( matrix )
 
-					let n =THREE.Triangle.normal (vA, vB, vC)
+					let n =THREE.Triangle.normal( vA, vB, vC )
 					if ( floor_normal === null
-						|| this.isEqualVectorsWithPrecision (n, floor_normal)
-					) {
+						|| this.isEqualVectorsWithPrecision( n, floor_normal ) ) 
+					{
 						if ( debug_draw ) {
-							this.drawVertex (vA)
-							this.drawVertex (vB)
-							this.drawVertex (vC)
-							this.drawLine (vA, vB)
-							this.drawLine (vB, vC)
-							this.drawLine (vC, vA)
+							this.drawVertex( vA, this._floorTopEdges )
+							this.drawVertex( vB, this._floorTopEdges )
+							this.drawVertex( vC, this._floorTopEdges )
+							this.drawLine( vA, vB, this._floorTopEdges )
+							this.drawLine( vB, vC, this._floorTopEdges )
+							this.drawLine( vC, vA, this._floorTopEdges )
 						}
 						geo.vertices.push (new THREE.Vector3 (vA.x, vA.y, 
 						  top_face_z === null ? vA.z : top_face_z))
@@ -377,14 +377,22 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
 
+    let impl = this.viewer.impl
+
     // remove debug markers
-    this._lastSceneObjects.forEach( (obj) => {
-      this.viewer.impl.scene.remove( obj )
-			this._lastSceneObjects = []
+
+    this._floorTopEdges.forEach( (obj) => {
+      impl.scene.remove( obj )
+    })
+    this._raycastRays.forEach( (obj) => {
+      impl.scene.remove( obj )
     })
 
-    if(this._debug_floor_top_edges) {
-		  this.drawVertex (data.point)
+		this._floorTopEdges = []
+		this._raycastRays = []
+
+    if( this._debug_floor_top_edges ) {
+		  this.drawVertex( data.point, this._floorTopEdges )
 		}
 
 		let psource = new THREE.Vector3 (
@@ -398,10 +406,10 @@ class FaderExtension extends ExtensionBase {
 		let floor_normal = data.face.normal
 
 		// retrieve floor render proxies matching normal
-		let instanceTree = this.viewer.model.getData ().instanceTree
-		const fragIds = await Toolkit.getFragIds (this.viewer.model, data.dbId)
+		let instanceTree = this.viewer.model.getData().instanceTree
+		const fragIds = await Toolkit.getFragIds( this.viewer.model, data.dbId )
 
-		let floor_mesh_render = this.viewer.impl.getRenderProxy(
+		let floor_mesh_render = impl.getRenderProxy(
 			this.viewer.model, fragIds[0] )
 
 		let mesh = this.getMeshFromRenderProxy( data.dbId, floor_mesh_render,
@@ -410,23 +418,23 @@ class FaderExtension extends ExtensionBase {
 		if ( !this._proxyMeshes [fragIds [0]] ) {
 			mesh.name = data.dbId + '-' + fragIds [0] + '-Test'
 			this._proxyMeshes [fragIds [0]] = mesh
-			this.viewer.impl.scene.add (mesh)
+			impl.scene.add (mesh)
 		} else {
 			mesh = this._proxyMeshes [fragIds [0]]
 		}
 
 		// ray trace to determine wall locations on mesh
-		let map_uv_to_color = this.rayTraceToFindWalls (mesh, psource)
+		let map_uv_to_color = this.rayTraceToFindWalls( mesh, psource )
 		
 		//console.log( map_uv_to_color )
 
-		this._attenuation_max = this.array2dMax (map_uv_to_color)
-		this._attenuation_min = this.array2dMin (map_uv_to_color)
+		this._attenuation_max = this.array2dMax( map_uv_to_color )
+		this._attenuation_min = this.array2dMin( map_uv_to_color )
 
-		let tex = this.createTexture (map_uv_to_color, this._attenuation_max)
-		mesh.material.uniforms.checkerboard.value =tex
+		let tex = this.createTexture( map_uv_to_color, this._attenuation_max )
+		mesh.material.uniforms.checkerboard.value = tex
 
-		this.viewer.impl.invalidate (true)
+		impl.invalidate (true)
 	}
 
 	/////////////////////////////////////////////////////////////////
