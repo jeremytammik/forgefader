@@ -47,7 +47,7 @@ by [The Building Coder](http://thebuildingcoder.typepad.com):
 
 - [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
 - [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
-- [Implementing a custom shader in the Forge Viewer](#implementing-a-custom-shader-in-the-forge-viewer) (blog post pending)
+- [Implementing a custom shader in the Forge Viewer](https://github.com/jeremytammik/forgefader#implementing-a-custom-shader-in-the-forge-viewer) (blog post pending)
 
 
 ## Adding Custom Geometry to the Forge Viewer
