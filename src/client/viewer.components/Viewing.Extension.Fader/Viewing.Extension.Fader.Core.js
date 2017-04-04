@@ -261,13 +261,17 @@ class FaderExtension extends ExtensionBase {
   onSelection( event ) {
     if( event.selections && event.selections.length ) {
 
-      let selection = event.selections[0]
-        , dbIds = selection.dbIdArray
+      let debug_debug_marker_setter = true
 
-      // debug test clicking on specific door
-      if( 2850 === dbIds[0] ) {
-        this.debugFloorTopEdges = !this._debug_floor_top_edges
-        this.debugRaycastRays = !this._debug_raycast_rays
+      if( debug_debug_marker_setter ) {
+        let selection = event.selections[0]
+          , dbIds = selection.dbIdArray
+
+        // debug test clicking on specific door
+        if( 2850 === dbIds[0] ) {
+          this.debugFloorTopEdges = !this._debug_floor_top_edges
+          this.debugRaycastRays = !this._debug_raycast_rays
+        }
       }
 
       const data = this.viewer.clientToWorld (
@@ -321,7 +325,7 @@ class FaderExtension extends ExtensionBase {
   // top_face_z: use for the face Z coordinates unless null
   // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
-  getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z, debug_draw ) {
+  getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z ) {
     let matrix = render_proxy.matrixWorld
     let geometry = render_proxy.geometry
     let attributes = geometry.attributes
@@ -363,12 +367,12 @@ class FaderExtension extends ExtensionBase {
             || this.isEqualVectorsWithPrecision( n, floor_normal ) )
           {
             if ( debug_draw ) {
-              this.drawVertex( vA, this._floorTopEdges )
-              this.drawVertex( vB, this._floorTopEdges )
-              this.drawVertex( vC, this._floorTopEdges )
-              this.drawLine( vA, vB, this._floorTopEdges )
-              this.drawLine( vB, vC, this._floorTopEdges )
-              this.drawLine( vC, vA, this._floorTopEdges )
+              this.drawVertex( vA, this._floorTopEdges, this._debug_floor_top_edges )
+              this.drawVertex( vB, this._floorTopEdges, this._debug_floor_top_edges )
+              this.drawVertex( vC, this._floorTopEdges, this._debug_floor_top_edges )
+              this.drawLine( vA, vB, this._floorTopEdges, this._debug_floor_top_edges )
+              this.drawLine( vB, vC, this._floorTopEdges, this._debug_floor_top_edges )
+              this.drawLine( vC, vA, this._floorTopEdges, this._debug_floor_top_edges )
             }
             geo.vertices.push( new THREE.Vector3( vA.x, vA.y,
               top_face_z === null ? vA.z : top_face_z ) )
@@ -445,8 +449,8 @@ class FaderExtension extends ExtensionBase {
     let floor_mesh_render = impl.getRenderProxy(
       this.viewer.model, fragIds[0] )
 
-    let mesh = this.getMeshFromRenderProxy( data.dbId, floor_mesh_render,
-      floor_normal, top_face_z, this._debug_floor_top_edges )
+    let mesh = this.getMeshFromRenderProxy( data.dbId, 
+      floor_mesh_render, floor_normal, top_face_z )
 
     if ( !this._proxyMeshes [fragIds [0]] ) {
       mesh.name = data.dbId + '-' + fragIds [0] + '-Test'
