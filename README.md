@@ -30,7 +30,6 @@ on [Philippe Leefsma](https://github.com/leefsmp)'s
 Please refer to that for more details on the underlying architecture and components used.
 
 
-
 ## Implementation
 
 The ForgeFader implementation lives
