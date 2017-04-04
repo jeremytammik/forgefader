@@ -17,8 +17,8 @@ You can translate them for Forge using your credentials and pass in the resultin
 
 Here is one of the models in Revit and the result of processing it using Forgefader:
 
-![Revit fader_test model](img/fader_test_rvt.png "Revit fader_test model")
-![Signal attenuation calculated and displayed by ForgeFader](img/fader_test_result.png "Signal attenuation calculated and displayed by ForgeFader")
+![Revit fader_test model](img/fader_test_rvt_250.png "Revit fader_test model")
+![Signal attenuation calculated and displayed by ForgeFader](img/fader_test_result_250.png "Signal attenuation calculated and displayed by ForgeFader")
 
 This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
 Please refer to that for more details on the underlying architecture and components used.
