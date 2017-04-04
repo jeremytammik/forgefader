@@ -323,7 +323,6 @@ class FaderExtension extends ExtensionBase {
   //
   // floor_normal: skip all triangles whose normal differs from that
   // top_face_z: use for the face Z coordinates unless null
-  // debug_draw: draw lines and points representing edges and vertices
   /////////////////////////////////////////////////////////////////
   getMeshFromRenderProxy( dbId, render_proxy, floor_normal, top_face_z ) {
     let matrix = render_proxy.matrixWorld
@@ -366,14 +365,13 @@ class FaderExtension extends ExtensionBase {
           if ( floor_normal === null
             || this.isEqualVectorsWithPrecision( n, floor_normal ) )
           {
-            if ( debug_draw ) {
-              this.drawVertex( vA, this._floorTopEdges, this._debug_floor_top_edges )
-              this.drawVertex( vB, this._floorTopEdges, this._debug_floor_top_edges )
-              this.drawVertex( vC, this._floorTopEdges, this._debug_floor_top_edges )
-              this.drawLine( vA, vB, this._floorTopEdges, this._debug_floor_top_edges )
-              this.drawLine( vB, vC, this._floorTopEdges, this._debug_floor_top_edges )
-              this.drawLine( vC, vA, this._floorTopEdges, this._debug_floor_top_edges )
-            }
+            this.drawVertex( vA, this._floorTopEdges, this._debug_floor_top_edges )
+            this.drawVertex( vB, this._floorTopEdges, this._debug_floor_top_edges )
+            this.drawVertex( vC, this._floorTopEdges, this._debug_floor_top_edges )
+            this.drawLine( vA, vB, this._floorTopEdges, this._debug_floor_top_edges )
+            this.drawLine( vB, vC, this._floorTopEdges, this._debug_floor_top_edges )
+            this.drawLine( vC, vA, this._floorTopEdges, this._debug_floor_top_edges )
+
             geo.vertices.push( new THREE.Vector3( vA.x, vA.y,
               top_face_z === null ? vA.z : top_face_z ) )
             geo.vertices.push( new THREE.Vector3( vB.x, vB.y,
