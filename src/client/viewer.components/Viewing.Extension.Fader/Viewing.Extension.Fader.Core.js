@@ -446,17 +446,17 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	getWallCountBetween (psource, ptarget, max_dist) {
 		if ( this._debug_raycast_rays ) {
-			this.drawLine (psource, ptarget)
-			this.drawVertex (ptarget)
+			this.drawLine( psource, ptarget, this._raycastRays )
+			this.drawVertex( ptarget, this._raycastRays )
 		}
-		let vray =new THREE.Vector3 (ptarget.x - psource.x, 
-		  ptarget.y - psource.y, ptarget.z - psource.z)
+		let vray = new THREE.Vector3( ptarget.x - psource.x, 
+		  ptarget.y - psource.y, ptarget.z - psource.z )
 		vray.normalize ()
-		let ray =new THREE.Raycaster (psource, vray, 0, max_dist)
-		let intersectResults =ray.intersectObjects (
-			this.wallMeshes, true)
-		let nWalls =intersectResults.length
-		return (nWalls)
+		let ray = new THREE.Raycaster( psource, vray, 0, max_dist )
+		let intersectResults = ray.intersectObjects (
+			this.wallMeshes, true )
+		let nWalls = intersectResults.length
+		return nWalls
 	}
 
 	/////////////////////////////////////////////////////////////////
