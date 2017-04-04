@@ -365,12 +365,15 @@ class FaderExtension extends ExtensionBase {
           if ( floor_normal === null
             || this.isEqualVectorsWithPrecision( n, floor_normal ) )
           {
-            this.drawVertex( vA, this._floorTopEdges, this._debug_floor_top_edges )
-            this.drawVertex( vB, this._floorTopEdges, this._debug_floor_top_edges )
-            this.drawVertex( vC, this._floorTopEdges, this._debug_floor_top_edges )
-            this.drawLine( vA, vB, this._floorTopEdges, this._debug_floor_top_edges )
-            this.drawLine( vB, vC, this._floorTopEdges, this._debug_floor_top_edges )
-            this.drawLine( vC, vA, this._floorTopEdges, this._debug_floor_top_edges )
+            let cache = this._floorTopEdges
+              , debug = this._debug_floor_top_edges
+
+            this.drawVertex( vA, cache, debug )
+            this.drawVertex( vB, cache, debug )
+            this.drawVertex( vC, cache, debug )
+            this.drawLine( vA, vB, cache, debug )
+            this.drawLine( vB, vC, cache, debug )
+            this.drawLine( vC, vA, cache, debug )
 
             geo.vertices.push( new THREE.Vector3( vA.x, vA.y,
               top_face_z === null ? vA.z : top_face_z ) )
@@ -427,8 +430,8 @@ class FaderExtension extends ExtensionBase {
     this._floorTopEdges = []
     this._raycastRays = []
 
-
-    this.drawVertex( data.point, this._floorTopEdges, this._debug_floor_top_edges )
+    this.drawVertex( data.point, this._floorTopEdges, 
+      this._debug_floor_top_edges )
 
     let psource = new THREE.Vector3 (
       data.point.x, data.point.y,
@@ -442,7 +445,8 @@ class FaderExtension extends ExtensionBase {
 
     // retrieve floor render proxies matching normal
     let instanceTree = this.viewer.model.getData().instanceTree
-    const fragIds = await Toolkit.getFragIds( this.viewer.model, data.dbId )
+    const fragIds = await Toolkit.getFragIds( 
+      this.viewer.model, data.dbId )
 
     let floor_mesh_render = impl.getRenderProxy(
       this.viewer.model, fragIds[0] )
@@ -466,7 +470,9 @@ class FaderExtension extends ExtensionBase {
     this._attenuation_max = this.array2dMaxW( map_uv_to_color )
     this._attenuation_min = this.array2dMinW( map_uv_to_color )
 
-    let tex = this.createTexture( map_uv_to_color, this._attenuation_max )
+    let tex = this.createTexture( map_uv_to_color, 
+      this._attenuation_max )
+
     mesh.material.uniforms.checkerboard.value = tex
 
     impl.invalidate (true)
@@ -476,8 +482,10 @@ class FaderExtension extends ExtensionBase {
   // ray trace to count walls between source and target points
   /////////////////////////////////////////////////////////////////
   getWallCountBetween( psource, ptarget, max_dist ) {
-    this.drawLine( psource, ptarget, this._raycastRays, this._debug_raycast_rays )
-    this.drawVertex( ptarget, this._raycastRays, this._debug_raycast_rays )
+    this.drawLine( psource, ptarget, this._raycastRays, 
+      this._debug_raycast_rays )
+    this.drawVertex( ptarget, this._raycastRays, 
+      this._debug_raycast_rays )
 
     let vray = new THREE.Vector3( ptarget.x - psource.x,
       ptarget.y - psource.y, ptarget.z - psource.z )
@@ -662,6 +670,16 @@ class FaderExtension extends ExtensionBase {
   }
 
   ///////////////////////////////////////////////////////////////////////////
+  // add line or vertex debug marker to scene and specified cache
+  ///////////////////////////////////////////////////////////////////////////
+  addToScene( obj, cache, addToScene ) {
+    if( addToScene ) {
+      this.viewer.impl.scene.add( obj )
+    }
+    cache.push( obj )
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
   // draw a line
   ///////////////////////////////////////////////////////////////////////////
   drawLine( start, end, cache, addToScene ) {
@@ -688,17 +706,26 @@ class FaderExtension extends ExtensionBase {
     this.addToScene( vertex, cache, addToScene )
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // real number comparison
+  ///////////////////////////////////////////////////////////////////////////
   isEqualWithPrecision (a, b) {
     return (a < b + this._eps)
       && (a > b - this._eps)
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // vector comparison
+  ///////////////////////////////////////////////////////////////////////////
   isEqualVectorsWithPrecision (v, w) {
     return this.isEqualWithPrecision (v.x, w.x)
       && this.isEqualWithPrecision (v.y, w.y)
       && this.isEqualWithPrecision (v.z, w.z)
   }
 
+  ///////////////////////////////////////////////////////////////////////////
+  // return min and max W value in 2D array
+  ///////////////////////////////////////////////////////////////////////////
   arrayMaxW( arr ) {
     let len = arr.length, max = -Infinity
     while( len-- )
@@ -729,12 +756,6 @@ class FaderExtension extends ExtensionBase {
         this.arrayMinW( arr[len] ) )
     }
     return min
-  }
-
-  addToScene( obj, cache, addToScene ) {
-    if ( addToScene )
-      this.viewer.impl.scene.add (obj)
-    cache.push (obj)
   }
 }
 
