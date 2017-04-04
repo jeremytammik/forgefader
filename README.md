@@ -32,7 +32,7 @@ Please refer to that for more details on the underlying architecture and compone
 ## Implementation
 
 The ForgeFader implementation lives
-in [Viewing.Extension.Fader.js](https://github.com/jeremytammik/forgefader/blob/master/src/client/viewer.components/Viewing.Extension.Fader/Viewing.Extension.Fader.js).
+in [Viewing.Extension.Fader.Core.js](https://github.com/jeremytammik/forgefader/blob/master/src/client/viewer.components/Viewing.Extension.Fader/Viewing.Extension.Fader.Core.js).
 
 On loading, in `onGeometryLoaded`, it determines the Revit BIM wall fragments for subsequent ray tracing.
 
