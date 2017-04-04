@@ -164,7 +164,7 @@ populate environment variables used by the config files (in **/config**):
 
     `FORGE_CLIENT_SECRET`
 
-Restart the server; you can then directly load your model by specifying design **URN** as query parameter in the url of the viewer page, e.g.:
+Restart the server; you can then directly load your model by specifying the resulting design **URN** as query parameter in the url of the viewer page, e.g.:
 
 - [http://localhost:3000/viewer?urn=YOUR_URN_HERE](http://localhost:3000/viewer?urn=YOUR_DESIGN_URN_HERE)
 
