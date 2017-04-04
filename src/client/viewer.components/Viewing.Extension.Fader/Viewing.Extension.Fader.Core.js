@@ -181,6 +181,21 @@ class FaderExtension extends ExtensionBase {
 		return (true)
 	}
 
+/////////////////////////////////////////////////////////
+ // Async viewer event
+ /////////////////////////////////////////////////////////
+ viewerEvent (eventName) {
+   return new Promise ((resolve) => {
+     const handler = (args) => {
+       this.viewer.removeEventListener (
+         eventName, handler)
+       resolve (args)
+     }
+     this.viewer.addEventListener (
+       eventName, handler)
+   })
+ }
+
 	getBounds (id) {
 		let bounds = new THREE.Box3();
 		let box = new THREE.Box3();
