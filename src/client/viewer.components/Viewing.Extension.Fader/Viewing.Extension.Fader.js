@@ -341,7 +341,13 @@ class FaderExtension extends ExtensionBase {
 	// later, add number of walls intersected by ray between them
 	/////////////////////////////////////////////////////////////////
 	async attenuationCalculator(data) {
-		let pt =this.drawVertex (data.point, 'sel-point') ;
+		// remove debug markers
+		this._lastSceneObjects.forEach ((obj) => {
+			this.viewer.impl.scene.remove (obj)
+		}) ;
+
+		if ( this._debug_floor_top_face )
+			this.drawVertex (data.point, 'sel-point') ;
 
 		let psource =new THREE.Vector3 (
 			data.point.x, data.point.y,
@@ -364,7 +370,7 @@ class FaderExtension extends ExtensionBase {
 		let mesh ;
 		if ( !this._proxyMeshes [fragIds [0]] ) {
 			let floor_mesh_render =this.viewer.impl.getRenderProxy (this.viewer.model, fragIds [0]) ;
-			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, true) ;
+			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render, floor_normal, top_face_z, this._debug_floor_top_face) ;
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test' ;
 			this._proxyMeshes [fragIds [0]] =mesh ;
 			this.viewer.impl.scene.add (mesh) ;
@@ -469,7 +475,7 @@ class FaderExtension extends ExtensionBase {
 
 		let dataTexture =new THREE.DataTexture (
 			Uint8Array.from (pixelData),
-			8, 8,
+			data.length, data.length,
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
@@ -497,13 +503,13 @@ class FaderExtension extends ExtensionBase {
 		} ;
 
 		let pixelData =[] ;
-		for ( let i =0 ; i < 8 ; i++ )
-			for ( let j =0 ; j < 8 ; j++ )
+		for ( let i =0 ; i < this._rayTraceGrid ; i++ )
+			for ( let j =0 ; j < this._rayTraceGrid ; j++ )
 				pixelData.push (0x88, 0x88, 0, 0xff) ;
 
 		let dataTexture =new THREE.DataTexture (
 			Uint8Array.from (pixelData),
-			8, 8,
+			this._rayTraceGrid, this._rayTraceGrid,
 			THREE.RGBAFormat,
 			THREE.UnsignedByteType,
 			THREE.UVMapping
@@ -582,19 +588,19 @@ class FaderExtension extends ExtensionBase {
 	// draw a vertex
 	///////////////////////////////////////////////////////////////////////////
 	drawVertex (v, name) {
-		if ( name !== undefined ) {
-			let selectedObject =this.viewer.impl.scene.getObjectByName (name) ;
-			if ( selectedObject )
-				this.viewer.impl.scene.remove (selectedObject) ;
-		}
+		// if ( name !== undefined ) {
+		// 	let selectedObject =this.viewer.impl.scene.getObjectByName (name) ;
+		// 	if ( selectedObject )
+		// 		this.viewer.impl.scene.remove (selectedObject) ;
+		// }
 
 		let vertex =new THREE.Mesh (
 			new THREE.SphereGeometry (this._pointSize, 4, 3),
 			this._vertexMaterial
 		) ;
 		vertex.position.set (v.x, v.y, v.z) ;
-		if ( name !== undefined )
-			vertex.name =name ;
+		// if ( name !== undefined )
+		// 	vertex.name =name ;
 		this.addToScene (vertex) ;
 		return (vertex) ;
 	}
