@@ -93,13 +93,13 @@ class FaderExtension extends ExtensionBase {
     this._pointSize = 0.3
     this._topFaceOffset = 0.01 // offset above floor in imperial feet
     this._rayTraceOffset = 5 // offset above floor in imperial feet
-    this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
+    this._rayTraceGrid = 12 // how many grid points in u and v direction to evaluate: 8*8=64
     this._floorTopEdges = [] // objects added to scene, delete in next run
     this._raycastRays = [] // objects added to scene, delete in next run
     this._debug_floor_top_edges = false
     this._debug_raycast_rays = false
-    this._attenuation_per_m_in_air = 1.3
-    this._attenuation_per_wall = 4
+    this._attenuation_per_m_in_air = 0.8
+    this._attenuation_per_wall = 8
     this._attenuation_max = 0.0
     this._attenuation_min = 0.0
 
@@ -531,6 +531,7 @@ class FaderExtension extends ExtensionBase {
         // determine number of walls between psource and ptarget
         // to generate a colour for each u,v coordinate pair
         nWalls = this.getWallCountBetween( psource, ptarget, vsize.length )
+
         let signal_attenuation =
           d * this._attenuation_per_m_in_air
             + nWalls * this._attenuation_per_wall
