@@ -734,4 +734,4 @@ class FaderExtension extends ExtensionBase {
 Autodesk.Viewing.theExtensionManager.registerExtension (
   FaderExtension.ExtensionId, FaderExtension)
 
-module.exports = 'Viewing.Extension.Fader'
+module.exports = 'Viewing.Extension.Fader.Core'
