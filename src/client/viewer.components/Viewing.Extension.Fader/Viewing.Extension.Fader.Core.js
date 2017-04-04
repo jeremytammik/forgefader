@@ -251,18 +251,22 @@ class FaderExtension extends ExtensionBase {
 		}
 	}
 
-	calculateUVsGeo (geometry) {
+	/////////////////////////////////////////////////////////////////
+	// calculateUVsGeo
+	/////////////////////////////////////////////////////////////////
+	calculateUVsGeo( geometry ) {
 		geometry.computeBoundingBox ()
-		let bbox =geometry.boundingBox
 
-		let max =bbox.max, min =bbox.min
-		let offset =new THREE.Vector2 (0 - min.x, 0 - min.y)
-		let range =new THREE.Vector2 (max.x - min.x, max.y - min.y)
+		let bbox = geometry.boundingBox
+		  , max = bbox.max
+			, min = bbox.min
+			, offset = new THREE.Vector2( 0 - min.x, 0 - min.y )
+			, range = new THREE.Vector2( max.x - min.x, max.y - min.y )
+			, faces = geometry.faces
+			, uvs = geometry.faceVertexUvs [0]
+			, vertices = geometry.vertices
 
-		let faces =geometry.faces
-		let uvs =geometry.faceVertexUvs [0]
-		let vertices =geometry.vertices
-		for ( let i =0 ; i < faces.length ; i++ ) {
+		for ( let i = 0 ; i < faces.length ; ++i ) {
 			let v1 =vertices [faces [i].a]
 			let v2 =vertices [faces [i].b]
 			let v3 =vertices [faces [i].c]
