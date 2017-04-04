@@ -617,7 +617,7 @@ class FaderExtension extends ExtensionBase {
 	///////////////////////////////////////////////////////////////////////////
 	drawVertex (v) {
 		let vertex =new THREE.Mesh (
-			new THREE.SphereGeometry (this._pointSize, 4, 3),
+			new THREE.SphereGeometry (this._pointSize, 8, 6),
 			this._vertexMaterial
 		)
 		vertex.position.set (v.x, v.y, v.z)
