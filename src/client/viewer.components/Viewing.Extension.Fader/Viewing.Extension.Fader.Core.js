@@ -95,8 +95,8 @@ class FaderExtension extends ExtensionBase {
 		this._rayTraceOffset = 5 // offset above floor in imperial feet
 		this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
 		this._lastSceneObjects = [] // objects added to scene, delete in next run
-		this._debug_floor_top_face = false
-		this._debug_raycast_rays = false
+		this._debug_floor_top_face = true
+		this._debug_raycast_rays = true
 		this._attenuation_per_m_in_air = 1.8
 		this._attenuation_per_wall = 4
 		this._attenuation_max = 0.0
