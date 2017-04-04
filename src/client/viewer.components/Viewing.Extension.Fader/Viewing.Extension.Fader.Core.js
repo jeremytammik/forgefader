@@ -380,6 +380,7 @@ class FaderExtension extends ExtensionBase {
     // remove debug markers
     this._lastSceneObjects.forEach( (obj) => {
       this.viewer.impl.scene.remove( obj )
+			this._lastSceneObjects = []
     })
 
     if(this._debug_floor_top_edges) {
@@ -621,28 +622,28 @@ class FaderExtension extends ExtensionBase {
 	///////////////////////////////////////////////////////////////////////////
 	// draw a line
 	///////////////////////////////////////////////////////////////////////////
-	drawLine(start, end) {
-		let geometry =new THREE.Geometry ()
+	drawLine( start, end, cache ) {
+		let geometry = new THREE.Geometry ()
 		geometry.vertices.push (
-			new THREE.Vector3 (start.x, start.y, start.z)
+			new THREE.Vector3( start.x, start.y, start.z )
 		)
 		geometry.vertices.push (
-			new THREE.Vector3 (end.x, end.y, end.z)
+			new THREE.Vector3( end.x, end.y, end.z )
 		)
-		let line =new THREE.Line (geometry, this._lineMaterial)
-		this.addToScene (line)
+		let line = new THREE.Line( geometry, this._lineMaterial )
+		this.addToScene( line, cache )
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// draw a vertex
 	///////////////////////////////////////////////////////////////////////////
-	drawVertex (v) {
-		let vertex =new THREE.Mesh (
-			new THREE.SphereGeometry (this._pointSize, 8, 6),
+	drawVertex( v, cache ) {
+		let vertex = new THREE.Mesh (
+			new THREE.SphereGeometry( this._pointSize, 8, 6 ),
 			this._vertexMaterial
 		)
-		vertex.position.set (v.x, v.y, v.z)
-		this.addToScene (vertex)
+		vertex.position.set( v.x, v.y, v.z )
+		this.addToScene( vertex, cache )
 	}
 
 	isEqualWithPrecision (a, b) {
@@ -688,9 +689,9 @@ class FaderExtension extends ExtensionBase {
 		return (min)
 	}
 
-	addToScene (obj) {
+	addToScene( obj, cache ) {
 		this.viewer.impl.scene.add (obj)
-		this._lastSceneObjects.push (obj)
+		cache.push (obj)
 	}
 }
 
