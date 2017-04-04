@@ -33,16 +33,16 @@ varying vec2 vUv;
 varying vec3 vPosition;
 
 void main() {
-    vPosition =normalize (position) ;
-    vUv =uv;
-    vcolor =vec4(mycolor, opacity);
-    //vcolor =vec4(uv, 1.0, opacity);
+    vPosition = normalize (position) ;
+    vUv = uv;
+    vcolor = vec4(mycolor, opacity);
+    //vcolor = vec4(uv, 1.0, opacity);
 
-    vec4 mvPosition =modelViewMatrix * vec4(position, 1.0);
-    worldCoord =modelMatrix * vec4(position, 1.0) ;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    worldCoord = modelMatrix * vec4(position, 1.0) ;
     
     gl_PointSize =8.0;		
-    gl_Position =projectionMatrix * mvPosition;
+    gl_Position = projectionMatrix * mvPosition;
 }
 ` ;
 
@@ -60,20 +60,20 @@ varying vec4 worldCoord;
 varying vec2 vUv;
 
 varying vec3 vPosition;
-vec3 c2 =vec3(1., .2, .2);
-vec4 c24 =vec4(1., .2, .2, .9);
+vec3 c2 = vec3(1., .2, .2);
+vec4 c24 = vec4(1., .2, .2, .9);
 
 
 uniform sampler2D checkerboard;
 
 void main() {
-	//vec3 fragPos =vec3(worldCoord.xyz);
+	//vec3 fragPos = vec3(worldCoord.xyz);
 	
-	gl_FragColor =texture2D(checkerboard, vUv);
+	gl_FragColor = texture2D(checkerboard, vUv);
 
   //float dist =2.0*distance (vUv.xy, vec2(.5, .5)) ;
-  //gl_FragColor =vec4(dist, dist, dist, 1.0);
-  //gl_FragColor =mix (c24, vcolor, 10.5);
+  //gl_FragColor = vec4(dist, dist, dist, 1.0);
+  //gl_FragColor = mix (c24, vcolor, 10.5);
 }
 ` ;
 
@@ -82,12 +82,12 @@ class FaderExtension extends ExtensionBase {
 	// Class constructor
 	/////////////////////////////////////////////////////////////////
 	constructor (viewer, options) {
-		super (viewer, options)
-		this.onGeometryLoaded =this.onGeometryLoaded.bind (this)
-		this.onSelection =this.onSelection.bind (this)
+		super( viewer, options )
+		this.onGeometryLoaded = this.onGeometryLoaded.bind (this)
+		this.onSelection = this.onSelection.bind (this)
 
-		this._lineMaterial =this.createLineMaterial ()
-		this._vertexMaterial =this.createVertexMaterial ()
+		this._lineMaterial = this.createLineMaterial ()
+		this._vertexMaterial = this.createVertexMaterial ()
 
 		this._eps = 0.000001
 		this._pointSize = 0.3
@@ -111,36 +111,48 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// Accessors - es6 getters and setters
 	/////////////////////////////////////////////////////////////////
-	get debugFloorTopFace () { return this._debug_floor_top_face ; }
-	set debugFloorTopFace (a) { this._debug_floor_top_face =a ; }
-	get debugRaycastRays () { return this._debug_raycast_rays ; }
-	set debugRaycastRays (a) { this._debug_raycast_rays =a ; }
-	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air ; }
-	set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air =a ; }
-	get attenuationPerWall () { return this._attenuation_per_wall ; }
-	set attenuationPerWall (a) { this._attenuation_per_wall =a ; }
-	get attenuationMax () { return this._attenuation_max ; }
-	get attenuationMin () { return this._attenuation_min ; }
+	get debugFloorTopFace () { return this._debug_floor_top_face }
+	set debugFloorTopFace (a) { this._debug_floor_top_face = a }
+	get debugRaycastRays () { return this._debug_raycast_rays }
+	set debugRaycastRays (a) { this._debug_raycast_rays = a }
+	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air }
+	set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air = a }
+	get attenuationPerWall () { return this._attenuation_per_wall }
+	set attenuationPerWall (a) { this._attenuation_per_wall = a }
+	get attenuationMax () { return this._attenuation_max }
+	get attenuationMin () { return this._attenuation_min }
+
+	/////////////////////////////////////////////////////////////////
+	// Extension Id
+	/////////////////////////////////////////////////////////////////
+	static get ExtensionId () {
+		return 'Viewing.Extension.Fader.Core'
+	}
 
 	/////////////////////////////////////////////////////////////////
 	// Load callback
 	/////////////////////////////////////////////////////////////////
 	load () {
-		this.eventTool =new EventTool (this.viewer)
+		this.eventTool = new EventTool (this.viewer)
 		this.eventTool.activate ()
 		this.eventTool.on ('singleclick', (event) => {
 			this.pointer = event
 		})
 
+    const loadEvents = [
+     Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
+     Autodesk.Viewing.GEOMETRY_LOADED_EVENT // non-Revit
+   ]
+
+   const eventResults = loadEvents.map((event) => {
+     return this.viewerEvent(event)
+   })
+
+   Promise.all(eventResults).then( this.onModelLoaded )
+
 		this.viewer.addEventListener (
 			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
-			this.onSelection
-		)
-		this.viewer.addEventListener (
-			//Autodesk.Viewing.GEOMETRY_LOADED_EVENT, // non-Revit
-			Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
-			() => this.onGeometryLoaded ()
-		)
+			this.onSelection )
 
 		// this.viewer.setProgressiveRendering (true)
 		// this.viewer.setQualityLevel (false, true)
@@ -148,16 +160,9 @@ class FaderExtension extends ExtensionBase {
 		this.viewer.setGroundShadow (false)
 		// this.viewer.setLightPreset (1)
 
-    console.log('Viewing.Extension.Fader.Core')
+    console.log('Viewing.Extension.Fader.Core loaded')
 
 		return (true)
-	}
-
-	/////////////////////////////////////////////////////////////////
-	// Extension Id
-	/////////////////////////////////////////////////////////////////
-	static get ExtensionId () {
-		return ('Viewing.Extension.Fader.Core')
 	}
 
 	/////////////////////////////////////////////////////////////////
@@ -193,15 +198,15 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// onGeometryLoaded - retrieve all wall meshes
 	/////////////////////////////////////////////////////////////////
-	onGeometryLoaded (event) {
-		const instanceTree =this.viewer.model.getData ().instanceTree
-		let rootId =instanceTree.getRootId ()
+	onModelLoaded (event) {
+		const instanceTree = this.viewer.model.getData ().instanceTree
+		let rootId = instanceTree.getRootId ()
 		instanceTree.enumNodeChildren (rootId, async (childId) => {
-			const nodeName =instanceTree.getNodeName (childId)
+			const nodeName = instanceTree.getNodeName (childId)
 			if ( nodeName === 'Walls' ) {
-				const fragIds =await Toolkit.getFragIds (
+				const fragIds = await Toolkit.getFragIds (
 					this.viewer.model, childId)
-				this.wallMeshes =fragIds.map ((fragId) => {
+				this.wallMeshes = fragIds.map ((fragId) => {
 					return this.getMeshFromRenderProxy (
 						childId,
 						this.viewer.impl.getRenderProxy (this.viewer.model, fragId),
@@ -219,7 +224,7 @@ class FaderExtension extends ExtensionBase {
 		if ( event.selections && event.selections.length ) {
 			const selection =event.selections [0]
 			//const dbIds =selection.dbIdArray
-			const data =this.viewer.clientToWorld (
+			const data = this.viewer.clientToWorld (
 				this.pointer.canvasX, this.pointer.canvasY, true)
 			if ( data.face ) {
 				var n = data.face.normal
@@ -334,7 +339,7 @@ class FaderExtension extends ExtensionBase {
 		geo.computeBoundingBox ()
 
 		let mat =new THREE.MeshBasicMaterial ({ color: 0xffff00 })
-		let shaderMat =this.createShaderMaterial (dbId)
+		let shaderMat = this.createShaderMaterial (dbId)
 
 		let mesh = new THREE.Mesh( geo, 
 		  top_face_z !== null ? shaderMat : mat )
@@ -377,31 +382,31 @@ class FaderExtension extends ExtensionBase {
 		let floor_normal =data.face.normal
 
 		// retrieve floor render proxies matching normal
-		let instanceTree =this.viewer.model.getData ().instanceTree
+		let instanceTree = this.viewer.model.getData ().instanceTree
 		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId)
 
 		let mesh
 		if ( !this._proxyMeshes [fragIds [0]] ) {
-			let floor_mesh_render =this.viewer.impl.getRenderProxy (
+			let floor_mesh_render = this.viewer.impl.getRenderProxy (
 				this.viewer.model, fragIds [0])
-			mesh =this.getMeshFromRenderProxy (data.dbId, floor_mesh_render,
+			mesh = this.getMeshFromRenderProxy (data.dbId, floor_mesh_render,
 			  floor_normal, top_face_z, this._debug_floor_top_face)
 			mesh.name =data.dbId + '-' + fragIds [0] + '-Test'
 			this._proxyMeshes [fragIds [0]] =mesh
 			this.viewer.impl.scene.add (mesh)
 		} else {
-			mesh =this._proxyMeshes [fragIds [0]]
+			mesh = this._proxyMeshes [fragIds [0]]
 		}
 
 		// ray trace to determine wall locations on mesh
-		let map_uv_to_color =this.rayTraceToFindWalls (mesh, psource)
+		let map_uv_to_color = this.rayTraceToFindWalls (mesh, psource)
 		
 		//console.log( map_uv_to_color )
 
-		this._attenuation_max =this.array2dMax (map_uv_to_color)
-		this._attenuation_min =this.array2dMin (map_uv_to_color)
+		this._attenuation_max = this.array2dMax (map_uv_to_color)
+		this._attenuation_min = this.array2dMin (map_uv_to_color)
 
-		let tex =this.createTexture (map_uv_to_color, this._attenuation_max)
+		let tex = this.createTexture (map_uv_to_color, this._attenuation_max)
 		mesh.material.uniforms.checkerboard.value =tex
 
 		this.viewer.impl.invalidate (true)
@@ -432,7 +437,7 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	rayTraceToFindWalls (mesh, psource) {
 		// set up the result map
-		let n =this._rayTraceGrid
+		let n = this._rayTraceGrid
 		let map_uv_to_color =new Array (n)
 		for ( let i =0 ; i < n ; i++ )
 			map_uv_to_color [i] =new Array (n)
@@ -457,7 +462,7 @@ class FaderExtension extends ExtensionBase {
 
 				// determine number of walls between psource and ptarget
 				// to generate a colour for each u,v coordinate pair
-				nWalls =this.getWallCountBetween (psource, ptarget, vsize.length)
+				nWalls = this.getWallCountBetween (psource, ptarget, vsize.length)
 				let signal_attenuation =
 					d * this._attenuation_per_m_in_air
 					  + nWalls * this._attenuation_per_wall
@@ -567,7 +572,7 @@ class FaderExtension extends ExtensionBase {
 	// apply material to specific fragments
 	/////////////////////////////////////////////////////////////////
 	setMaterial (fragIds, material) {
-		const fragList =this.viewer.model.getFragmentList ()
+		const fragList = this.viewer.model.getFragmentList ()
 		fragIds.forEach ((fragId) => { // removed this.toArray()
 			fragList.setMaterial (fragId, material)
 		})
@@ -645,8 +650,8 @@ class FaderExtension extends ExtensionBase {
 	array2dMax (arr) {
 		let len =arr.length, max =-Infinity, m2
 		while ( len-- ) {
-			m2 =this.arrayMax (arr [len])
-			max =Math.max (m2, max)
+			m2 = this.arrayMax (arr [len])
+			max = Math.max (m2, max)
 		}
 		return (max)
 	}
@@ -654,15 +659,15 @@ class FaderExtension extends ExtensionBase {
 	arrayMin (arr) {
 		let len =arr.length, min =+Infinity
 		while ( len-- )
-			min =Math.min (arr [len].w, min)
+			min = Math.min (arr [len].w, min)
 		return (min)
 	}
 
 	array2dMin (arr) {
-		let len =arr.length, min =+Infinity, m2
+		let len = arr.length, min =+Infinity, m2
 		while ( len-- ) {
-			m2 =this.arrayMin (arr [len])
-			min =Math.min (m2, min)
+			m2 = this.arrayMin (arr [len])
+			min = Math.min (m2, min)
 		}
 		return (min)
 	}
