@@ -95,7 +95,7 @@ class FaderExtension extends ExtensionBase {
 		this._rayTraceOffset = 5 // offset above floor in imperial feet
 		this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
 		this._lastSceneObjects = [] // objects added to scene, delete in next run
-		this._debug_floor_top_face = true
+		this._debug_floor_top_edges = true
 		this._debug_raycast_rays = true
 		this._attenuation_per_m_in_air = 1.8
 		this._attenuation_per_wall = 4
@@ -111,8 +111,8 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	// Accessors - es6 getters and setters
 	/////////////////////////////////////////////////////////////////
-	get debugFloorTopFace () { return this._debug_floor_top_face }
-	set debugFloorTopFace (a) { this._debug_floor_top_face = a }
+	get debugFloorTopFace () { return this._debug_floor_top_edges }
+	set debugFloorTopFace (a) { this._debug_floor_top_edges = a }
 	get debugRaycastRays () { return this._debug_raycast_rays }
 	set debugRaycastRays (a) { this._debug_raycast_rays = a }
 	get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air }
@@ -382,32 +382,32 @@ class FaderExtension extends ExtensionBase {
       this.viewer.impl.scene.remove( obj )
     })
 
-    if(this._debug_floor_top_face) {
+    if(this._debug_floor_top_edges) {
 		  this.drawVertex (data.point)
 		}
 
-		let psource =new THREE.Vector3 (
+		let psource = new THREE.Vector3 (
 			data.point.x, data.point.y,
 			data.point.z + this._rayTraceOffset
 		)
 
-		let top_face_z =data.point.z + this._topFaceOffset
+		let top_face_z = data.point.z + this._topFaceOffset
 
 		// from the selected THREE.Face, extract the normal
-		let floor_normal =data.face.normal
+		let floor_normal = data.face.normal
 
 		// retrieve floor render proxies matching normal
 		let instanceTree = this.viewer.model.getData ().instanceTree
-		const fragIds =await Toolkit.getFragIds (this.viewer.model, data.dbId)
+		const fragIds = await Toolkit.getFragIds (this.viewer.model, data.dbId)
 
 		let mesh
 		if ( !this._proxyMeshes [fragIds [0]] ) {
 			let floor_mesh_render = this.viewer.impl.getRenderProxy (
-				this.viewer.model, fragIds [0])
-			mesh = this.getMeshFromRenderProxy (data.dbId, floor_mesh_render,
-			  floor_normal, top_face_z, this._debug_floor_top_face)
-			mesh.name =data.dbId + '-' + fragIds [0] + '-Test'
-			this._proxyMeshes [fragIds [0]] =mesh
+				this.viewer.model, fragIds[0] )
+			mesh = this.getMeshFromRenderProxy( data.dbId, floor_mesh_render,
+			  floor_normal, top_face_z, this._debug_floor_top_edges )
+			mesh.name = data.dbId + '-' + fragIds [0] + '-Test'
+			this._proxyMeshes [fragIds [0]] = mesh
 			this.viewer.impl.scene.add (mesh)
 		} else {
 			mesh = this._proxyMeshes [fragIds [0]]
