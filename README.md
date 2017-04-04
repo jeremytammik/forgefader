@@ -22,7 +22,7 @@ Here is one of the models in Revit and the result of processing it using Forgefa
 
 The four-minute [forgefader Autodesk Forge sample app YouTube video](https://youtu.be/78JlGnf49mc) explains some of the background and shows this sample app live in action.
 
-This app is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
+ForgeFader is based on Philippe Leefsma's [Forge React boilerplate sample](https://github.com/Autodesk-Forge/forge-react-boiler.nodejs).
 Please refer to that for more details on the underlying architecture and components used.
 
 
