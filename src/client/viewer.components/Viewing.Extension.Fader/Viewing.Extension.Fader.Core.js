@@ -456,8 +456,8 @@ class FaderExtension extends ExtensionBase {
 		
 		//console.log( map_uv_to_color )
 
-		this._attenuation_max = this.array2dMax( map_uv_to_color )
-		this._attenuation_min = this.array2dMin( map_uv_to_color )
+		this._attenuation_max = this.array2dMaxW( map_uv_to_color )
+		this._attenuation_min = this.array2dMinW( map_uv_to_color )
 
 		let tex = this.createTexture( map_uv_to_color, this._attenuation_max )
 		mesh.material.uniforms.checkerboard.value = tex
@@ -491,36 +491,36 @@ class FaderExtension extends ExtensionBase {
 	rayTraceToFindWalls (mesh, psource) {
 		// set up the result map
 		let n = this._rayTraceGrid
-		let map_uv_to_color =new Array (n)
-		for ( let i =0 ; i < n ; i++ )
-			map_uv_to_color [i] =new Array (n)
+		let map_uv_to_color = new Array (n)
+		for ( let i = 0 ; i < n ; ++i )
+			map_uv_to_color [i] = new Array (n)
 
 		let ptarget, d, nWalls
-		let bb =mesh.geometry.boundingBox
-		let vsize =new THREE.Vector3 (
-			bb.max.x - bb.min.x,
-			bb.max.y - bb.min.y,
-			bb.max.z - bb.min.z
-		)
+		  , bb =mesh.geometry.boundingBox
+			, vsize = new THREE.Vector3(
+					bb.max.x - bb.min.x,
+					bb.max.y - bb.min.y,
+					bb.max.z - bb.min.z
+				)
 
-		let step =1.0 / (n - 1)
-		for ( let u =0.0, i =0 ; u < 1.0 + this._eps ; u +=step, ++i ) {
-			for ( let v =0.0, j =0 ; v < 1.0 + this._eps ; v +=step, ++j ) {
-				ptarget =new THREE.Vector3 (
+		let step = 1.0 / (n - 1)
+		for ( let u = 0.0, i = 0 ; u < 1.0 + this._eps ; u += step, ++i ) {
+			for ( let v = 0.0, j = 0 ; v < 1.0 + this._eps ; v += step, ++j ) {
+				ptarget = new THREE.Vector3(
 					bb.min.x + u * vsize.x,
 					bb.min.y + v * vsize.y,
 					psource.z
 				)
-				d =psource.distanceTo (ptarget)
+				d = psource.distanceTo( ptarget )
 
 				// determine number of walls between psource and ptarget
 				// to generate a colour for each u,v coordinate pair
-				nWalls = this.getWallCountBetween (psource, ptarget, vsize.length)
+				nWalls = this.getWallCountBetween( psource, ptarget, vsize.length )
 				let signal_attenuation =
 					d * this._attenuation_per_m_in_air
 					  + nWalls * this._attenuation_per_wall
 
-				map_uv_to_color [i] [j] =new THREE.Vector4 (
+				map_uv_to_color[i][j] = new THREE.Vector4(
 					ptarget.x, ptarget.y, ptarget.z, signal_attenuation)
 			}
 		}
@@ -541,11 +541,11 @@ class FaderExtension extends ExtensionBase {
 	}
 
 	createTexture( data, attenuation_max ) {
-		let pixelData =[]
+		let pixelData = []
 		for ( let i = 0 ; i < data.length ; ++i ) {
 			for ( let j = 0 ; j < data [i].length ; ++j ) {
-				let c = data [j] [i].w / attenuation_max
-				c = parseInt (c * 0xff)
+				let c = data[j][i].w / attenuation_max
+				c = parseInt( c * 0xff )
 				pixelData.push( c, 0xff - c, 0, 0xff )
 			}
 		}
@@ -704,7 +704,7 @@ class FaderExtension extends ExtensionBase {
 		let len = arr.length, max = -Infinity
 		while( len-- ) {
 			max = Math.max( max,
-			  this.arrayMaxW( arr [len] ) )
+			  this.arrayMaxW( arr[len] ) )
 		}
 		return max
 	}
@@ -712,7 +712,7 @@ class FaderExtension extends ExtensionBase {
 	arrayMinW( arr ) {
 		let len = arr.length, min = +Infinity
 		while ( len-- )
-			min = Math.min( arr [len].w, min )
+			min = Math.min( arr[len].w, min )
 		return min
 	}
 
@@ -720,7 +720,7 @@ class FaderExtension extends ExtensionBase {
 		let len = arr.length, min = +Infinity
 		while ( len-- ) {
 			min = Math.min( min, 
-			  this.arrayMinW( arr [len] ) )
+			  this.arrayMinW( arr[len] ) )
 		}
 		return min
 	}
