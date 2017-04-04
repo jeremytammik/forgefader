@@ -111,7 +111,7 @@ Cyrille Fauvel shows how a custom shader can be applied to a Forge viewer elemen
 In [release 0.0.32](https://github.com/jeremytammik/forgefader/releases/tag/0.0.32)
 (cf. the [diff](https://github.com/jeremytammik/forgefader/compare/0.0.31...0.0.32)) Cyrille replaces the hard-wired radial gradiant by the real thing, a testure map displaying the signal attenuation:
 
-![Signal attentiuation shader](img/shader_radial_gradient.png "Signal attentiuation")
+![Signal attentiuation shader](img/shader_attenuation_gradient.png "Signal attentiuation")
 
 
 ## Running the Sample
