@@ -400,12 +400,12 @@ class FaderExtension extends ExtensionBase {
 		let instanceTree = this.viewer.model.getData ().instanceTree
 		const fragIds = await Toolkit.getFragIds (this.viewer.model, data.dbId)
 
-		let mesh
+		let mesh = this.getMeshFromRenderProxy( data.dbId, floor_mesh_render,
+			floor_normal, top_face_z, this._debug_floor_top_edges )
+			
 		if ( !this._proxyMeshes [fragIds [0]] ) {
 			let floor_mesh_render = this.viewer.impl.getRenderProxy (
 				this.viewer.model, fragIds[0] )
-			mesh = this.getMeshFromRenderProxy( data.dbId, floor_mesh_render,
-			  floor_normal, top_face_z, this._debug_floor_top_edges )
 			mesh.name = data.dbId + '-' + fragIds [0] + '-Test'
 			this._proxyMeshes [fragIds [0]] = mesh
 			this.viewer.impl.scene.add (mesh)
