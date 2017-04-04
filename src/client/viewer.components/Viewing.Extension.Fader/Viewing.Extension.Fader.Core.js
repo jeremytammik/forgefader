@@ -183,7 +183,7 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////
   // Async viewer event
   /////////////////////////////////////////////////////////
-  viewerEvent (eventName) {
+  viewerEvent( eventName ) {
     return new Promise ((resolve) => {
       const handler = (args) => {
         this.viewer.removeEventListener (
@@ -208,21 +208,24 @@ class FaderExtension extends ExtensionBase {
 			Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
 			this.onSelection
 		)
-		return (true)
+		return true
 	}
 
-	getBounds (id) {
-		let bounds = new THREE.Box3();
-		let box = new THREE.Box3();
-		let instanceTree = this.viewer.impl.model.getData().instanceTree;
-		let fragList = this.viewer.impl.model.getFragmentList();
+	/////////////////////////////////////////////////////////////////
+	// getBounds
+	/////////////////////////////////////////////////////////////////
+	getBounds( id ) {
+		let bounds = new THREE.Box3()
+		  , box = new THREE.Box3()
+			, instanceTree = this.viewer.impl.model.getData().instanceTree
+			, fragList = this.viewer.impl.model.getFragmentList()
 
-		instanceTree.enumNodeFragments(id, function (fragId) {
-			fragList.getWorldBounds(fragId, box);
-			bounds.union(box);
-		}, true);
+		instanceTree.enumNodeFragments( id, function (fragId) {
+			fragList.getWorldBounds( fragId, box )
+			bounds.union( box )
+		}, true)
 
-		return bounds;
+		return bounds
 	}
 
 	/////////////////////////////////////////////////////////////////
