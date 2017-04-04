@@ -83,8 +83,8 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	constructor (viewer, options) {
 		super( viewer, options )
-		this.onGeometryLoaded = this.onGeometryLoaded.bind (this)
-		this.onSelection = this.onSelection.bind (this)
+		this.onModelLoaded = this.onModelLoaded.bind( this )
+		this.onSelection = this.onSelection.bind( this )
 
 		this._lineMaterial = this.createLineMaterial ()
 		this._vertexMaterial = this.createVertexMaterial ()
@@ -165,6 +165,21 @@ class FaderExtension extends ExtensionBase {
 		return (true)
 	}
 
+  /////////////////////////////////////////////////////////
+  // Async viewer event
+  /////////////////////////////////////////////////////////
+  viewerEvent (eventName) {
+    return new Promise ((resolve) => {
+      const handler = (args) => {
+        this.viewer.removeEventListener (
+          eventName, handler )
+        resolve (args)
+      }
+      this.viewer.addEventListener (
+        eventName, handler )
+    })
+  }
+
 	/////////////////////////////////////////////////////////////////
 	// Unload callback
 	/////////////////////////////////////////////////////////////////
@@ -181,21 +196,6 @@ class FaderExtension extends ExtensionBase {
 		return (true)
 	}
 
-/////////////////////////////////////////////////////////
- // Async viewer event
- /////////////////////////////////////////////////////////
- viewerEvent (eventName) {
-   return new Promise ((resolve) => {
-     const handler = (args) => {
-       this.viewer.removeEventListener (
-         eventName, handler)
-       resolve (args)
-     }
-     this.viewer.addEventListener (
-       eventName, handler)
-   })
- }
-
 	getBounds (id) {
 		let bounds = new THREE.Box3();
 		let box = new THREE.Box3();
@@ -211,7 +211,7 @@ class FaderExtension extends ExtensionBase {
 	}
 
 	/////////////////////////////////////////////////////////////////
-	// onGeometryLoaded - retrieve all wall meshes
+	// onModelLoaded - retrieve all wall meshes
 	/////////////////////////////////////////////////////////////////
 	onModelLoaded (event) {
 		const instanceTree = this.viewer.model.getData ().instanceTree
