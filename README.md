@@ -47,7 +47,7 @@ by [The Building Coder](http://thebuildingcoder.typepad.com):
 
 - [Adding custom geometry to the Forge viewer](http://thebuildingcoder.typepad.com/blog/2017/03/adding-custom-geometry-to-the-forge-viewer.html)
 - [Three.js raytracing in the Forge Viewer](http://thebuildingcoder.typepad.com/blog/2017/03/threejs-raytracing-in-the-forge-viewer.html)
-- [Implementing a custom shader in the Forge Viewer](https://github.com/jeremytammik/forgefader#implementing-a-custom-shader-in-the-forge-viewer) (blog post pending)
+- [Implementing a custom shader in the Forge Viewer](#shader) (blog post pending)
 
 
 ## Adding Custom Geometry to the Forge Viewer
@@ -111,6 +111,7 @@ Unfortunately, due to time differences, they replied only after I had completed 
 In summary, you might be better off ignoring the interesting solution I present above and using the built-in viewer functionality instead.
 
 
+<a name="shader"></a>
 ## Implementing a Custom Shader in the Forge Viewer
 
 In the main [commit](https://github.com/jeremytammik/forgefader/commit/58dbdeb412b42eaf9a82d5109cfe352b6b3b02bb) 
