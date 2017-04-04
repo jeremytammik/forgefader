@@ -98,7 +98,7 @@ class FaderExtension extends ExtensionBase {
     this._raycastRays = [] // objects added to scene, delete in next run
     this._debug_floor_top_edges = false
     this._debug_raycast_rays = false
-    this._attenuation_per_m_in_air = 1.8
+    this._attenuation_per_m_in_air = 1.3
     this._attenuation_per_wall = 4
     this._attenuation_max = 0.0
     this._attenuation_min = 0.0
@@ -266,9 +266,10 @@ class FaderExtension extends ExtensionBase {
       if( debug_debug_marker_setter ) {
         let selection = event.selections[0]
           , dbIds = selection.dbIdArray
+          , id = dbIds[0]
 
         // debug test clicking on specific door
-        if( 2850 === dbIds[0] ) {
+        if( 2850 === id || 2851 === id ) {
           this.debugFloorTopEdges = !this._debug_floor_top_edges
           this.debugRaycastRays = !this._debug_raycast_rays
         }
