@@ -96,8 +96,8 @@ class FaderExtension extends ExtensionBase {
 		this._rayTraceGrid = 8 // how many grid points in u and v direction to evaluate: 8*8=64
 		this._floorTopEdges = [] // objects added to scene, delete in next run
 		this._raycastRays = [] // objects added to scene, delete in next run
-		this._debug_floor_top_edges = true
-		this._debug_raycast_rays = true
+		this._debug_floor_top_edges = false
+		this._debug_raycast_rays = false
 		this._attenuation_per_m_in_air = 1.8
 		this._attenuation_per_wall = 4
 		this._attenuation_max = 0.0
@@ -254,7 +254,7 @@ class FaderExtension extends ExtensionBase {
 	/////////////////////////////////////////////////////////////////
 	onSelection( event ) {
 		if( event.selections && event.selections.length ) {
-			
+
 			// let selection = event.selections[0]
 			//   , dbIds = selection.dbIdArray
 
