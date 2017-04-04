@@ -105,7 +105,7 @@ class FaderExtension extends ExtensionBase {
 		this._materials = {}
 		this._proxyMeshes = {}
 		this._overlayName = 'fader-material-shader'
-		this.viewer.impl.createOverlayScene (this._overlayName)
+		this.viewer.impl.createOverlayScene( this._overlayName )
 	}
 
 	/////////////////////////////////////////////////////////////////
