@@ -86,8 +86,8 @@ class FaderExtension extends ExtensionBase {
     this.onModelLoaded = this.onModelLoaded.bind( this )
     this.onSelection = this.onSelection.bind( this )
 
-    this._lineMaterial = this.createLineMaterial ()
-    this._vertexMaterial = this.createVertexMaterial ()
+    this._lineMaterial = this.createLineMaterial()
+    this._vertexMaterial = this.createVertexMaterial()
 
     this._eps = 0.000001
     this._pointSize = 0.3
@@ -126,10 +126,10 @@ class FaderExtension extends ExtensionBase {
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
     this._floorTopEdges.forEach( (obj) => { 
-      f.apply(this.viewer.impl.scene, [obj])
+      f.apply( this.viewer.impl.scene, [obj] )
     })
     this._debug_floor_top_edges = a
-    this.viewer.impl.invalidate (true)
+    this.viewer.impl.invalidate( true )
   }
 
   set debugRaycastRays( a ) {
@@ -137,10 +137,10 @@ class FaderExtension extends ExtensionBase {
       ? this.viewer.impl.scene.add
       : this.viewer.impl.scene.remove
     this._raycastRays.forEach( (obj) => { 
-      f.apply(this.viewer.impl.scene, [obj])
+      f.apply( this.viewer.impl.scene, [obj] )
     })
     this._debug_raycast_rays = a
-    this.viewer.impl.invalidate (true)
+    this.viewer.impl.invalidate( true )
   }
 
   /////////////////////////////////////////////////////////////////
@@ -156,9 +156,8 @@ class FaderExtension extends ExtensionBase {
   load () {
     this.eventTool = new EventTool (this.viewer)
     this.eventTool.activate ()
-    this.eventTool.on ('singleclick', (event) => {
-      this.pointer = event
-    })
+    this.eventTool.on( 'singleclick', (event) => {
+      this.pointer = event })
 
     const loadEvents = [
      Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, // Revit
@@ -166,10 +165,9 @@ class FaderExtension extends ExtensionBase {
    ]
 
    const eventResults = loadEvents.map((event) => {
-     return this.viewerEvent(event)
-   })
+     return this.viewerEvent( event ) })
 
-   Promise.all(eventResults).then( this.onModelLoaded )
+   Promise.all( eventResults ).then( this.onModelLoaded )
 
     this.viewer.addEventListener (
       Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT,
@@ -177,11 +175,11 @@ class FaderExtension extends ExtensionBase {
 
     // this.viewer.setProgressiveRendering (true)
     // this.viewer.setQualityLevel (false, true)
-    this.viewer.setGroundReflection (false)
-    this.viewer.setGroundShadow (false)
+    this.viewer.setGroundReflection( false )
+    this.viewer.setGroundShadow( false )
     // this.viewer.setLightPreset (1)
 
-    console.log('Viewing.Extension.Fader.Core loaded')
+    console.log( 'Viewing.Extension.Fader.Core loaded' )
 
     return true
   }
