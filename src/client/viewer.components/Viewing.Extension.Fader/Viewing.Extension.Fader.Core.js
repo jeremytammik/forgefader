@@ -262,7 +262,7 @@ class FaderExtension extends ExtensionBase {
   onSelection( event ) {
     if( event.selections && event.selections.length ) {
 
-      let debug_debug_marker_setter = true
+      let debug_debug_marker_setter = false
 
       if( debug_debug_marker_setter ) {
         let selection = event.selections[0]
