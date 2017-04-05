@@ -650,7 +650,7 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   // create vertex material
   ///////////////////////////////////////////////////////////////////////////
-  createVertexMaterial () {
+  createVertexMaterial() {
     let material = new THREE.MeshPhongMaterial({
       color: 0xffffff
     })
@@ -662,7 +662,7 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   // create line material
   ///////////////////////////////////////////////////////////////////////////
-  createLineMaterial () {
+  createLineMaterial() {
     let material = new THREE.LineBasicMaterial({
       color: 0xffffff
     })
