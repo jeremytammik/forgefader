@@ -112,6 +112,9 @@ class FaderExtension extends ExtensionBase {
   /////////////////////////////////////////////////////////////////
   // Accessors - es6 getters and setters
   /////////////////////////////////////////////////////////////////
+  get gridDensity () { return this._rayTraceGrid }
+  set gridDensity (a) { this._rayTraceGrid = a }
+  
   get attenuationPerMeterInAir () { return this._attenuation_per_m_in_air }
   set attenuationPerMeterInAir (a) { this._attenuation_per_m_in_air = a }
   get attenuationPerWall () { return this._attenuation_per_wall }
