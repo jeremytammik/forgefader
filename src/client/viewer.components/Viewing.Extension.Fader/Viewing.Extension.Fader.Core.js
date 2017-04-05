@@ -652,8 +652,7 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   createVertexMaterial() {
     let material = new THREE.MeshPhongMaterial({
-      color: 0xffffff
-    })
+      color: 0xffffff })
     this.viewer.impl.matman().addMaterial (
       'fader-material-vertex', material, true )
     return material
@@ -664,8 +663,7 @@ class FaderExtension extends ExtensionBase {
   ///////////////////////////////////////////////////////////////////////////
   createLineMaterial() {
     let material = new THREE.LineBasicMaterial({
-      color: 0xffffff
-    })
+      color: 0xffffff, linewidth: 50 })
     this.viewer.impl.matman().addMaterial(
       'fader-material-line', material, true )
     return material
