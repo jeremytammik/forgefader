@@ -1,6 +1,9 @@
 # ForgeFader
 
-ForgeFader is a Forge viewer extension app that calculates and displays signal attenuation caused by distance and obstacles in a building model with a floor plan containing walls.
+ForgeFader is
+a [Forge](https://forge.autodesk.com)
+[viewer](https://developer.autodesk.com/en/docs/viewer/v2/overview) extension
+app that calculates and displays signal attenuation caused by distance and obstacles in a building model with a floor plan containing walls.
 
 It makes use of JavaScript and [three.js](https://threejs.org) to 
 implement a functionality similar to the Revit C# .NET 
