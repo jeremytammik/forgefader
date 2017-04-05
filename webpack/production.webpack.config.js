@@ -213,6 +213,7 @@ module.exports = {
   // directories used by webpack to resolve dependencies
   resolve: {
     modules: [
+      path.resolve('./src/client/viewer.components'),
       path.resolve('./src/client/components'),
       path.resolve('./src/client/services'),
       path.resolve('./src/client/styles'),
