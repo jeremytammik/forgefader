@@ -11,6 +11,9 @@ add-in [RvtFader](https://github.com/jeremytammik/RvtFader):
 
 Given a source point, calculate the attenuation in a widening circle around it and display that as a heat map.
 
+You can try it out for yourself in 
+the [forge-rcdb.autodesk.io Fader sample](http://autode.sk/2o05AUO).
+
 Two signal attenuation values in decibels are defined in the application settings:
 
 - Attenuation per metre in air
