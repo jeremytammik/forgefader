@@ -14,8 +14,6 @@ Given a source point, calculate the attenuation in a widening circle around it a
 You can try it out for yourself in 
 the [forge-rcdb.autodesk.io Fader sample](http://autode.sk/2o06u3n).
 
-<!-- https://forge-rcdb.autodesk.io/configurator?id=58e4aa3b00ac371158743857?utm_campaign=--%20Select%20a%20value%20--&utm_medium=--%20Select%20a%20value%20--&utm_source=JT&utm_content=--%20Select%20a%20value%20--&utm_term= -->
-
 Two signal attenuation values in decibels are defined in the application settings:
 
 - Attenuation per metre in air
