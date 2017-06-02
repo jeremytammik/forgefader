@@ -197,7 +197,8 @@ press this button:
 
 ## More about the Autodesk Forge Platform and Web Applications of the Future
 
-Check it out at [developer.autodesk.com](https://developer.autodesk.com).
+Check it out at [developer.autodesk.com](https://developer.autodesk.com)
+and [autodesk-forge.github.io](https://autodesk-forge.github.io).
 
 Look at our [Quickstarts guide](https://developer.autodesk.com/en/docs/quickstarts/v1/overview/)
 to find the Forge SDK's for the programming language of your choice.
