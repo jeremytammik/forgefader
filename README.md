@@ -204,9 +204,11 @@ to find the Forge SDK's for the programming language of your choice.
 
 
 
-## Author
+## Authors
 
-Jeremy Tammik,
+- [Cyrille Fauvel](https://twitter.com/FAUVELCyrille),
+- Philippe Leefsma [@F3lipek](https://twitter.com/F3lipek), and
+- Jeremy Tammik,
 [The Building Coder](http://thebuildingcoder.typepad.com),
 [ADN](http://www.autodesk.com/adn)
 [Open](http://www.autodesk.com/adnopen),
