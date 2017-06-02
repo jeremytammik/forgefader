@@ -199,7 +199,7 @@ press this button:
 
 Check it out at [autodesk-forge.github.io](https://autodesk-forge.github.io).
 
-Look at our [Quickstarts guide](https://developer.autodesk.com/en/docs/quickstarts/v1/overview/)
+Look at the [quickstarts guide](https://developer.autodesk.com/en/docs/quickstarts/v1/overview/)
 to find the Forge SDK's for the programming language of your choice.
 
 
